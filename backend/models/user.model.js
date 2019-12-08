@@ -3,10 +3,18 @@ const mongoose = require('mongoose'),
       bcrypt = require(bcrypt),
       SALT_WORK_FACTOR = 10;
 
+const { isEmail } = require('validator');
+
 //schema details for user; a username and password
 
 const UserSchema = new Schema({
-    username: {
+    email: {
+        type: String,
+        required: true,
+        validate: [isEmail, 'invalid email'],
+        unique: true,
+      },
+      username: {
         type: String,
         required: true,
         unique: true,
@@ -42,8 +50,6 @@ bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
         next();
     });
 });
-
-
 });
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
