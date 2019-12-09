@@ -1,7 +1,6 @@
 const mongoose = require('mongoose'); 
 const Schema = mongoose.Schema;
 
-// for future authentication
 const bcrypt = require('bcryptjs');
 const SALT_WORK_FACTOR = 10;
 
@@ -32,8 +31,6 @@ const UserSchema = new Schema({
 }, {
     timestamps: true,
 });
-
-//hashing password; phase 2 
 
 UserSchema.pre('save', function(next) {
     var user = this;
