@@ -5,18 +5,18 @@ const Schema = mongoose.Schema;
 // const bcrypt = require('bcryptjs');
 // const SALT_WORK_FACTOR = 10;
 
-// const { isEmail } = require('validator');
+const { isEmail } = require('validator');
 
 //schema details for user; a username and password
 
 
 const UserSchema = new Schema({
-    // email: {
-    //     type: String
-        // required: true,
-        // validate: [isEmail, 'invalid email'],
-        // unique: true,
-    //   },
+    email: {
+        type: String,
+        required: true,
+        validate: [isEmail, 'invalid email'],
+        unique: true,
+      },
       username: {
         type: String,
         required: true,
@@ -24,13 +24,13 @@ const UserSchema = new Schema({
         trim: true,
         minlength: 3,
     },
-    // password: {
-    //     type: String,
-    //     required: true,
-    // },
+    password: {
+        type: String,
+        required: true,
+        minlength: 7,
+    },
 }, {
     timestamps: true,
-    // toJSON: { virtuals: true }
 });
 
 //hashing password; phase 2 
@@ -65,4 +65,4 @@ const UserSchema = new Schema({
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = mongoose.model(User, UserSchema);
+module.exports = User;
