@@ -36,14 +36,43 @@ router.post('/newuser', (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.post('/update/:id', (req, res) => {
+//Update username
+
+router.post('/update-username/:id', (req, res) => {
     User.findById(req.params.id)
     .then(user => {
-        user.symbol = req.body.symbol;
-        user.possession = Number(req.body.possession);
+        user.username = req.body.username;
 
         user.save()
             .then(() => req.json('stock updated'))
+            .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json("Error: " + err));
+});
+
+//Update email
+
+router.post('/update-email/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+        user.email = req.body.email;
+
+        user.save()
+            .then(() => req.json('email updated'))
+            .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json("Error: " + err));
+});
+
+//Update password
+
+router.post('/update-password/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+        user.password = req.body.password;
+
+        user.save()
+            .then(() => req.json('email updated'))
             .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json("Error: " + err));

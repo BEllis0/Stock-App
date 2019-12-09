@@ -11,7 +11,9 @@ const StockSchema = new Schema({
         type: String,
         default: 0,
         required: false,
-    }, 
+    },
+},{
+    timestamps: true,
 });
 
 const Stock = mongoose.model('Stock', StockSchema);
