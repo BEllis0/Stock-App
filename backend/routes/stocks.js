@@ -1,13 +1,15 @@
 const router = require('express').Router();
 let Stock = require('../models/stock.model');
 
-router.route('/').get((req, res) => {
+//get all saved stocks
+router.get('/', (req, res) => {
     Stock.find()
         .then(stock => res.json(stock))
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
-router.route('/add').post((req, res) => {
+//handles new stock being added to db
+router.post('/add', (req, res) => {
     const symbol = req.body.symbol;
     const possession = Number(req.body.possession);
 
@@ -22,21 +24,21 @@ router.route('/add').post((req, res) => {
 });
 
 //handles getting the stock by unique id
-router.route('/:id').get((req, res) => {
+router.get('/:id', (req, res) => {
     Stock.findById(req.params.id)
     .then(stock => res.json(stock))
     .catch(err => res.status(400).json("Error: " + err));
 });
 
-//handles deleting of exercises
-router.route('/:id').delete((req, res) => {
+//handles deleting of stock
+router.delete('/:id', (req, res) => {
     Stock.findByIdAndDelete(req.params.id)
     .then(() => res.json("Stock deleted"))
     .catch(err => res.status(400).json("Error: " + err));
 });
 
-//handles new exercises being added to db
-router.route('/update/:id').post((req, res) => {
+//handles changes
+router.post('/update/:id', (req, res) => {
     Stock.findById(req.params.id)
     .then(stock => {
         stock.symbol = req.body.symbol;

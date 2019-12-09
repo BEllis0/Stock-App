@@ -36,4 +36,17 @@ router.post('/newuser', (req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
+router.post('/update/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+        user.symbol = req.body.symbol;
+        user.possession = Number(req.body.possession);
+
+        user.save()
+            .then(() => req.json('stock updated'))
+            .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json("Error: " + err));
+});
+
 module.exports = router;
