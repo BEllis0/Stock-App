@@ -21,6 +21,12 @@ mongoose.connect(uri)
     .then(() => console.log("MongoDB database connection established successfully"))
     .catch(err => console.log(err));
 
+const usersRouter = require('./routes/users');
+const stocksRouter = require('./routes/stocks');
+
+app.use('/users', usersRouter);
+app.use('/stocks', stocksRouter);
+
 
 app.listen(port, () => {
     console.log(`server is live on port ${port}`);
