@@ -2,13 +2,19 @@
   "name": "stock-app",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://bellis0.github.io/stock-app",
   "dependencies": {
+    "@material-ui/core": "^4.7.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
-    "bcryptjs": "^2.4.3",
+    "axios": "^0.19.0",
+    "gh-pages": "^2.1.1",
+    "material-design-icons": "^3.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0"
   },
   "scripts": {
