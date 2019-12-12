@@ -74,12 +74,12 @@ router.post('/update-name/:id', (req, res) => {
 //     .catch(err => res.status(400).json("Error:" + err));
 // });
 
+//NEEDS TWEAKING
 router.post('/update/:id', (req, res) => {
-    Watchlist.update({"_id": '5deebc9eed762a19f722f95e'}, 
+    Watchlist.findByIdAndUpdate(req.params.id, 
         { 
-            $push: {
-                "stocks": {"symbolName": res.body.stock[0], "amountOwned": res.body.stock[0].amountOwned}
-            }
+                watchlistName: req.body.watchlistName,
+                stocks: [{symbolName: req.body.stock[0].symbolName, amountOwned: Number(req.body.stock[0].amountOwned)}]
         }
     )
 })
