@@ -1,38 +1,36 @@
-.App {
-  text-align: center;
+
+/* full app view */
+.app {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Left sidebar, which contains nav and watchlists */
+.sidebarGrid {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.navbar {
+  height: 10%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar{
+  height: 90%;
 }
+
+.sidebarNewsButton {
+  display: flex;
+  flex-direction: column;
+}
+
+.addWatchlist {
+  margin: 0 auto;
+}
+
+/* Main view that displays stock info, news, etc */
+/* .mainViewGrid {
+
+} */
