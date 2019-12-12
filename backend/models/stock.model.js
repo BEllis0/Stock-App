@@ -1,21 +1,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const StockSchema = new Schema({
-    symbol: {
+const WatchlistSchema = new Schema({
+    watchlistName: {
         type: String,
-        trim: true,
-        required: true,
-    },
-    possession: { // if the user possesses the stock
-        type: String,
-        default: 0,
         required: false,
+        trim: true,
     },
+    stock: [{
+        symbolName: {type: String, required: false, trim: true, default: ""},
+        amountOwned: {type: Number, required: false, default: 0},
+    }],
 },{
     timestamps: true,
 });
 
-const Stock = mongoose.model('Stock', StockSchema);
+const Watchlist = mongoose.model('Watchlist', WatchlistSchema);
 
-module.exports = Stock;
+module.exports = Watchlist;

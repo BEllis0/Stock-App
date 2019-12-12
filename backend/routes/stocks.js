@@ -1,55 +1,108 @@
 const router = require('express').Router();
-let Stock = require('../models/stock.model');
+let Watchlist = require('../models/stock.model');
 
-//get all saved stocks
+// --- GET
+
+//get all saved watchlists
 router.get('/', (req, res) => {
-    Stock.find()
-        .then(stock => res.json(stock))
+ Watchlist.find()
+        .then(watchlist => res.json(watchlist))
         .catch(err => res.status(400).json('Error: ' + err));
-});
-
-//handles new stock being added to db
-router.post('/add', (req, res) => {
-    const symbol = req.body.symbol;
-    const possession = Number(req.body.possession);
-
-    const newStock = new Stock({
-        symbol,
-        possession,
-    });
-
-    newStock.save()
-        .then(() => res.json(`Stock symbol added: ${symbol}`))
-        .catch(err => res.status(400).json("Error: " + err));
 });
 
 //handles getting the stock by unique id
 router.get('/:id', (req, res) => {
-    Stock.findById(req.params.id)
-    .then(stock => res.json(stock))
-    .catch(err => res.status(400).json("Error: " + err));
+    Watchlist.findById(req.params.id)
+       .then(watchlist => res.json(watchlist))
+       .catch(err => res.status(400).json("Error: " + err));
 });
 
-//handles deleting of stock
-router.delete('/:id', (req, res) => {
-    Stock.findByIdAndDelete(req.params.id)
-    .then(() => res.json("Stock deleted"))
-    .catch(err => res.status(400).json("Error: " + err));
+// --- POST / UPDATE
+
+//handles new watchlist being added to db
+router.post('/add', (req, res) => {
+    const watchlistName = req.body.watchlistName;
+
+    const newWatchlist = new Watchlist({
+        watchlistName,
+    });
+
+    newWatchlist.save()
+        .then(() => res.json( `Watchlist added`))
+        .catch(err => res.status(400).json("Error: " + err));
 });
 
-//handles changes
-router.post('/update/:id', (req, res) => {
-    Stock.findById(req.params.id)
-    .then(stock => {
-        stock.symbol = req.body.symbol;
-        stock.possession = Number(req.body.possession);
+//alternate option which adds stock and watchlist name
+router.post('/add', (req, res) => {
+    const watchlistName = req.body.watchlistName;
+    const symbolName = req.body.stock[0].symbolName;
+    const amountOwned = Number(req.body.stock[0].amountOwned);
 
-        stock.save()
-            .then(() => req.json('stock updated'))
-            .catch(err => res.status(400).json('Error: ' + err));
+    const newWatchlist = new Watchlist({
+        watchlistName,
+        stock: [{symbolName, amountOwned}],
+    });
+
+    newWatchlist.save()
+        .then(() => res.json( `Watchlist symbol added: ${symbolName}`))
+        .catch(err => res.status(400).json("Error: " + err));
+});
+
+// handles changes on watchlist name
+router.post('/update-name/:id', (req, res) => {
+    Watchlist.findById(req.params.id)
+    .then(watchlist => {
+        watchlist.watchlistName = req.body.watchlistName;
+
+        watchlist.save()
+        .then(() => req.json('Watchlist name updated'))
+        .catch(err => res.status(400).json("Error" + err));
     })
-    .catch(err => res.status(400).json("Error: " + err));
 });
 
+
+//handles adding stocks to watchlist
+// router.post('/update-stocks/:id', (req, res) => {
+//     Watchlist.findById(req.params.id)
+//     .then(watchlist => {
+//         watchlist.watchlistName = req.body.watchlistName;
+//         watchlist.stock = req.body.stock[0];
+//     })
+
+//     Watchlist.save()
+//     .then(() => req.json("Stocks updated"))
+//     .catch(err => res.status(400).json("Error:" + err));
+// });
+
+router.post('/update/:id', (req, res) => {
+    Watchlist.update({"_id": '5deebc9eed762a19f722f95e'}, 
+        { 
+            $push: {
+                "stocks": {"symbolName": res.body.stock[0], "amountOwned": res.body.stock[0].amountOwned}
+            }
+        }
+    )
+})
+
+
+
+// --- DELETE
+
+//handles deleting of watchlist
+router.delete('/:id', (req, res) => {
+    Watchlist.findByIdAndDelete(req.params.id)
+       .then(() => res.json(`Watchlist deleted`))
+       .catch(err => res.status(400).json("Error: " + err));
+   });
+
+
+//handles deleting individual stocks
+
+// router.delete('/:id', (req, res) => {
+//     Watchlist.findById(req.params.id)
+//         .then(watchlist => {
+//             watchlist.
+//         })
+// });
 
 module.exports = router;
