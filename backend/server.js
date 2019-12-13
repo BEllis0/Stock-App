@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const Pusher = require('pusher');
+const NewsAPI = require('newsapi');
 
 require('dotenv').config();
 
@@ -26,6 +28,53 @@ const stocksRouter = require('./routes/stocks');
 
 app.use('/users', usersRouter);
 app.use('/stocks', stocksRouter);
+
+
+// --- NEWS API connection
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APP_ID,
+    key: process.env.PUSHER_APP_KEY,
+    secret: process.env.PUSHER_APP_SECRET,
+    cluster: process.env.PUSHER_APP_CLUSTER,
+    forceTLS: true
+  });
+
+const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
+
+const fetchNews = (searchTerm, pageNum) =>
+    newsapi.v2.everything({
+      q: searchTerm,
+      language: 'en',
+      sortBy: 'relevancy',
+      page: pageNum,
+      pageSize: 5,
+    });
+
+function updateFeed(topic) {
+        let counter = 2;
+        setInterval(() => {
+          fetchNews(topic, counter)
+            .then(response => {
+              pusher.trigger('news-channel', 'update-news', {
+                articles: response.articles,
+              });
+              counter += 1;
+            })
+            .catch(error => console.log(error));
+        }, 5000);
+      }
+
+// --- ENDPOINT TO GET NEWS DATA
+
+app.get('/top-news/:search', (req, res) => {
+            const topic = req.params.search;
+            fetchNews(topic, 1)
+            .then(response => {
+                res.json(response.articles);
+                updateFeed(topic);
+            })
+            .catch(error => console.log(error));
+        });
 
 
 app.listen(port, () => {
