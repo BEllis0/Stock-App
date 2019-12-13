@@ -58,7 +58,7 @@ function updateFeed(topic) {
               pusher.trigger('news-channel', 'update-news', {
                 articles: response.articles,
               });
-              counter += 1;
+            //   counter += 1;
             })
             .catch(error => console.log(error));
         }, 5000);
