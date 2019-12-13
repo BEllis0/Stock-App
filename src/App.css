@@ -7,18 +7,31 @@
   height: 100vh;
 }
 
+a {
+  color:black;
+}
+
 /* Left sidebar, which contains nav and watchlists */
 .sidebarGrid {
   display: flex;
   flex-direction: column;
+  background-color: black;
+}
+
+/* Main view that displays stock info, news, etc */
+.mainViewGrid {
+  background-color: #f0f0f0;
+  padding: 20px 40px;
 }
 
 .navbar {
-  height: 10%;
+  height: 20%;
+  width: 100%;
+  color: white;
 }
 
 .sidebar{
-  height: 90%;
+  height: 80%;
 }
 
 .sidebarNewsButton {
@@ -27,10 +40,30 @@
 }
 
 .addWatchlist {
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Main view that displays stock info, news, etc */
-/* .mainViewGrid {
+.stock-input-form {
+  margin: auto;
+  display: flex;
+  align-items: center;
+  padding: 7px;
+}
 
-} */
+.nav-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0px !important;
+  color: white;
+}
+
+.nav-link, .menu-icon {
+  padding: 7px;
+}
+
+.search-button {
+  padding: 50px;
+}

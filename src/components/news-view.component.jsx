@@ -15,7 +15,9 @@ export default class NewsView extends React.Component {
 
 
         return (
-            <div>Newsview</div>
+            <div>
+                <h1>Top Stories</h1>
+            </div>
         );
     };
 };
