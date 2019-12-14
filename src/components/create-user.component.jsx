@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Paper, Button, FormControl, Input, TextField } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import axios from 'axios';
@@ -187,7 +188,7 @@ export default class CreateUser extends React.Component {
                         <p>No whitespace</p>
                     </li>
                 </ul>
-                
+                <p4>Already have an account? <Link to="/sign-in">Sign in here</Link></p4>
                 </Paper>
             </div>
         );
