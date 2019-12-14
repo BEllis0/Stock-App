@@ -11,6 +11,15 @@ a {
   color:black;
 }
 
+ul {
+  list-style-type: none;
+}
+
+ul li {
+  display: flex;
+  align-items: center;
+}
+
 /* Left sidebar, which contains nav and watchlists */
 .sidebarGrid {
   display: flex;
@@ -64,6 +73,14 @@ a {
   padding: 7px;
 }
 
-.search-button {
-  padding: 50px;
+.navbar .search-button, div .createUserButton {
+  margin-top:10px;
+}
+
+.createAccountFormContainer {
+  padding: 20px;
+}
+
+.createAccountForm .createUserFormField {
+  padding: 7px;
 }
