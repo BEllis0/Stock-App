@@ -13,8 +13,8 @@ import UserSignIn from './components/sign-in.component.jsx';
 
 function App() {
   return (
+    <HashRouter basename={process.env.PUBLIC_URL + '/'}>
     <div className="app">
-    <HashRouter basename="/">
       <Grid className="sidebarGrid" item sm={4}>
         <Navbar />
         <Sidebar />
@@ -22,12 +22,13 @@ function App() {
 
       <Grid className="mainViewGrid" item sm={8}>
         <Route path="/stocks" exact component={StockView} />
-        <Route path="/" component={NewsView} />
+        <Route path={process.env.PUBLIC_URL + '/'} component={NewsView} />
         <Route path="/create-user" exact component={CreateUser} />
         <Route path="/sign-in" exact component={UserSignIn} />
       </Grid>
+      </div>
     </HashRouter>
-    </div>
+    
   )
 }
 
