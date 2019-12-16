@@ -1,20 +1,10 @@
 import React from 'react';
 
-export default class StockView extends React.Component {
+export default function StockView(props) {
     
-    constructor() {
-    
-    super();    
-    
-    this.state = {};
-    
-    }
-
-    render() {
-
-
         return (
-            <div>Stockview</div>
+            <div>
+                <h1>Stockview</h1>
+            </div>
         );
-    };
 };
