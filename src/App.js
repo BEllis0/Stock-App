@@ -21,10 +21,10 @@ function App() {
       </Grid>
 
       <Grid className="mainViewGrid" item sm={8}>
-        <Route path="/stocks" exact component={StockView} />
-        <Route path={process.env.PUBLIC_URL + '/'} component={NewsView} />
-        <Route path="/create-user" exact component={CreateUser} />
-        <Route path="/sign-in" exact component={UserSignIn} />
+        <Route path={process.env.PUBLIC_URL + '/stocks'} component={StockView} />
+        <Route path={process.env.PUBLIC_URL + '/'} exact component={NewsView} /> 
+        <Route path={process.env.PUBLIC_URL + '/create-user'} exact component={CreateUser} />
+        <Route path={process.env.PUBLIC_URL + '/sign-in'} exact component={UserSignIn} />
       </Grid>
       </div>
     </HashRouter>
