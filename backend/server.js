@@ -38,7 +38,7 @@ const pusher = new Pusher({
     secret: process.env.PUSHER_APP_SECRET,
     cluster: process.env.PUSHER_APP_CLUSTER,
     forceTLS: true
-  });
+});
 
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
 
@@ -109,7 +109,7 @@ app.get('/stock-timeseries/:time/:stock', (req, res) => {
 
 app.get('/stock-current/:stock', (req, res) => {
 
-    axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${req.params.stock}&interval=5min&apikey=${process.env.STOCK_API_KEY}`)
+    axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${req.params.stock}&apikey=${process.env.STOCK_API_KEY}`)
     .then(response => res.json(response.data))
     .catch(err => res.status(400).json("Error: " + err));
 });
