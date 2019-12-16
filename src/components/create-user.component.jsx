@@ -6,8 +6,8 @@ import axios from 'axios';
 
 export default class CreateUser extends React.Component {
 
-        constructor() {
-            super();
+        constructor(props) {
+            super(props);
             this.state = {
                 email: '',
                 username: '',
