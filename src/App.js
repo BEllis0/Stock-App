@@ -111,10 +111,23 @@ export default class App extends React.Component {
       </Grid>
 
       <Grid className="mainViewGrid" item sm={8}>
-        <Route path={process.env.PUBLIC_URL + '/stocks'} render={(props) => <StockView  />} />
-        <Route path={process.env.PUBLIC_URL + '/'} exact  render={(props) => <NewsView /> } /> 
-        <Route path={process.env.PUBLIC_URL + '/create-user'} exact render={(props) => <CreateUser /> } />
-  <Route path={process.env.PUBLIC_URL + '/sign-in'} exact render={(props) => <UserSignIn /> } />
+        <Route 
+          path={process.env.PUBLIC_URL + '/stocks'} 
+          render={(props) => <StockView  />} 
+          />
+        <Route 
+          path={process.env.PUBLIC_URL + '/'} 
+          render={(props) => <NewsView /> } 
+          /> 
+        <Route 
+          path={process.env.PUBLIC_URL + '/create-user'} 
+          render={(props) => <CreateUser /> } 
+          />
+        <Route 
+          path={process.env.PUBLIC_URL + '/sign-in'} 
+          render={(props) => <UserSignIn /> } 
+          />
+
       </Grid>
       </div>
     </HashRouter>
