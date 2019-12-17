@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Paper, Button, FormControl, Input, TextField } from '@material-ui/core';
+import { Paper, Button, TextField } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import axios from 'axios';
 
