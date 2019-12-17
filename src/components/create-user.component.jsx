@@ -188,7 +188,7 @@ export default class CreateUser extends React.Component {
                         <p>No whitespace</p>
                     </li>
                 </ul>
-                <h4>Already have an account? <Link to="/sign-in">Sign in here</Link></h4>
+                <h4>Already have an account? <Link to="/sign-in">Sign in here.</Link></h4>
                 </Paper>
             </div>
         );
