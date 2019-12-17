@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, HashRouter, Route } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
 
@@ -28,28 +28,41 @@ export default class App extends React.Component {
       searchItems: [
           //structure {}
       ],
+      watchlistAdd: '',
+      watchlists: [],
     }
 
     this.onChangeStock = this.onChangeStock.bind(this);
     this.onStockSubmit = this.onStockSubmit.bind(this);
+    this.onChangeAddWatchlist = this.onChangeAddWatchlist.bind(this);
+
+    //this.onAddWatchlist = this.onAddWatchlist.bind(this);
     
   }
   
-  // fetches news api data on page load, taking 'stock' as initial enpoint
+  // fetches NEWS API data on page load, taking 'stock' as initial enpoint
   // when user searches for a stock, new endpoint is used
   componentDidMount() {
     Axios.get(`http://localhost:5000/top-news/${this.state.stockName}`)
     .then(articles => {
 
-        console.log(articles.data);
-
         this.setState({
-            newsItems: [articles.data],
-        }, console.log(this.state.newsItems));
+            newsItems: [
+                {
+                  key: articles.data[0].urlToImage, 
+                  author: articles.data[0].author,
+                  content: articles.data[0].content,
+                  description: articles.data[0].description,
+                  publishedAt: articles.data[0].publishedAt,
+                  source: articles.data[0].source.name,
+                  title: articles.data[0].title,
+                  url: articles.data[0].url,
+                  image: articles.data[0].urlToImage,
+                }
+            ]
+        }, () => console.log(this.state.newsItems));
     })
     .catch(err => console.log(err));
-
-    console.log(this.state.newsItems);
   };
 
   // handles user typing in stock name, running stock api search and displaying
@@ -58,11 +71,11 @@ export default class App extends React.Component {
 
     Axios.get(`http://localhost:5000/stock-search/${event.target.value}`)
     .then(res => {
-        // console.log(res);
+        console.log(res);
         this.setState({
             searchItems: res.data.bestMatches,
             stockName: event.target.value,
-        }, console.log(this.state.searchItems, this.state.stockName));
+        });
     })
     .catch(err => console.log(err));
   }
@@ -76,8 +89,20 @@ export default class App extends React.Component {
         console.log(articles.data);
 
         this.setState({
-            newsItems: [articles.data],
-        }, console.log(this.state.newsItems));
+          newsItems: [
+              {
+                key: articles.data[0].urlToImage, 
+                author: articles.data[0].author,
+                content: articles.data[0].content,
+                description: articles.data[0].description,
+                publishedAt: articles.data[0].publishedAt,
+                source: articles.data[0].source.name,
+                title: articles.data[0].title,
+                url: articles.data[0].url,
+                image: articles.data[0].urlToImage,
+              }
+          ]
+      }, () => console.log(this.state.newsItems));
     })
     .catch(err => console.log(err));
 
@@ -96,6 +121,19 @@ export default class App extends React.Component {
     window.location = '/stocks';
   }
 
+  // onAddWatchlist() {
+
+  //   this.setState({
+  //     watchlists: this.state.watchlistAdd
+  //   }, () => console.log(this.state.watchlists))
+  // };
+
+  onChangeAddWatchlist(e) {
+    this.setState({
+      watchlistAdd: e.target.value,
+    }, () => console.log(this.state.watchlistAdd))
+  };
+
 
   render() {
   
@@ -107,7 +145,10 @@ export default class App extends React.Component {
           onChangeStock={this.onChangeStock}  
           onStockSubmit={this.onStockSubmit}
           />
-        <Sidebar />
+        <Sidebar 
+          // onAddWatchlist={this.onAddWatchlist} 
+          onChangeAddWatchlist={this.onChangeAddWatchlist}
+          />
       </Grid>
 
       <Grid className="mainViewGrid" item sm={8}>
@@ -117,7 +158,8 @@ export default class App extends React.Component {
           />
         <Route 
           path={process.env.PUBLIC_URL + '/'} 
-          render={(props) => <NewsView /> } 
+          exact
+          render={(props) => <NewsView newsItems={this.state.newsItems} /> } 
           /> 
         <Route 
           path={process.env.PUBLIC_URL + '/create-user'} 
