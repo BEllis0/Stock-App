@@ -20,17 +20,30 @@ ul li {
   align-items: center;
 }
 
+.top-padding {
+  padding-top: 15px;
+}
+
+.flex-row {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  justify-content: space-between;
+}
+
 /* Left sidebar, which contains nav and watchlists */
 .sidebarGrid {
   display: flex;
   flex-direction: column;
-  background-color: black;
+  overflow: scroll;
 }
 
 /* Main view that displays stock info, news, etc */
 .mainViewGrid {
   background-color: #f0f0f0;
   padding: 20px 40px;
+  overflow: scroll;
 }
 
 .navbar {
@@ -40,7 +53,7 @@ ul li {
 }
 
 .sidebar{
-  height: 80%;
+  width: 100%;
 }
 
 .sidebarNewsButton {
@@ -77,15 +90,75 @@ ul li {
   margin-top:10px;
 }
 
-.createAccountFormContainer {
+.createAccountFormContainer, .signInFormContainer {
   padding: 20px;
 }
 
-.createAccountForm .createUserFormField {
+.createAccountForm .createUserFormField, .signInForm .signInFormField {
   padding: 7px;
 }
 
 .newsImg {
   border-radius: 5px;
   width: 100%;
+}
+
+.newsLayout {
+  width: 100%;
+  height: 100%;
+}
+
+.newsList {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+}
+
+.newsArticle:nth-child(1) {
+  width: 400px;
+  height: 15%;
+}
+
+.newsUnavailableLayout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+
+.newsArticle {
+  width: 150px;
+  height: auto;
+  margin: 5px;
+}
+
+.mainNews {
+  width: 500px;
+  height: 400px;
+  background-color: red;
+  margin: 5px;
+}
+
+.articleDesc, .articleDate {
+  font-size: 9px;
+  margin-top: -10px;
+}
+
+.searchItemList {
+  padding: 5px 20px;
+}
+
+.stockSearchSymbol {
+  font-weight: bold;
+}
+
+.stockSearchCompanyName {
+  color: #aaabac;
+}
+
+@media (max-width: 597px) {
+  .app {
+    flex-direction: column-reverse;
+
+  }
 }
