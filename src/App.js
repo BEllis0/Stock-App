@@ -19,22 +19,33 @@ export default class App extends React.Component {
 
     this.state = {
       newsItems: [
-        // structure {key: 0, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
+        // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
-      stockName: 'stocks',
+      stockName: '',
       email: '',
-      username: '',
-      password: '',
+      SignInUsername: '',
+      SignInPassword: '',
       searchItems: [
-          //structure {}
+          //structure {1. symbol: '', 2. name: ''}
       ],
       watchlistAdd: '',
-      watchlists: [],
+      watchlists: [
+        {name: '', stocks: {stockName: '', amountOwned: 0}}
+      ],
+      stockCompany: '',
+      stockCurrent: [],
+      stockTimeSeriesMinute: [],
+      stockTimeSeriesDaily: [],
     }
 
+    this.onChangeSignInUsername = this.onChangeSignInUsername.bind(this);
+    this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
+
     this.onChangeStock = this.onChangeStock.bind(this);
-    this.onStockSubmit = this.onStockSubmit.bind(this);
+    // this.onStockSubmit = this.onStockSubmit.bind(this);
     this.onChangeAddWatchlist = this.onChangeAddWatchlist.bind(this);
+
+    this.onSearchSelect = this.onSearchSelect.bind(this);
 
     //this.onAddWatchlist = this.onAddWatchlist.bind(this);
     
@@ -43,32 +54,52 @@ export default class App extends React.Component {
   // fetches NEWS API data on page load, taking 'stock' as initial enpoint
   // when user searches for a stock, new endpoint is used
   componentDidMount() {
-    Axios.get(`http://localhost:5000/top-news/${this.state.stockName}`)
+    Axios.get(`http://localhost:5000/top-news/stocks`)
     .then(articles => {
 
+        // console.log(articles.data)
+
         this.setState({
-            newsItems: [
-                {
-                  key: articles.data[0].urlToImage, 
-                  author: articles.data[0].author,
-                  content: articles.data[0].content,
-                  description: articles.data[0].description,
-                  publishedAt: articles.data[0].publishedAt,
-                  source: articles.data[0].source.name,
-                  title: articles.data[0].title,
-                  url: articles.data[0].url,
-                  image: articles.data[0].urlToImage,
-                }
-            ]
+            newsItems: 
+            [articles.data]
+
+                //   format: 
+                //   key: articles.data.urlToImage, 
+                //   author: articles.data.author,
+                //   content: articles.data.content,
+                //   description: articles.data.description,
+                //   publishedAt: articles.data.publishedAt,
+                //   source: articles.data.source.name,
+                //   title: articles.data.title,
+                //   url: articles.data.url,
+                //   urlToImage: articles.data.urlToImage,
+            
         }, () => console.log(this.state.newsItems));
     })
     .catch(err => console.log(err));
+  };
+
+  onChangeSignInUsername(event) {
+    event.persist();
+
+    this.setState({
+      signInUsername: event.target.value
+    }, () => console.log(this.state.signInUsername));
+  };
+
+  onChangeSignInPassword(event) {
+    event.persist();
+
+    this.setState({
+      signInPassword: event.target.value
+    }, () => console.log(this.state.signInPassword));
   };
 
   // handles user typing in stock name, running stock api search and displaying
   onChangeStock(event) {
     event.persist();
 
+    if (event.target.value.length > 0) {
     Axios.get(`http://localhost:5000/stock-search/${event.target.value}`)
     .then(res => {
         console.log(res);
@@ -78,47 +109,59 @@ export default class App extends React.Component {
         });
     })
     .catch(err => console.log(err));
+    }
   }
 
-  onStockSubmit(e) {
-    e.preventDefault();
+  onSearchSelect(stock, company) {
+    // console.log(stock, company);
+
     //NEWS API
-    Axios.get(`http://localhost:5000/top-news/${this.state.stockName}`)
+    Axios.get(`http://localhost:5000/top-news/${company}`)
     .then(articles => {
 
-        console.log(articles.data);
-
         this.setState({
-          newsItems: [
-              {
-                key: articles.data[0].urlToImage, 
-                author: articles.data[0].author,
-                content: articles.data[0].content,
-                description: articles.data[0].description,
-                publishedAt: articles.data[0].publishedAt,
-                source: articles.data[0].source.name,
-                title: articles.data[0].title,
-                url: articles.data[0].url,
-                image: articles.data[0].urlToImage,
-              }
-          ]
-      }, () => console.log(this.state.newsItems));
+          newsItems: [articles.data],
+          stockCompany: company
+      });
     })
     .catch(err => console.log(err));
 
 
-    //STOCK API CONNECTION
-    Axios.get(`http://localhost:5000/stock-current/${this.state.stockName}`)
+    // STOCK API CONNECTION
+
+    //Current
+    Axios.get(`http://localhost:5000/stock-current/${stock}`)
     .then(res => {
         console.log(res);
-        // this.setState({
-
-        // })
+        this.setState({
+          stockCurrent: [res.data]
+        }, () => console.log(this.state.stockCurrent))
     })
     .catch(err => console.log(err));
 
 
-    window.location = '/stocks';
+    //minute
+    Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${stock}`)
+    .then(res => {
+      console.log(res);
+      this.setState({
+        stockTimeSeriesMinute: [res.data]
+      }, () => console.log(Object.keys(this.state.stockTimeSeriesMinute[0]['Time Series (1min)'])[0]))
+
+    })
+    .catch(err => console.log(err));
+
+
+    //daily
+    Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
+    .then(res => {
+      console.log(res);
+      this.setState({
+        stockTimeSeriesDaily: [res.data]
+      }, () => console.log(this.state.stockTimeSeriesDaily))
+
+    })
+    .catch(err => console.log(err));
   }
 
   // onAddWatchlist() {
@@ -148,13 +191,24 @@ export default class App extends React.Component {
         <Sidebar 
           // onAddWatchlist={this.onAddWatchlist} 
           onChangeAddWatchlist={this.onChangeAddWatchlist}
+          // watchlistAdd={this.state.watchlistAdd}
+          searchItems={this.state.searchItems}
+          stockName={this.state.stockName}
+          onSearchSelect={this.onSearchSelect}
           />
       </Grid>
 
       <Grid className="mainViewGrid" item sm={8}>
         <Route 
-          path={process.env.PUBLIC_URL + '/stocks'} 
-          render={(props) => <StockView  />} 
+          path={process.env.PUBLIC_URL + '/stocks'}
+          exact
+          render={(props) => <StockView 
+                                company={this.state.stockCompany} 
+                                stockCurrent={this.state.stockCurrent}
+                                stockTimeSeriesMinute={this.state.stockTimeSeriesMinute}
+                                stockTimeSeriesDaily={this.state.stockTimeSeriesDaily} 
+                                />
+          } 
           />
         <Route 
           path={process.env.PUBLIC_URL + '/'} 
@@ -163,11 +217,16 @@ export default class App extends React.Component {
           /> 
         <Route 
           path={process.env.PUBLIC_URL + '/create-user'} 
+          exact
           render={(props) => <CreateUser /> } 
           />
         <Route 
           path={process.env.PUBLIC_URL + '/sign-in'} 
-          render={(props) => <UserSignIn /> } 
+          exact
+          render={(props) => <UserSignIn 
+            onChangeSignInUsername={this.onChangeSignInUsername} 
+            onChangeSignInPassword={this.onChangeSignInPassword} 
+            /> } 
           />
 
       </Grid>
