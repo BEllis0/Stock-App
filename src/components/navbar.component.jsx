@@ -9,23 +9,22 @@ export default function Navbar(props) {
         return (
             <AppBar className="navbar" position="sticky" color="secondary" >
                 <Toolbar className="nav-menu" >
-                <div>
-                <MenuIcon className="menu-icon" />
-                </div>
-                <div>
-                <Link to="/sign-in" className="nav-link">Sign In</Link>
-                <Divider orientation="vertical" />
-                <Link to="/create-user" className="nav-link">Create User</Link>
-                </div>
+                    <div>
+                    <MenuIcon className="menu-icon" />
+                    </div>
+                    <div>
+                    <Link to="/sign-in" className="nav-link">Sign In</Link>
+                    <Divider orientation="vertical" />
+                    <Link to="/create-user" className="nav-link">Create User</Link>
+                    </div>
                 </Toolbar>
-                <form className="stock-input-form" onSubmit={props.onStockSubmit}>
+                <form className="stock-input-form">
                 <TextField 
                     id="standard-search" 
                     label="Search for stocks" 
                     type="search" 
                     onChange={props.onChangeStock} 
                     />
-                <Button className="search-button" type="submit">Search</Button>
                 </form>
             </AppBar>
         );
