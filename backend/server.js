@@ -48,7 +48,7 @@ const fetchNews = (searchTerm, pageNum) =>
       language: 'en',
       sortBy: 'relevancy',
       page: pageNum,
-      pageSize: 5,
+      pageSize: 12,
     });
 
 function updateFeed(topic) {
