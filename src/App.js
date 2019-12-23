@@ -74,7 +74,7 @@ export default class App extends React.Component {
                 //   url: articles.data.url,
                 //   urlToImage: articles.data.urlToImage,
             
-        }, () => console.log(this.state.newsItems));
+        });
     })
     .catch(err => console.log(err));
   };
@@ -146,7 +146,7 @@ export default class App extends React.Component {
       console.log(res);
       this.setState({
         stockTimeSeriesMinute: [res.data]
-      }, () => console.log(Object.keys(this.state.stockTimeSeriesMinute[0]['Time Series (1min)'])[0]))
+      }, () => console.log(this.state.stockTimeSeriesMinute, 'Note' in this.state.stockTimeSeriesMinute))
 
     })
     .catch(err => console.log(err));
@@ -185,8 +185,9 @@ export default class App extends React.Component {
     <div className="app">
       <Grid className="sidebarGrid" item sm={4}>
         <Navbar 
-          onChangeStock={this.onChangeStock}  
+          onChangeStock={this.onChangeStock}
           onStockSubmit={this.onStockSubmit}
+          searchItems={this.state.searchItems}
           />
         <Sidebar 
           // onAddWatchlist={this.onAddWatchlist} 
@@ -203,10 +204,10 @@ export default class App extends React.Component {
           path={process.env.PUBLIC_URL + '/stocks'}
           exact
           render={(props) => <StockView 
-                                company={this.state.stockCompany} 
+                                company={this.state.stockCompany}
                                 stockCurrent={this.state.stockCurrent}
                                 stockTimeSeriesMinute={this.state.stockTimeSeriesMinute}
-                                stockTimeSeriesDaily={this.state.stockTimeSeriesDaily} 
+                                stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
                                 />
           } 
           />
