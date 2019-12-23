@@ -26,6 +26,11 @@ export default function Navbar(props) {
                     onChange={props.onChangeStock} 
                     />
                 </form>
+
+                {/* conditional to handle search API limit reached */}
+                {props.searchItems === undefined &&
+                    <div className="searchApiLimit">Too many search entries, try again in 1 minute.</div>
+                }
             </AppBar>
         );
 
