@@ -1,4 +1,5 @@
 import React from 'react';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 export default function NewsView(props) {
 
@@ -39,8 +40,61 @@ export default function NewsView(props) {
             <div className="newsLayout">
             
             <h1>Top Stories</h1>
+            <h3>Loading..</h3>
             <div className="newsUnavailableLayout">
-                <h3>Loading..</h3>
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
+
+                <div className="loadingNewsBlurb">
+                <Skeleton variant="rect" className="loadingNewsImg" />
+                <Skeleton variant="text" />
+                <Skeleton variant="text" />
+                </div>
             </div>
             </div>
         )
