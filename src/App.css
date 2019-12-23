@@ -11,6 +11,11 @@ a {
   color:black;
 }
 
+.margin-left {
+  margin-left: 7px;
+  padding-bottom: 5px;
+}
+
 ul {
   list-style-type: none;
 }
@@ -124,6 +129,17 @@ ul li {
   justify-content: center;
   align-items: center;
   margin: auto;
+  flex-wrap: wrap;
+}
+
+.loadingNewsBlurb {
+  width: 25%;
+  height: auto;
+  margin: 5px;
+}
+
+.loadingNewsBlurb .loadingNewsImg {
+  height: 110px;
 }
 
 .newsArticle {
@@ -154,6 +170,64 @@ ul li {
 
 .stockSearchCompanyName {
   color: #aaabac;
+}
+
+.searchApiLimit {
+  margin: auto;
+}
+
+.stockPageLayout {
+  width: 100%;
+}
+
+.stockPageHeader {
+  align-items: flex-end;
+}
+
+.stockPageStockName {
+  display: flex;
+}
+
+.chartArea {
+  width: 100%;
+}
+
+.chartControls {
+  display: flex;
+  align-content: space-around;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+
+.chart {
+  width: 100%;
+  height: 300px;
+  border: 1px solid gray;
+  margin-top: 10px;
+}
+
+.indicators {
+  width: 100%;
+  height: 120px;
+  border: 1px solid gray;
+  margin-top: 10px;
+}
+
+.details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.detailRow {
+  width: 100%;
+  border-left: 1px solid gray;
+}
+
+.detailColumn {
+  display: flex;
+  justify-content: space-around;
 }
 
 @media (max-width: 597px) {
