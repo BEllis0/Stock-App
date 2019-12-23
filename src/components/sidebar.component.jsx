@@ -5,7 +5,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 
 const Sidebar = (props) => {
 
-    if (props.stockName != "") {
+    if (props.stockName !== "" && props.stockName.length > 1 && props.searchItems !== undefined) {
         return (
             <div className="sidebar">
             <ul className="searchItemList">
