@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Paper, TextField, Toolbar, Divider } from '@material-ui/core';
+import { TextField, Toolbar, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 
 const Sidebar = (props) => {
