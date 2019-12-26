@@ -1,6 +1,6 @@
 import React from 'react';
 import { Paper, Divider } from '@material-ui/core';
-import { Line } from 'react-chartjs-2'
+import { Line, Bar } from 'react-chartjs-2'
 
 export default function StockView(props) {
 
@@ -47,16 +47,47 @@ export default function StockView(props) {
                     </div>
                     <Divider variant="fullWidth" />
 
-                    <div className="chart">
+                    <Paper className="chart">
                         <Line 
                         data={props.chartData}
                         options={{
-                            maintainAspectRatio: false
+                            maintainAspectRatio: false,
+                            legend: {
+                                display: false
+                            },
+                            tooltips: {
+                                mode: 'index',
+                            },
+                            scales: {
+                                xAxes: [{
+                                  display: false
+                                }],
+                              }
                         }}
                         />
-                    </div>
+                    </Paper>
                     
-                    <div className="indicators">indicators</div>
+                    <Paper className="volumeChart">
+                        <Bar 
+                        data={props.chartVolumeData}
+                        options={{
+                            maintainAspectRatio: false,
+                            legend: {
+                                display: false
+                            },
+                            tooltips: {
+                                mode: 'index',
+                            },
+                            scales: {
+                                xAxes: [{
+                                  display: false
+                                }],
+                              }
+                        }}
+                        />
+                    </Paper>
+
+                    <Paper className="indicators">indicators</Paper>
 
                     <div className="details">
                         <div className="detailRow">
