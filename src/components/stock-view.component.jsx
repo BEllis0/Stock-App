@@ -1,5 +1,6 @@
 import React from 'react';
-import { Paper, Divider, Container } from '@material-ui/core';
+import { Paper, Divider } from '@material-ui/core';
+import { Line } from 'react-chartjs-2'
 
 export default function StockView(props) {
 
@@ -26,7 +27,7 @@ export default function StockView(props) {
                 {props.stockTimeSeriesMinute.map(stock => {
                     return (
                         <h2 key={props.stockTimeSeriesMinute.indexOf(stock)}>
-                        {stock['Time Series (1min)'][Object.keys(props.stockTimeSeriesMinute[0]['Time Series (1min)'])[0]]['4. close'].slice(0, -2)}</h2>
+                        {stock['Time Series (5min)'][Object.keys(props.stockTimeSeriesMinute[0]['Time Series (5min)'])[0]]['4. close'].slice(0, -2)}</h2>
                     )
                 })}
                 </div>
@@ -46,7 +47,14 @@ export default function StockView(props) {
                     </div>
                     <Divider variant="fullWidth" />
 
-                    <div className="chart">chart</div>
+                    <div className="chart">
+                        <Line 
+                        data={props.chartData}
+                        options={{
+                            maintainAspectRatio: false
+                        }}
+                        />
+                    </div>
                     
                     <div className="indicators">indicators</div>
 
@@ -54,22 +62,46 @@ export default function StockView(props) {
                         <div className="detailRow">
                             <div className="detailColumn">
                                 <p>Open</p>
-                                <p>5.00</p>
+                                {props.stockTimeSeriesDaily.map(stock => {
+                                    return (
+                                        <p key={props.stockTimeSeriesDaily.indexOf(stock)}>
+                                        {stock['Time Series (Daily)'][Object.keys(props.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]]['1. open'].slice(0, -2)}
+                                        </p>
+                                    )
+                                })}
                             </div>
                             <div className="detailColumn">
                                 <p>High</p>
-                                <p>5.00</p>
+                                {props.stockTimeSeriesDaily.map(stock => {
+                                    return (
+                                        <p key={props.stockTimeSeriesDaily.indexOf(stock)}>
+                                        {stock['Time Series (Daily)'][Object.keys(props.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]]['2. high'].slice(0, -2)}
+                                        </p>
+                                    )
+                                })}
                             </div>
                             <div className="detailColumn">
                                 <p>Low</p>
-                                <p>5.00</p>
+                                {props.stockTimeSeriesDaily.map(stock => {
+                                    return (
+                                        <p key={props.stockTimeSeriesDaily.indexOf(stock)}>
+                                        {stock['Time Series (Daily)'][Object.keys(props.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]]['3. low'].slice(0, -2)}
+                                        </p>
+                                    )
+                                })}
                             </div>
                         </div>
                         
                         <div className="detailRow">
                             <div className="detailColumn">
                                 <p>Vol</p>
-                                <p>5.00</p>
+                                {props.stockTimeSeriesDaily.map(stock => {
+                                    return (
+                                        <p key={props.stockTimeSeriesDaily.indexOf(stock)}>
+                                        {stock['Time Series (Daily)'][Object.keys(props.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]]['5. volume'].slice(0, -2)}
+                                        </p>
+                                    )
+                                })}
                             </div>
                             <div className="detailColumn">
                                 <p>Mkt Cap</p>
@@ -79,11 +111,11 @@ export default function StockView(props) {
 
                         <div className="detailRow">
                             <div className="detailColumn">
-                                <p>52 W H</p>
+                                <p>52W H</p>
                                 <p>5.00</p>
                             </div>
                             <div className="detailColumn">
-                                <p>52 W L</p>
+                                <p>52W L</p>
                                 <p>5.00</p>
                             </div>
                             <div className="detailColumn">
@@ -93,6 +125,29 @@ export default function StockView(props) {
                         </div>
                     </div>
                 </div>
+
+                {props.newsItems.length >= 1 &&
+                <ul className="newsList">
+                
+                
+                {props.newsItems[0].map(article => {
+                    if (props.company !== undefined) {
+                return (
+                    <div className="newsArticle" key={props.newsItems[0].indexOf(article)}>
+                    <a href={article.url} target="_blank" rel="noopener noreferrer">
+                    <img className="newsImg" src={article.urlToImage} alt={article.title} />
+                    <p className="articleSourceName">{article.source.name}</p>
+                    <h4 className="articleTitle">{article.title}</h4>
+                    </a>
+                    {/* <p className="articleDesc">{article.description}</p> */}
+                    <p className="articleDate">{article.publishedAt.slice(0,10)}</p>
+                    </div>
+                )
+                }
+                })}
+                
+            </ul>
+            }
             </div>
         );
     }
