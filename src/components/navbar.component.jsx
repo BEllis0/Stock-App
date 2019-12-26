@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Toolbar, AppBar, Divider, TextField, Button } from '@material-ui/core';
+import { Toolbar, AppBar, Divider, TextField } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 export default function Navbar(props) {
