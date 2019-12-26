@@ -3,6 +3,7 @@ import './App.css';
 import { HashRouter, Route } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
+import { throttle, debounce } from 'lodash';
 
 import Navbar from './components/navbar.component.jsx';
 import Sidebar from './components/sidebar.component.jsx';
@@ -36,17 +37,17 @@ export default class App extends React.Component {
       stockCurrent: [],
       stockTimeSeriesMinute: [],
       stockTimeSeriesDaily: [],
-      chartData: [],
+      chartData: {},
+      chartVolumeData: {},
     }
 
     this.onChangeSignInUsername = this.onChangeSignInUsername.bind(this);
     this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
 
-    this.onChangeStock = this.onChangeStock.bind(this);
-    // this.onStockSubmit = this.onStockSubmit.bind(this);
+    this.onChangeStock = throttle(this.onChangeStock.bind(this), 200);
     this.onChangeAddWatchlist = this.onChangeAddWatchlist.bind(this);
 
-    this.onSearchSelect = this.onSearchSelect.bind(this);
+    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 4000);
 
     //this.onAddWatchlist = this.onAddWatchlist.bind(this);
     
@@ -146,14 +147,22 @@ export default class App extends React.Component {
     .then(res => {
       console.log(res);
 
-      let chartValues = Object.keys(res.data['Time Series (5min)']).map(key => {
+      const chartValues = Object.keys(res.data['Time Series (5min)']).map(key => {
         return res.data['Time Series (5min)'][key]['4. close'];
       });
 
-      let chartLabels = Object.keys(res.data['Time Series (5min)'])
+      const chartLabels = Object.keys(res.data['Time Series (5min)'])
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
-      console.log(chartLabels);
+      const chartVolumeData = Object.keys(res.data['Time Series (5min)']).map(key => {
+        return res.data['Time Series (5min)'][key]['5. volume'];
+      });
+
+      const chartVolumeLabels = Object.keys(res.data['Time Series (5min)'])
+      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
+
+      console.log(chartVolumeData);
+      console.log(chartVolumeLabels);
 
       this.setState({
         stockTimeSeriesMinute: [res.data],
@@ -162,7 +171,15 @@ export default class App extends React.Component {
           datasets: [{
             label: 'price',
             data: chartValues.reverse(),
-
+            backgroundColor: '#5EEEFF'
+          }]
+        },
+        chartVolumeData: {
+          labels: [...chartVolumeLabels.reverse()],
+          datasets: [{
+            label: 'volume',
+            data: chartVolumeData.reverse(),
+            backgroundColor: '#5EEEFF'
           }]
         }
       }, () => console.log(this.state.chartData))
@@ -229,6 +246,7 @@ export default class App extends React.Component {
                                 stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
                                 newsItems={this.state.newsItems}
                                 chartData={this.state.chartData}
+                                chartVolumeData={this.state.chartVolumeData}
                                 />
           } 
           />
