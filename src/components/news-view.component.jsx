@@ -27,10 +27,6 @@ export default function NewsView(props) {
                 )
             })}
             </ul>
-
-
-            
-        {/* } */}
     </div>
     )
     }
