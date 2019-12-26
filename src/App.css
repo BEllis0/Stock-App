@@ -202,14 +202,27 @@ ul li {
 .chart {
   width: 100%;
   height: 300px;
-  border: 1px solid gray;
+  padding: 3px;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
   margin-top: 10px;
 }
 
 .indicators {
   width: 100%;
   height: 120px;
-  border: 1px solid gray;
+  padding: 3px;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+  margin-top: 10px;
+}
+
+.volumeChart {
+  width: 100%;
+  height: 120px;
+  padding: 3px;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
   margin-top: 10px;
 }
 
