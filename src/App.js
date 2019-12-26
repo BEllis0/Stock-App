@@ -36,6 +36,7 @@ export default class App extends React.Component {
       stockCurrent: [],
       stockTimeSeriesMinute: [],
       stockTimeSeriesDaily: [],
+      chartData: [],
     }
 
     this.onChangeSignInUsername = this.onChangeSignInUsername.bind(this);
@@ -122,7 +123,7 @@ export default class App extends React.Component {
         this.setState({
           newsItems: [articles.data],
           stockCompany: company
-      });
+      }, () => console.log(this.state.newsItems));
     })
     .catch(err => console.log(err));
 
@@ -141,12 +142,30 @@ export default class App extends React.Component {
 
 
     //minute
-    Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${stock}`)
+    Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
+
+      let chartValues = Object.keys(res.data['Time Series (5min)']).map(key => {
+        return res.data['Time Series (5min)'][key]['4. close'];
+      });
+
+      let chartLabels = Object.keys(res.data['Time Series (5min)'])
+      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
+
+      console.log(chartLabels);
+
       this.setState({
-        stockTimeSeriesMinute: [res.data]
-      }, () => console.log(this.state.stockTimeSeriesMinute, 'Note' in this.state.stockTimeSeriesMinute))
+        stockTimeSeriesMinute: [res.data],
+        chartData: {
+          labels: [...chartLabels.reverse()],
+          datasets: [{
+            label: 'price',
+            data: chartValues.reverse(),
+
+          }]
+        }
+      }, () => console.log(this.state.chartData))
 
     })
     .catch(err => console.log(err));
@@ -158,7 +177,7 @@ export default class App extends React.Component {
       console.log(res);
       this.setState({
         stockTimeSeriesDaily: [res.data]
-      }, () => console.log(this.state.stockTimeSeriesDaily))
+      }, () => console.log(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]))
 
     })
     .catch(err => console.log(err));
@@ -208,6 +227,8 @@ export default class App extends React.Component {
                                 stockCurrent={this.state.stockCurrent}
                                 stockTimeSeriesMinute={this.state.stockTimeSeriesMinute}
                                 stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
+                                newsItems={this.state.newsItems}
+                                chartData={this.state.chartData}
                                 />
           } 
           />
