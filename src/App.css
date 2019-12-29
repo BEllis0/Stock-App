@@ -16,6 +16,14 @@ a {
   padding-bottom: 5px;
 }
 
+.green-text {
+  color: green;
+}
+
+.red-text {
+  color: red;
+}
+
 ul {
   list-style-type: none;
 }
@@ -27,6 +35,10 @@ ul li {
 
 .top-padding {
   padding-top: 15px;
+}
+
+.inline {
+  display: inline;
 }
 
 .flex-row {
@@ -241,6 +253,7 @@ ul li {
 .detailColumn {
   display: flex;
   justify-content: space-around;
+  padding: 0px;
 }
 
 @media (max-width: 597px) {
