@@ -11,6 +11,7 @@ import NewsView from './components/news-view.component.jsx';
 import StockView from './components/stock-view.component.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
+import { runInThisContext } from 'vm';
 
 
 export default class App extends React.Component {
@@ -22,7 +23,6 @@ export default class App extends React.Component {
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
-      stockName: '',
       email: '',
       SignInUsername: '',
       SignInPassword: '',
@@ -33,21 +33,36 @@ export default class App extends React.Component {
       watchlists: [
         {name: '', stocks: {stockName: '', amountOwned: 0}}
       ],
+      stockName: '',
+      stockPrice: 0,
       stockCompany: '',
-      stockCurrent: [],
-      stockTimeSeriesMinute: [],
+      stockTimeSeriesOneMinute: [],
+      stockTimeSeriesFiveMinute: [],
+      stockTimeSeriesThirtyMinute: [],
+      stockTimeSeriesOneHour: [],
       stockTimeSeriesDaily: [],
+      stockTimeSeriesWeekly: [],
+      percentChange: 0,
+      weekHigh: 0,
+      weekLow: 0,
+      avgVol: 0,
       chartData: {},
       chartVolumeData: {},
+      rsiChartData: {},
+      smaData: {},
+      emaData: {},
+      timelineRef: "1D", // used to track which display to show;
     }
 
-    this.onChangeSignInUsername = this.onChangeSignInUsername.bind(this);
-    this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
+    this.onChangeSignInUsername = throttle(this.onChangeSignInUsername.bind(this), 100);
+    this.onChangeSignInPassword = throttle(this.onChangeSignInPassword.bind(this), 100);
 
-    this.onChangeStock = throttle(this.onChangeStock.bind(this), 200);
-    this.onChangeAddWatchlist = this.onChangeAddWatchlist.bind(this);
+    this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
+    this.onChangeAddWatchlist = throttle(this.onChangeAddWatchlist.bind(this), 100);
 
-    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 4000);
+    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 600);
+    this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 600);
+    this.changeTimeline = debounce(this.changeTimeline.bind(this), 600);
 
     //this.onAddWatchlist = this.onAddWatchlist.bind(this);
     
@@ -64,7 +79,6 @@ export default class App extends React.Component {
         this.setState({
             newsItems: 
             [articles.data]
-
                 //   format: 
                 //   key: articles.data.urlToImage, 
                 //   author: articles.data.author,
@@ -74,8 +88,7 @@ export default class App extends React.Component {
                 //   source: articles.data.source.name,
                 //   title: articles.data.title,
                 //   url: articles.data.url,
-                //   urlToImage: articles.data.urlToImage,
-            
+                //   urlToImage: articles.data.urlToImage,      
         });
     })
     .catch(err => console.log(err));
@@ -101,7 +114,7 @@ export default class App extends React.Component {
   onChangeStock(event) {
     event.persist();
 
-    if (event.target.value.length > 0) {
+    if (event.target && event.target.value.length > 0) {
     Axios.get(`http://localhost:5000/stock-search/${event.target.value}`)
     .then(res => {
         console.log(res);
@@ -115,7 +128,6 @@ export default class App extends React.Component {
   }
 
   onSearchSelect(stock, company) {
-    // console.log(stock, company);
 
     //NEWS API
     Axios.get(`http://localhost:5000/top-news/${company}`)
@@ -128,44 +140,48 @@ export default class App extends React.Component {
     })
     .catch(err => console.log(err));
 
-
     // STOCK API CONNECTION
+  
 
-    //Current
-    Axios.get(`http://localhost:5000/stock-current/${stock}`)
-    .then(res => {
-        console.log(res);
-        this.setState({
-          stockCurrent: [res.data]
-        }, () => console.log(this.state.stockCurrent))
-    })
-    .catch(err => console.log(err));
-
-
-    //minute
+    //5minute
     Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
 
-      const chartValues = Object.keys(res.data['Time Series (5min)']).map(key => {
+      //stock chart values for 1 business day; references the last recorded day
+      const chartValues = Object.keys(res.data['Time Series (5min)'])
+      .filter((date) => {
+        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+      })
+      .map(key => {
         return res.data['Time Series (5min)'][key]['4. close'];
       });
 
+      //stock chart labels; filtered for 1 business day
       const chartLabels = Object.keys(res.data['Time Series (5min)'])
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
-      const chartVolumeData = Object.keys(res.data['Time Series (5min)']).map(key => {
+      //stock volume chart data
+      const chartVolumeData = Object.keys(res.data['Time Series (5min)'])
+      .filter((date) => {
+        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+      })
+      .map(key => {
         return res.data['Time Series (5min)'][key]['5. volume'];
       });
 
+      //stock volume chart labels
       const chartVolumeLabels = Object.keys(res.data['Time Series (5min)'])
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
-      console.log(chartVolumeData);
-      console.log(chartVolumeLabels);
+      const percentOld = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[Object.keys(res.data['Time Series (5min)']).length-1]]['1. open'].slice(0, -2);
+      const percentNew = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[0]]['4. close'].slice(0, -2);
+      const percentChange = Number((((percentNew - percentOld) / percentOld) * 100).toFixed(2));
 
       this.setState({
-        stockTimeSeriesMinute: [res.data],
+        stockPrice: percentNew,
+        percentChange: percentChange,
+        stockTimeSeriesFiveMinute: [res.data],
         chartData: {
           labels: [...chartLabels.reverse()],
           datasets: [{
@@ -198,8 +214,142 @@ export default class App extends React.Component {
 
     })
     .catch(err => console.log(err));
+
+
+    // weekly
+    Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
+    .then(res => {
+        console.log(res);
+
+        const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+          return res.data['Weekly Time Series'][key]['2. high']
+        });
+
+        const weekLowArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+          return res.data['Weekly Time Series'][key]['3. low']
+        });
+
+        const avgVolArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+          return res.data['Weekly Time Series'][key]['5. volume']
+        });
+
+        const weekHigh = Math.max(...weekHighArr);
+        const weekLow = Math.min(...weekLowArr);
+
+        const avgVol = avgVolArr.reduce((a, b) => {
+          return (a + b) / avgVolArr.length;
+        });
+
+        this.setState({
+          stockTimeSeriesWeekly: [res.data],
+          weekHigh: weekHigh,
+          weekLow: weekLow,
+          avgVol: Math.round(avgVol)
+        }, () => console.log(this.state.weekHigh))
+    })
+    .catch(err => console.log(err));
+
+    //RSI
+    Axios.get(`http://localhost:5000/stock-rsi/${stock}/5min/10`)
+    .then(res => {
+      console.log(res)
+
+      const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
+      .filter((date) => {
+        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+      })
+      .map(key => {
+        return res.data['Technical Analysis: RSI'][key]['RSI'];
+      });
+
+      const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
+      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
+
+      console.log(rsiChartValues, rsiChartLabels)
+
+      this.setState({
+        rsiChartData: {
+          labels: [...rsiChartLabels.reverse()],
+          datasets: [{
+            label: 'RSI 10',
+            fill: false,
+            data: rsiChartValues.reverse(),
+            backgroundColor: '#5EEEFF',
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "#000",
+            borderColor: "#bae755",
+          }]
+        },
+      }, () => console.log(this.state.rsiChartData))
+    })
+    .catch(err => console.log(err));
   }
 
+  //used to change state of the timeline reference; calls the function below to run new api calls
+  onSelectTimeline(timeline) {
+
+    this.setState({
+      timelineRef: timeline
+    }, () => this.changeTimeline());
+  };
+
+  //handles new api calls for the timeline reference - 1h, 1d, 1w etc
+  changeTimeline() {
+    if (this.state.timelineRef === '1H') {
+      Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${this.state.stockName}`)
+      .then(res => {
+        this.setState({
+          stockTimeSeriesOneMinute: [res.data]
+        }, console.log(this.state.stockTimeSeriesOneMinute))
+      })
+      .catch(err => console.log(err));
+    }
+
+    else if (this.state.timelineRef === '1D') {
+      Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${this.state.stockName}`)
+      .then(res => {
+
+        console.log(res);
+        this.setState({
+          stockTimeSeriesFiveMinute: [res.data]
+        }, console.log(this.state.stockTimeSeriesOneMinute))
+      })
+      .catch(err => console.log(err));
+    }
+
+    else if (this.state.timelineRef === '1W') {
+      Axios.get(`http://localhost:5000/stock-timeseries-intra/30min/${this.state.stockName}`)
+      .then(res => {
+
+        console.log(res);
+        this.setState({
+          stockTimeSeriesThirtyMinute: [res.data]
+        }, console.log(this.state.stockTimeSeriesThirtyMinute))
+      })
+      .catch(err => console.log(err));
+    }
+    else if (this.state.timelineRef === '1M') {
+      console.log('1m')
+    }
+    else if (this.state.timelineRef === '3M') {
+      console.log('3m')
+    }
+    else if (this.state.timelineRef === '6M') {
+      console.log('6m')
+    }
+    else if (this.state.timelineRef === '1Y') {
+      console.log(this.state.stockName)
+    }
+    else if (this.state.timelineRef === '3Y') {
+      console.log('3y')
+    }
+    else if (this.state.timelineRef === '5Y') {
+      console.log('5y')
+    }
+    else if (this.state.timelineRef === 'ALL') {
+      console.log('all')
+    }
+  }
   // onAddWatchlist() {
 
   //   this.setState({
@@ -239,15 +389,25 @@ export default class App extends React.Component {
         <Route 
           path={process.env.PUBLIC_URL + '/stocks'}
           exact
-          render={(props) => <StockView 
-                                company={this.state.stockCompany}
-                                stockCurrent={this.state.stockCurrent}
-                                stockTimeSeriesMinute={this.state.stockTimeSeriesMinute}
-                                stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
-                                newsItems={this.state.newsItems}
-                                chartData={this.state.chartData}
-                                chartVolumeData={this.state.chartVolumeData}
-                                />
+          render={(props) => 
+            <StockView 
+              stockName={this.state.stockName}
+              stockPrice={this.state.stockPrice}
+              company={this.state.stockCompany}
+              stockTimeSeriesFiveMinute={this.state.stockTimeSeriesFiveMinute}
+              stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
+              stockTimeSeriesWeekly={this.state.stockTimeSeriesWeekly}
+              percentChange={this.state.percentChange}
+              weekHigh={this.state.weekHigh}
+              weekLow={this.state.weekLow}
+              avgVol={this.state.avgVol}
+              onSearchSelect={this.onSearchSelect}
+              newsItems={this.state.newsItems}
+              chartData={this.state.chartData}
+              chartVolumeData={this.state.chartVolumeData}
+              rsiChartData={this.state.rsiChartData}
+              onSelectTimeline={this.onSelectTimeline}
+            />
           } 
           />
         <Route 
@@ -272,8 +432,6 @@ export default class App extends React.Component {
       </Grid>
       </div>
     </HashRouter>
-    
   )
   }
 }
-
