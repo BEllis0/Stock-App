@@ -210,7 +210,7 @@ export default class App extends React.Component {
       console.log(res);
       this.setState({
         stockTimeSeriesDaily: [res.data]
-      }, () => console.log(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]))
+      })
 
     })
     .catch(err => console.log(err));
@@ -245,7 +245,7 @@ export default class App extends React.Component {
           weekHigh: weekHigh,
           weekLow: weekLow,
           avgVol: Math.round(avgVol)
-        }, () => console.log(this.state.weekHigh))
+        })
     })
     .catch(err => console.log(err));
 
@@ -265,7 +265,7 @@ export default class App extends React.Component {
       const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
-      console.log(rsiChartValues, rsiChartLabels)
+      // console.log(rsiChartValues, rsiChartLabels)
 
       this.setState({
         rsiChartData: {
@@ -298,8 +298,43 @@ export default class App extends React.Component {
     if (this.state.timelineRef === '1H') {
       Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${this.state.stockName}`)
       .then(res => {
+
+        // hour data
+        const hourData = Object.keys(res.data['Time Series (1min)']).slice(0, 60).map(key => {
+          return res.data['Time Series (1min)'][key]['4. close']
+        });
+
+        const hourVolume = Object.keys(res.data['Time Series (1min)']).slice(0,60).map(key => {
+          return res.data['Time Series (1min)'][key]['5. volume']
+        })
+
+        // labels for volume and data
+        const labels = Object.keys(res.data['Time Series (1min)']).slice(0,60);
+
+
+
+        console.log(hourData)
+        console.log(labels)
+
         this.setState({
-          stockTimeSeriesOneMinute: [res.data]
+          stockTimeSeriesOneMinute: [res.data],
+          chartData: {
+            labels: [...labels.reverse()],
+            datasets: [{
+              label: 'price',
+              data: hourData.reverse(),
+              backgroundColor: '#5EEEFF'
+            }]
+          },
+          chartVolumeData: {
+            labels: [...labels.reverse()],
+            datasets: [{
+              label: 'volume',
+              data: hourVolume.reverse(),
+              backgroundColor: '#5EEEFF'
+            }]
+          }
+
         }, console.log(this.state.stockTimeSeriesOneMinute))
       })
       .catch(err => console.log(err));
