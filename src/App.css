@@ -11,6 +11,15 @@ a {
   color:black;
 }
 
+.boldText {
+  font-weight: 700;
+  color: red;
+}
+
+.timelineSelector {
+  font-weight: 500;
+}
+
 .margin-left {
   margin-left: 7px;
   padding-bottom: 5px;
