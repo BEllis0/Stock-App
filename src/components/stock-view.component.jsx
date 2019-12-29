@@ -4,46 +4,59 @@ import { Line, Bar } from 'react-chartjs-2'
 
 export default function StockView(props) {
 
-    if ( props.stockTimeSeriesMinute === undefined || props.stockCurrent === undefined || props.stockTimeSeriesDaily === undefined ) {
+    if ( props.stockTimeSeriesDaily === undefined ) {
+        
+        // while (props.stockTimeSeriesFiveMinute['Time Series (5min)'] === undefined) {
+            
+        //     window.setInterval(props.onSearchSelect('AUPH', props.company), 5000);
+        //     return (
+        //         <div>durrr</div>
+        //     )
+            
+        // }
+
         return (
-            <div>durrr</div>
+            <div>asdf</div>
         )
+        
     }
 
     else {
         return (
             <div className="stockPageLayout">
                 <div className="flex-row">
-                <div className="stockPageStockName stockPageHeader">{props.stockCurrent.map(stock => {
-                    return (
-                        <h1 key={props.stockCurrent.indexOf(stock)}>
-                        {stock['Global Quote']['01. symbol']}
-                        </h1>
-                    )
-                })}
+                <div className="stockPageStockName stockPageHeader">
+                        
+                    <h1>{props.stockName}</h1>
 
-                <h4 className="margin-left">{props.company}</h4>
+                    <h4 className="margin-left">{props.company}</h4>
                 </div>
-                {props.stockTimeSeriesMinute.map(stock => {
-                    return (
-                        <h2 key={props.stockTimeSeriesMinute.indexOf(stock)}>
-                        {stock['Time Series (5min)'][Object.keys(props.stockTimeSeriesMinute[0]['Time Series (5min)'])[0]]['4. close'].slice(0, -2)}</h2>
-                    )
-                })}
+                
+                <div className="inline">
+                    <h2>{props.stockPrice}</h2>
+
+                    {props.percentChange > 0 ? (
+                        <h4 className="green-text">+{props.percentChange}%</h4>
+                    ) : (
+                        <h4 className="red-text">{props.percentChange}%</h4>
+                    )}
+                
+                </div>
+                
                 </div>
                 <Divider variant="fullWidth" />
                 <div className="chartArea">
                     <div className="chartControls">
-                        <p>1D</p>
-                        <p>1W</p>
-                        <p>1M</p>
-                        <p>3M</p>
-                        <p>6M</p>
-                        <p>1Y</p>
-                        <p>2Y</p>
-                        <p>5Y</p>
-                        <p>10Y</p>
-                        <p>ALL</p>
+                        <p onClick={() => props.onSelectTimeline('1H')}>1H</p>
+                        <p onClick={() => props.onSelectTimeline('1D')}>1D</p>
+                        <p onClick={() => props.onSelectTimeline('1W')}>1W</p>
+                        <p onClick={() => props.onSelectTimeline('1M')}>1M</p>
+                        <p onClick={() => props.onSelectTimeline('3M')}>3M</p>
+                        <p onClick={() => props.onSelectTimeline('6M')}>6M</p>
+                        <p onClick={() => props.onSelectTimeline('1Y')}>1Y</p>
+                        <p onClick={() => props.onSelectTimeline('2Y')}>2Y</p>
+                        <p onClick={() => props.onSelectTimeline('5Y')}>5Y</p>
+                        <p onClick={() => props.onSelectTimeline('ALL')}>ALL</p>
                     </div>
                     <Divider variant="fullWidth" />
 
@@ -87,7 +100,33 @@ export default function StockView(props) {
                         />
                     </Paper>
 
-                    <Paper className="indicators">indicators</Paper>
+                    <Paper className="indicators">
+                    <Line 
+                        data={props.rsiChartData}
+                        options={{
+                            maintainAspectRatio: false,
+                            tooltips: {
+                                mode: 'index',
+                            },
+                            scales: {
+                                xAxes: [{
+                                  display: false
+                                }],
+                                yAxes: [{
+                                    ticks: {
+                                        min: 0,
+                                        max: 100
+                                    }
+                                }]
+                              },
+                              elements: {
+                                point:{
+                                    radius: 0
+                                },
+                            }
+                        }}
+                        />
+                    </Paper>
 
                     <div className="details">
                         <div className="detailRow">
@@ -134,24 +173,20 @@ export default function StockView(props) {
                                     )
                                 })}
                             </div>
-                            <div className="detailColumn">
-                                <p>Mkt Cap</p>
-                                <p>5.00</p>
-                            </div>
                         </div>
 
                         <div className="detailRow">
                             <div className="detailColumn">
                                 <p>52W H</p>
-                                <p>5.00</p>
+                                <p>{props.weekHigh}</p>
                             </div>
                             <div className="detailColumn">
                                 <p>52W L</p>
-                                <p>5.00</p>
+                                <p>{props.weekLow}</p>
                             </div>
                             <div className="detailColumn">
                                 <p>Avg Vol</p>
-                                <p>5.00</p>
+                                <p>{props.avgVol}</p>
                             </div>
                         </div>
                     </div>
@@ -183,4 +218,3 @@ export default function StockView(props) {
         );
     }
 };
-
