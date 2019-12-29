@@ -4,8 +4,9 @@
 -Includes password hashing with bcryptjs<br>
 -Uses Alpha Vantage API for real time and historical stock data and Google News API for stock news<br>
 -Designed with Material UI<br>
+-Throttling and debouncing with lodash<br>
 
 ## Dependencies
 Backend: bcrypt, cors, dotenv, express, mongoose, newsapi, nodemon, pusher, validator
 
-Frontend: @material-ui/core, @material-ui/icons, axios, gh-pages, react, react-dom, react-router, react-router-dom
+Frontend: axios, @material-ui/core, @material-ui/icons, @material-ui/lab, gh-pages, react, react-dom, react-router, react-router-dom, chart.js, react-chartjs-2, lodash
