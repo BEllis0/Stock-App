@@ -114,7 +114,33 @@ app.get('/stock-current/:stock', (req, res) => {
     .catch(err => res.status(400).json("Error: " + err));
 });
 
-//STOCK SEARCH
+// --- INDICATORS
+
+//interval options: 1min, 5min, 15min, 30min, 60min, daily, weekly, monthly
+//time-period (# of data points) options: any number; recommended 200
+
+// RSI (Relative Strength Index)
+app.get('/stock-rsi/:stock/:interval/:timeperiod', (req, res) => {
+    axios.get(`https://www.alphavantage.co/query?function=RSI&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.timeperiod}&series_type=open&apikey=${process.env.STOCK_API_KEY}`)
+    .then(response => res.json(response.data))
+    .catch(err => res.status(400).json("Error" + err))
+})
+
+// SMA (Simple Moving Average)
+app.get('/stock-sma/:stock/:interval/:time-period', (req, res) => {
+    axios.get(`https://www.alphavantage.co/query?function=SMA&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.time-period}&series_type=close&apikey=${process.env.STOCK_API_KEY}`)
+    .then(response => res.json(response.data))
+    .catch(err => res.status(400).json("Error" + err))
+})
+
+// EMA (Exponential Moving Average)
+app.get('/stock-ema/:stock/:interval/:time-period', (req, res) => {
+    axios.get(`https://www.alphavantage.co/query?function=EMA&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.time-period}&series_type=close&apikey=${process.env.STOCK_API_KEY}`)
+    .then(response => res.json(response.data))
+    .catch(err => res.status(400).json("Error" + err))
+})
+
+// STOCK SEARCH
 
 app.get('/stock-search/:keywords', (req, res) => {
     axios.get(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${req.params.keywords}&apikey=${process.env.STOCK_API_KEY}`)
