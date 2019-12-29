@@ -87,7 +87,7 @@ app.get('/stock-timeseries-intra/:time/:stock', (req, res) => {
 
     //interval options: 1min, 5min, 15min, 30min, 60min
 
-    axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${req.params.stock}&interval=${req.params.time}&apikey=${process.env.STOCK_API_KEY}`)
+    axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${req.params.stock}&interval=${req.params.time}&outputsize=full&apikey=${process.env.STOCK_API_KEY}`)
     .then(response => res.json(response.data))
     .catch(err => res.status(400).json("Error: " + err));
 });
@@ -100,9 +100,16 @@ app.get('/stock-timeseries/:time/:stock', (req, res) => {
     //TIME_SERIES_WEEKLY
     //TIME_SERIES_MONTHLY
 
+    if(req.params.time === 'TIME_SERIES_DAILY') {
+        axios.get(`https://www.alphavantage.co/query?function=${req.params.time}&symbol=${req.params.stock}&outputsize=full&apikey=${process.env.STOCK_API_KEY}`)
+    .then(response => res.json(response.data))
+    .catch(err => res.status(400).json("Error: " + err));
+    }
+    else {
     axios.get(`https://www.alphavantage.co/query?function=${req.params.time}&symbol=${req.params.stock}&apikey=${process.env.STOCK_API_KEY}`)
     .then(response => res.json(response.data))
     .catch(err => res.status(400).json("Error: " + err));
+    }
 });
 
 //CURRENT STOCK DATA
