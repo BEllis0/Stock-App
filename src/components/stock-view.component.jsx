@@ -47,16 +47,16 @@ export default function StockView(props) {
                 <Divider variant="fullWidth" />
                 <div className="chartArea">
                     <div className="chartControls">
-                        <p className={props.timelineRef == '1H' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1H')}>1H</p>
-                        <p className={props.timelineRef == '1D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1D')}>1D</p>
-                        <p className={props.timelineRef == '10D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('10D')}>10D</p>
-                        <p className={props.timelineRef == '1M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1M')}>1M</p>
-                        <p className={props.timelineRef == '3M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3M')}>3M</p>
-                        <p className={props.timelineRef == '6M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('6M')}>6M</p>
-                        <p className={props.timelineRef == '1Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1Y')}>1Y</p>
-                        <p className={props.timelineRef == '3Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3Y')}>3Y</p>
-                        <p className={props.timelineRef == '5Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('5Y')}>5Y</p>
-                        <p className={props.timelineRef == 'ALL' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('ALL')}>ALL</p>
+                        <p className={props.timelineRef === '1H' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1H')}>1H</p>
+                        <p className={props.timelineRef === '1D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1D')}>1D</p>
+                        <p className={props.timelineRef === '10D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('10D')}>10D</p>
+                        <p className={props.timelineRef === '1M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1M')}>1M</p>
+                        <p className={props.timelineRef === '3M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3M')}>3M</p>
+                        <p className={props.timelineRef === '6M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('6M')}>6M</p>
+                        <p className={props.timelineRef === '1Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1Y')}>1Y</p>
+                        <p className={props.timelineRef === '3Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3Y')}>3Y</p>
+                        <p className={props.timelineRef === '5Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('5Y')}>5Y</p>
+                        <p className={props.timelineRef === 'ALL' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('ALL')}>ALL</p>
                     </div>
                     <Divider variant="fullWidth" />
 
