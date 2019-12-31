@@ -28,6 +28,12 @@ const UserSchema = new Schema({
         required: true,
         minlength: 7,
     },
+    watchlist: [{
+        type: String,
+        required: false,
+        trim: true,
+        default: [],
+    }]
 }, {
     timestamps: true,
 });
