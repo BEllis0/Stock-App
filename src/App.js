@@ -28,10 +28,8 @@ export default class App extends React.Component {
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
-      watchlistAdd: '',
-      watchlists: [
-        {name: '', stocks: {stockName: '', amountOwned: 0}}
-      ],
+      watchlist: [],
+      watchlistDb: [],
       stockName: '', // user input
       stockNameDisplay: '', // used for stock page display to avoid stock name changing onChange
       stockPrice: 0,
@@ -61,29 +59,28 @@ export default class App extends React.Component {
       firstHourClick: true,
       firstDayClick: true,
       firstWeekClick: true,
+      flagUndefined: false,
     }
 
     this.onChangeSignInUsername = throttle(this.onChangeSignInUsername.bind(this), 100);
     this.onChangeSignInPassword = throttle(this.onChangeSignInPassword.bind(this), 100);
 
     this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
-    this.onChangeAddWatchlist = throttle(this.onChangeAddWatchlist.bind(this), 100);
 
     this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 600);
-    this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 600);
-    this.changeTimeline = debounce(this.changeTimeline.bind(this), 600);
-
-    //this.onAddWatchlist = this.onAddWatchlist.bind(this);
+    this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 500);
+    this.changeTimeline = debounce(this.changeTimeline.bind(this), 500);
     
+    this.onAddWatchlist = this.onAddWatchlist.bind(this);
+    this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
   }
   
-  // fetches NEWS API data on page load, taking 'stock' as initial enpoint
-  // when user searches for a stock, new endpoint is used
   componentDidMount() {
+    // fetches NEWS API data on page load, taking 'stock' as initial enpoint
+    // when user searches for a stock, new endpoint is used
+
     Axios.get(`http://localhost:5000/top-news/stocks`)
     .then(articles => {
-
-        // console.log(articles.data)
 
         this.setState({
             newsItems: 
@@ -91,6 +88,18 @@ export default class App extends React.Component {
         });
     })
     .catch(err => console.log(err));
+
+    // pull the user's saved stocks from DB
+    
+      Axios.get('http://localhost:5000/users/saved-stocks/5df4111cb873b75a8c146b94')
+      .then(stock => {
+        console.log(stock)
+        this.setState({
+          watchlistDb: stock.data
+        }, () => console.log(this.state.watchlistDb))
+      })
+      .catch(err => console.log(err))
+    
   };
 
   onChangeSignInUsername(event) {
@@ -108,6 +117,45 @@ export default class App extends React.Component {
       signInPassword: event.target.value
     }, () => console.log(this.state.signInPassword));
   };
+
+  // adds stockname to the internal watchlist to track changes
+  onAddWatchlist(stock) {
+    if (this.state.watchlist.length === 0) {
+      this.setState({
+        watchlist: [stock]
+      }, () => this.watchlistUpdateDb())
+    }
+    else if (this.state.watchlist.length > 0) {
+      this.setState((previousState) => ({
+        watchlist: [...previousState.watchlist, stock]
+      }, () => console.log(this.state.watchlist)))
+    }
+  }
+
+  // takes internal watchlist and posts to DB
+  watchlistUpdateDb() {
+    const watchlist = {
+      watchlist: this.state.watchlist
+    };
+
+    //adds the new watchlist to db
+    Axios.post('http://localhost:5000/users/new-stock/5df4111cb873b75a8c146b94', watchlist)
+    .then(res => console.log(res))
+    .then(() => {
+
+      //retrieves new watchlist
+      Axios.get('http://localhost:5000/users/saved-stocks/5df4111cb873b75a8c146b94')
+      .then(stock => {
+        console.log(stock);
+
+        this.setState({
+          watchlistDb: stock.data
+        }, () => console.log(this.state.watchlistDb))
+      })
+      .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err))
+  }
 
   // handles user typing in stock name, running stock api search and displaying
   onChangeStock(event) {
@@ -146,6 +194,18 @@ export default class App extends React.Component {
     Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
+
+      //triggers error view on stock page
+      // if(res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: true,
+      //   })
+      // }
+      // else if (!res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: false,
+      //   })
+      // }
 
       //stock chart values for 1 business day; references the last recorded day
       const chartValues = Object.keys(res.data['Time Series (5min)'])
@@ -200,7 +260,7 @@ export default class App extends React.Component {
           datasets: [{
             label: 'volume',
             data: chartVolumeData.reverse(),
-            backgroundColor: '#5EEEFF'
+            backgroundColor: '#8E3CF5'
           }]
         }
       }, () => console.log(this.state.chartData))
@@ -214,18 +274,16 @@ export default class App extends React.Component {
     .then(res => {
       console.log(res);
 
-      // const threeMonthFilter = Object.keys(res.data['Time Series (Daily)'])
-      // .filter((date) => {
-      //   return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-      // })
-      // .map(key => {
-      //   return res.data['Time Series (Daily)'][key][''];
-      // });
-
-      // const threeMonthFilterLabels = Object.keys(res.data['Time Series (Daily)'])
-      // .filter(label => label.match(Object.keys(res.data['Time Series (Daily)'])[0]));
-
-      // console.log(threeMonthFilterLabels)
+      // if(res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: true,
+      //   })
+      // }
+      // else if (!res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: false,
+      //   })
+      // }
 
       this.setState({
         stockTimeSeriesDaily: [res.data]
@@ -239,6 +297,17 @@ export default class App extends React.Component {
     Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
     .then(res => {
         console.log(res);
+
+        // if(res.data.hasOwnProperty('Note')) {
+        //   this.setState({
+        //     flagUndefined: true,
+        //   })
+        // }
+        // else if (!res.data.hasOwnProperty('Note')) {
+        //   this.setState({
+        //     flagUndefined: false,
+        //   })
+        // }
 
         const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
           return res.data['Weekly Time Series'][key]['2. high']
@@ -271,7 +340,18 @@ export default class App extends React.Component {
     //RSI
     Axios.get(`http://localhost:5000/stock-rsi/${stock}/5min/10`)
     .then(res => {
-      console.log(res)
+      console.log(res);
+
+      // if(res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: true,
+      //   })
+      // }
+      // else if (!res.data.hasOwnProperty('Note')) {
+      //   this.setState({
+      //     flagUndefined: false,
+      //   })
+      // }
 
       const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
       .filter((date) => {
@@ -283,8 +363,6 @@ export default class App extends React.Component {
 
       const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-      // console.log(rsiChartValues, rsiChartLabels)
 
       this.setState({
         rsiFiveMinute: [res.data],
@@ -300,7 +378,7 @@ export default class App extends React.Component {
             borderColor: "#bae755",
           }]
         },
-      }, () => console.log(this.state.rsiChartData))
+      })
     })
     .catch(err => console.log(err));
   }
@@ -352,7 +430,7 @@ export default class App extends React.Component {
               datasets: [{
                 label: 'volume',
                 data: hourVolume.reverse(),
-                backgroundColor: '#5EEEFF'
+                backgroundColor: '#8E3CF5'
               }]
             }
 
@@ -424,7 +502,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -500,7 +578,7 @@ export default class App extends React.Component {
           datasets: [{
             label: 'volume',
             data: chartVolumeData.reverse(),
-            backgroundColor: '#5EEEFF'
+            backgroundColor: '#8E3CF5'
           }]
         },
         rsiChartData: {
@@ -553,7 +631,7 @@ export default class App extends React.Component {
               datasets: [{
                 label: 'volume',
                 data: hourVolume.reverse(),
-                backgroundColor: '#5EEEFF'
+                backgroundColor: '#8E3CF5'
               }]
             }
           }, console.log(this.state.stockTimeSeriesSixtyMinute))
@@ -626,7 +704,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -681,7 +759,7 @@ export default class App extends React.Component {
               datasets: [{
                 label: 'volume',
                 data: hourVolume.reverse(),
-                backgroundColor: '#5EEEFF'
+                backgroundColor: '#8E3CF5'
               }]
             }
           }, console.log(this.state.stockTimeSeriesSixtyMinute))
@@ -754,7 +832,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -816,7 +894,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -870,7 +948,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -890,6 +968,7 @@ export default class App extends React.Component {
     }
 
 
+    // -- 6M
 
     else if (this.state.timelineRef === '6M') {
       // if first click
@@ -932,7 +1011,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -986,7 +1065,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1050,7 +1129,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1104,7 +1183,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1168,7 +1247,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1222,7 +1301,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1287,7 +1366,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1341,7 +1420,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1406,7 +1485,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1460,7 +1539,7 @@ export default class App extends React.Component {
             datasets: [{
               label: 'volume',
               data: hourVolume.reverse(),
-              backgroundColor: '#5EEEFF'
+              backgroundColor: '#8E3CF5'
             }]
           },
           rsiChartData: {
@@ -1482,18 +1561,12 @@ export default class App extends React.Component {
 
     else {console.log('unknown selector')} 
   }
-  // onAddWatchlist() {
 
+  // onChangeAddWatchlist(e) {
   //   this.setState({
-  //     watchlists: this.state.watchlistAdd
-  //   }, () => console.log(this.state.watchlists))
+  //     watchlistAdd: e.target.value,
+  //   }, () => console.log(this.state.watchlistAdd))
   // };
-
-  onChangeAddWatchlist(e) {
-    this.setState({
-      watchlistAdd: e.target.value,
-    }, () => console.log(this.state.watchlistAdd))
-  };
 
 
   render() {
@@ -1508,12 +1581,13 @@ export default class App extends React.Component {
           searchItems={this.state.searchItems}
           />
         <Sidebar 
-          // onAddWatchlist={this.onAddWatchlist} 
-          onChangeAddWatchlist={this.onChangeAddWatchlist}
-          // watchlistAdd={this.state.watchlistAdd}
           searchItems={this.state.searchItems}
           stockName={this.state.stockName}
           onSearchSelect={this.onSearchSelect}
+          watchlist={this.state.watchlist}
+          watchlistDb={this.state.watchlistDb}
+          onAddWatchlist={this.onAddWatchlist}
+          watchlistUpdateDb={this.watchlistUpdateDb}
           />
       </Grid>
 
@@ -1541,6 +1615,7 @@ export default class App extends React.Component {
               rsiChartData={this.state.rsiChartData}
               onSelectTimeline={this.onSelectTimeline}
               timelineRef={this.state.timelineRef}
+              flagUndefined={this.state.flagUndefined}
             />
           } 
           />
