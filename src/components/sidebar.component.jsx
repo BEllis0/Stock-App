@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TextField, Toolbar, Divider } from '@material-ui/core';
+import { Toolbar, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 
 const Sidebar = (props) => {
@@ -22,7 +22,7 @@ const Sidebar = (props) => {
                             {stock['1. symbol']}</Link>
                             <p className="stockSearchCompanyName">{stock['2. name']}</p>
                         </div>
-                        <AddCircleIcon />
+                        <AddCircleIcon onClick={() => props.onAddWatchlist(stock['1. symbol'])} />
                     </div>
                     <Divider variant="middle" />
                     </div>
@@ -44,28 +44,24 @@ const Sidebar = (props) => {
     
             <Toolbar className="addWatchlist">
                 <Divider orientation="vertical" />
-                <h3>Add Watchlist</h3>
-                <form className="addWatchlistForm"
-                >
-                <TextField 
-                        id="standard-search" 
-                        label="Name your watchlist" 
-                        type="text" 
-                        onChange={props.onChangeAddWatchlist} 
-                        />
-                <button type="submit" id="addWatchlistButton"><AddCircleIcon onClick={() => console.log('444')} /></button>
-                </form>
+                <h4>Watchlist</h4>
+                
             </Toolbar>
     
             <Divider variant="middle" />
     
-            {/* {props.watchlistAdd.map(watchlist => {
+            {props.watchlistDb.length > 0 &&
+            <div className="watchlistSection">
+            {props.watchlistDb.map(watchlist => {
                 return (
-                    <div>
-                        <h4>{watchlist}</h4>
+                    <div className="watchlistItem" key={props.watchlistDb.indexOf(watchlist)}>
+                        <h4 className="watchlistItemName">{watchlist}</h4>
+                        <Divider variant="middle" />
                     </div>
                 )
-            })} */}
+            })}
+            </div>
+            }
             
             </div>
         );
