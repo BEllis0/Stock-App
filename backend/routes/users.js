@@ -1,5 +1,8 @@
 const router = require('express').Router();
 let User = require('../models/user.model');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
 
 // --- For getting data
 
@@ -16,24 +19,52 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(400).json("Error: " + err));
 });
 
+router.get('/saved-stocks/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => res.json(user.watchlist))
+    .catch(err => res.status(400).json("Error: " + err))
+});
+
 // --- For posting data
 
 // handles post requests to add new user to the database
 router.post('/newuser', (req, res) => {
-    const username = req.body.username;
-    const email = req.body.email;
-    const password = req.body.password;
+    //check if email already exists
+    User.findOne({ email: req.body.email })
+    .then(user => {
+        if (user) {
+          return res.status(400).json({ email: "Email already exists" });
+        } 
+        else {
+          const newUser = new User({
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password
+          });
 
-    const newUser = new User({
-        email,
-        username,
-        password,
-    });
+          // save user
+          newUser.save()
+            .then(() => res.json(`User Added: ${email} ${username}`))
+            .catch(err => res.status(400).json('Error: ' + err));
+        }
+    })
+    .catch(err => res.status(400).json("Error " + err));
+});
 
-    // .save is a mongoose method to save to db
-    newUser.save()
-        .then(() => res.json(`User Added: ${email} ${username} ${password}`))
-        .catch(err => res.status(400).json('Error: ' + err));
+
+
+// add new stock; currently replaces the entire watchlist with req
+
+router.post('/new-stock/:id', (req, res) => {
+    User.findById(req.params.id)
+    .then(user => {
+        user.watchlist = req.body.watchlist;
+
+        user.save()
+            .then(() => res.json(`stock added: ${user.watchlist}`))
+            .catch(err => res.status(400).json('Error: ' + err));
+    })
+    .catch(err => res.status(400).json("Error: " + err));
 });
 
 //Update username
@@ -44,7 +75,7 @@ router.post('/update-username/:id', (req, res) => {
         user.username = req.body.username;
 
         user.save()
-            .then(() => req.json('stock updated'))
+            .then(() => res.json('username updated'))
             .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json("Error: " + err));
@@ -58,7 +89,7 @@ router.post('/update-email/:id', (req, res) => {
         user.email = req.body.email;
 
         user.save()
-            .then(() => req.json('email updated'))
+            .then(() => res.json('email updated'))
             .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json("Error: " + err));
@@ -72,10 +103,57 @@ router.post('/update-password/:id', (req, res) => {
         user.password = req.body.password;
 
         user.save()
-            .then(() => req.json('email updated'))
+            .then(() => res.json('password updated'))
             .catch(err => res.status(400).json('Error: ' + err));
     })
     .catch(err => res.status(400).json("Error: " + err));
 });
+
+//sign in route
+
+router.post('/login', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    //find user by email 
+    User.findOne({ email })
+    .then(user => {
+
+        //check if email address exists
+        if(!user) {
+            return res.status(400).json({emailnotfound: "Email not found"})
+        }
+
+        //compare passwords
+        bcrypt.compare(password, user.password)
+        .then(isMatch => {
+            if(isMatch) {
+                const payload = {
+                    id: user.id,
+                    name: user.name
+                }
+
+                jwt.sign(
+                    payload,
+                    process.env.secretOrKey,
+                    {
+                        expiresIn: 31556926 // 1 year in seconds
+                    },
+                    (err, token) => {
+                        res.json({
+                          success: true,
+                          token: token
+                        });
+                    }
+                );
+            }
+            else {
+                return res
+                  .status(400)
+                  .json({ passwordincorrect: "Password incorrect" });
+              }
+        })
+    })
+})
 
 module.exports = router;
