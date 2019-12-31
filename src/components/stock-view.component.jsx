@@ -1,24 +1,27 @@
 import React from 'react';
 import { Paper, Divider } from '@material-ui/core';
+import Skeleton from '@material-ui/lab/Skeleton';
 import { Line, Bar } from 'react-chartjs-2'
 
 export default function StockView(props) {
 
-    if ( props.stockTimeSeriesDaily === undefined ) {
+    if (props.flagUndefined) {
         
-        // while (props.stockTimeSeriesFiveMinute['Time Series (5min)'] === undefined) {
+            // setInterval(props.onSearchSelect(props.stockNameDisplay, props.company), 60000);
             
-        //     window.setInterval(props.onSearchSelect('AUPH', props.company), 5000);
-        //     return (
-        //         <div>durrr</div>
-        //     )
-            
-        // }
-
-        return (
-            <div>asdf</div>
-        )
-        
+            return (
+                <div className="stockPageLayout">
+                    <div className="loadingStockChart">
+                        <Skeleton variant="rect" className="loadingStockPrice"/>
+                        <Skeleton variant="rect" className="loadingChart"/>
+                        <Skeleton variant="rect" className="loadingChart"/>
+                        <Skeleton variant="rect" className="loadingChart"/>
+                        <Skeleton variant="text"/>
+                        <Skeleton variant="text"/>
+                        <Skeleton variant="text"/>
+                    </div>
+                </div>
+            )
     }
 
     else {
