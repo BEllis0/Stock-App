@@ -265,6 +265,30 @@ ul li {
   padding: 0px;
 }
 
+.loadingStockChart {
+  width: 100%;
+  height: auto;
+}
+
+.loadingChart {
+  width: 100%;
+  height: 125px !important;
+  margin: 25px 0;
+}
+
+.loadingStockPrice {
+  height: 50px !important;
+}
+
+.watchlistSection {
+  display: block;
+}
+
+.watchlistItem {
+  display: block;
+  padding: 5px 10px;
+}
+
 @media (max-width: 597px) {
   .app {
     flex-direction: column-reverse;
