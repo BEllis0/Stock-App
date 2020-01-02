@@ -67,12 +67,13 @@ export default class App extends React.Component {
 
     this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
 
-    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 600);
-    this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 500);
-    this.changeTimeline = debounce(this.changeTimeline.bind(this), 500);
+    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
+    this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
+    this.changeTimeline = debounce(this.changeTimeline.bind(this), 200);
     
     this.onAddWatchlist = this.onAddWatchlist.bind(this);
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
+    this.removeStock = this.removeStock.bind(this);
   }
   
   componentDidMount() {
@@ -118,17 +119,34 @@ export default class App extends React.Component {
     }, () => console.log(this.state.signInPassword));
   };
 
+  removeStock(stock) {
+    let filteredStocks = this.state.watchlist.filter(stockName => {
+      return stockName !== stock
+    });
+
+    this.setState({
+      watchlist: filteredStocks
+    }, () => this.watchlistUpdateDb());
+  }
+
   // adds stockname to the internal watchlist to track changes
   onAddWatchlist(stock) {
+    let newStock = stock;
     if (this.state.watchlist.length === 0) {
       this.setState({
-        watchlist: [stock]
+        watchlist: [newStock]
       }, () => this.watchlistUpdateDb())
     }
-    else if (this.state.watchlist.length > 0) {
-      this.setState((previousState) => ({
-        watchlist: [...previousState.watchlist, stock]
-      }, () => console.log(this.state.watchlist)))
+
+    //after first click, check if stock already exists, create new array and setstate
+    if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
+
+      let state = this.state.watchlist;
+      let newArr = state.concat(newStock)
+
+      this.setState({
+        watchlist: newArr
+      }, () => this.watchlistUpdateDb())
     }
   }
 
@@ -1562,11 +1580,6 @@ export default class App extends React.Component {
     else {console.log('unknown selector')} 
   }
 
-  // onChangeAddWatchlist(e) {
-  //   this.setState({
-  //     watchlistAdd: e.target.value,
-  //   }, () => console.log(this.state.watchlistAdd))
-  // };
 
 
   render() {
@@ -1588,6 +1601,7 @@ export default class App extends React.Component {
           watchlistDb={this.state.watchlistDb}
           onAddWatchlist={this.onAddWatchlist}
           watchlistUpdateDb={this.watchlistUpdateDb}
+          removeStock={this.removeStock}
           />
       </Grid>
 

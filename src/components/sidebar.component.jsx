@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Toolbar, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 
 const Sidebar = (props) => {
 
@@ -17,12 +18,12 @@ const Sidebar = (props) => {
                         <div className="top-padding">
                             <Link
                             to="/stocks"
-                            onClick={() => {props.onSearchSelect(stock['1. symbol'], `${stock['2. name']} stock`)}} 
+                            onClick={(event) => { event.persist(); props.onSearchSelect(stock['1. symbol'], `${stock['2. name']} stock`)}} 
                             className="stockSearchSymbol">
                             {stock['1. symbol']}</Link>
                             <p className="stockSearchCompanyName">{stock['2. name']}</p>
                         </div>
-                        <AddCircleIcon onClick={() => props.onAddWatchlist(stock['1. symbol'])} />
+                        <AddCircleIcon onClick={(event) => { event.persist(); props.onAddWatchlist(stock['1. symbol'])}} />
                     </div>
                     <Divider variant="middle" />
                     </div>
@@ -55,7 +56,10 @@ const Sidebar = (props) => {
             {props.watchlistDb.map(watchlist => {
                 return (
                     <div className="watchlistItem" key={props.watchlistDb.indexOf(watchlist)}>
+                        <div className="flex-row">
                         <h4 className="watchlistItemName">{watchlist}</h4>
+                        <RemoveCircleOutlineIcon onClick={() => props.removeStock(watchlist)}  /> 
+                        </div>
                         <Divider variant="middle" />
                     </div>
                 )
