@@ -116,26 +116,27 @@ router.post('/update-password/:id', (req, res) => {
 
 //sign in route
 
-router.post('/login', (req, res) => {
-    const email = req.body.email;
+router.get('/login/:email', (req, res) => {
+    const email = req.params.email;
     const password = req.body.password;
 
     //find user by email 
-    User.findOne({ email })
+    User.find({ email: req.params.email })
     .then(user => {
 
         //check if email address exists
         if(!user) {
-            return res.status(400).json({emailnotfound: "Email not found"})
+            return res.status(400).json({emailnotfound: "Email not found"});
         }
 
+        else {
         //compare passwords
-        bcrypt.compare(password, user.password)
+        bcrypt.compare(req.body.password, user[0].password)
         .then(isMatch => {
             if(isMatch) {
                 const payload = {
                     id: user.id,
-                    name: user.name
+                    name: user.username
                 }
 
                 jwt.sign(
@@ -146,8 +147,10 @@ router.post('/login', (req, res) => {
                     },
                     (err, token) => {
                         res.json({
-                          success: true,
-                          token: token
+                            success: true,
+                            userId: user[0].id,
+                            username: user[0].username,
+                            token: token
                         });
                     }
                 );
@@ -158,7 +161,10 @@ router.post('/login', (req, res) => {
                   .json({ passwordincorrect: "Password incorrect" });
               }
         })
+        .catch(err => res.status(400).json("Error" + err));
+        }
     })
+    .catch(err => res.status(400).json("Error: " + err));
 })
 
 module.exports = router;
