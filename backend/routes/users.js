@@ -19,36 +19,41 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(400).json("Error: " + err));
 });
 
+// get watchlist by user id
 router.get('/saved-stocks/:id', (req, res) => {
     User.findById(req.params.id)
     .then(user => res.json(user.watchlist))
     .catch(err => res.status(400).json("Error: " + err))
 });
 
+
+
 // --- For posting data
 
 // handles post requests to add new user to the database
 router.post('/newuser', (req, res) => {
-    //check if email already exists
-    User.findOne({ email: req.body.email })
-    .then(user => {
-        if (user) {
-          return res.status(400).json({ email: "Email already exists" });
-        } 
-        else {
-          const newUser = new User({
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password
-          });
 
-          // save user
-          newUser.save()
-            .then(() => res.json(`User Added: ${email} ${username}`))
-            .catch(err => res.status(400).json('Error: ' + err));
-        }
-    })
-    .catch(err => res.status(400).json("Error " + err));
+    const newUser = new User({
+        email: req.body.email,
+        username: req.body.username,
+        password: req.body.password
+      });
+
+      // save user
+      newUser.save()
+        .then(() => res.json(`User Added: ${email} ${username}`))
+        .catch(err => res.status(400).json('Error: ' + err));
+    //check if email already exists
+    // User.findOne({ email: req.body.email })
+    // .then(user => {
+    //     if (user) {
+    //       return res.status(400).json({ email: "Email already exists" });
+    //     } 
+    //     else {
+          
+    //     }
+    // })
+    // .catch(err => res.status(400).json("Error " + err));
 });
 
 
