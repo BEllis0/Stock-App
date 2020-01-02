@@ -16,7 +16,7 @@ const UserSchema = new Schema({
         validate: [isEmail, 'invalid email'],
         unique: true,
       },
-      username: {
+    username: {
         type: String,
         required: true,
         unique: true,
