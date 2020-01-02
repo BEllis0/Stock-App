@@ -12,6 +12,11 @@ export default function Navbar(props) {
                     <div>
                     <MenuIcon className="menu-icon" />
                     </div>
+                    {props.loggedIn &&
+                    <div>
+                        <p>Hello, {props.username}</p>
+                    </div>
+                    }
                     <div>
                     <Link to="/sign-in" className="nav-link">Sign In</Link>
                     <Divider orientation="vertical" />
