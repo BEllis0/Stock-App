@@ -1,7 +1,6 @@
 import React from 'react';
 import { Paper, TextField, Button } from '@material-ui/core';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 
 export default function UserSignIn(props) {
 
@@ -12,17 +11,15 @@ export default function UserSignIn(props) {
                 
                 <p>Sign in to your account</p>
                 <br />
-                <form className="signInForm"
-                //  onSubmit={} 
-                 >
+                <form className="signInForm">
                 
                 <TextField //username or email
                     className="signInFormField"
-                    id="outlined-password-input"
+                    id=""
                     label="Username"
                     type="text"
                     variant="outlined"
-                    onChange={props.onChangeSignInUsername}
+                    onChange={props.onChangeSignInEmail}
                     required
                 />
 
@@ -42,7 +39,9 @@ export default function UserSignIn(props) {
                     type="submit" 
                     variant="contained" 
                     color="secondary" 
-                    size="large">Sign In
+                    size="large"
+                    onClick={props.login}
+                    >Sign In
                 </Button>
                     
                 </form>
