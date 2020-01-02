@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { HashRouter, Route } from "react-router-dom";
+import { HashRouter, Route, useHistory } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
 import { throttle, debounce } from 'lodash';
@@ -22,8 +22,12 @@ export default class App extends React.Component {
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
-      email: '',
-      SignInUsername: '',
+      loggedIn: false,
+      loginError: false,
+      email: '', // set after login
+      userId: 0, // set after login
+      username: '', // set after login
+      SignInEmail: '',
       SignInPassword: '',
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
@@ -62,8 +66,10 @@ export default class App extends React.Component {
       flagUndefined: false,
     }
 
-    this.onChangeSignInUsername = throttle(this.onChangeSignInUsername.bind(this), 100);
-    this.onChangeSignInPassword = throttle(this.onChangeSignInPassword.bind(this), 100);
+    this.onChangeSignInEmail = this.onChangeSignInEmail.bind(this);
+    this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
+    this.login = this.login.bind(this);
+    this.getDbStocks = this.getDbStocks.bind(this);
 
     this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
 
@@ -91,24 +97,73 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     // pull the user's saved stocks from DB
-    
-      Axios.get('http://localhost:5000/users/saved-stocks/5df4111cb873b75a8c146b94')
-      .then(stock => {
-        console.log(stock)
+      if(this.state.loggedIn && this.state.userId) {
+        Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
+        .then(stock => {
+          console.log(stock)
+          this.setState({
+            watchlistDb: stock.data,
+            watchlist: stock.data
+          }, () => console.log(this.state.watchlistDb))
+        })
+        .catch(err => console.log(err))
+      }
+  };
+
+  login(e) {
+    e.preventDefault();
+    //data to pass to signin route
+    const loginCreds = {
+      email: this.state.signInEmail,
+      password: this.state.signInPassword
+    };
+
+    Axios.post(`http://localhost:5000/users/login/${this.state.signInEmail}`, loginCreds)
+    .then(res => {
+      
+      if(res) {
+        console.log(res);
+
         this.setState({
-          watchlistDb: stock.data
+          loggedIn: true,
+          username: res.data.username,
+          userId: res.data.userId,
+          token: res.data.token,
+          loginError: false
+        }, () => this.getDbStocks());
+      }
+
+      else {
+        this.setState({
+          loginError: true,
+        }, () => console.log(this.state.loginError));
+      }
+    })
+    .catch(err => console.log(err));
+  };
+
+  getDbStocks() {
+    // if user is logged in, get their watchlist
+    if(this.state.loggedIn && this.state.userId !== 0) {
+      Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
+      .then(stock => {
+        console.log(stock);
+
+        this.setState({
+          watchlistDb: stock.data,
+          watchlist: stock.data
         }, () => console.log(this.state.watchlistDb))
       })
       .catch(err => console.log(err))
-    
-  };
+    }
+  }
 
-  onChangeSignInUsername(event) {
+  onChangeSignInEmail(event) {
     event.persist();
 
     this.setState({
-      signInUsername: event.target.value
-    }, () => console.log(this.state.signInUsername));
+      signInEmail: event.target.value
+    }, () => console.log(this.state.signInEmail));
   };
 
   onChangeSignInPassword(event) {
@@ -131,22 +186,30 @@ export default class App extends React.Component {
 
   // adds stockname to the internal watchlist to track changes
   onAddWatchlist(stock) {
-    let newStock = stock;
-    if (this.state.watchlist.length === 0) {
-      this.setState({
-        watchlist: [newStock]
-      }, () => this.watchlistUpdateDb())
+    // allow only if user is logged in
+    if(this.state.loggedIn) {
+
+      let newStock = stock;
+      if (this.state.watchlist.length === 0) {
+        this.setState({
+          watchlist: [newStock]
+        }, () => this.watchlistUpdateDb())
+      }
+
+      //after first click, check if stock already exists, create new array and setstate
+      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
+
+        let state = this.state.watchlist;
+        let newArr = state.concat(newStock)
+
+        this.setState({
+          watchlist: newArr
+        }, () => this.watchlistUpdateDb())
+      }
     }
-
-    //after first click, check if stock already exists, create new array and setstate
-    if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
-
-      let state = this.state.watchlist;
-      let newArr = state.concat(newStock)
-
-      this.setState({
-        watchlist: newArr
-      }, () => this.watchlistUpdateDb())
+    //redirect to sign in page if not logged in
+    else {
+      window.location = '/sign-in';
     }
   }
 
@@ -157,12 +220,12 @@ export default class App extends React.Component {
     };
 
     //adds the new watchlist to db
-    Axios.post('http://localhost:5000/users/new-stock/5df4111cb873b75a8c146b94', watchlist)
+    Axios.post(`http://localhost:5000/users/new-stock/${this.state.userId}`, watchlist)
     .then(res => console.log(res))
     .then(() => {
 
       //retrieves new watchlist
-      Axios.get('http://localhost:5000/users/saved-stocks/5df4111cb873b75a8c146b94')
+      Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
@@ -1592,6 +1655,8 @@ export default class App extends React.Component {
           onChangeStock={this.onChangeStock}
           onStockSubmit={this.onStockSubmit}
           searchItems={this.state.searchItems}
+          loggedIn={this.state.loggedIn}
+          username={this.state.username}
           />
         <Sidebar 
           searchItems={this.state.searchItems}
@@ -1647,8 +1712,9 @@ export default class App extends React.Component {
           path={process.env.PUBLIC_URL + '/sign-in'} 
           exact
           render={(props) => <UserSignIn 
-            onChangeSignInUsername={this.onChangeSignInUsername} 
-            onChangeSignInPassword={this.onChangeSignInPassword} 
+            onChangeSignInEmail={this.onChangeSignInEmail} 
+            onChangeSignInPassword={this.onChangeSignInPassword}
+            login={this.login}
             /> } 
           />
 
