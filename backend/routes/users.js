@@ -116,9 +116,7 @@ router.post('/update-password/:id', (req, res) => {
 
 //sign in route
 
-router.get('/login/:email', (req, res) => {
-    const email = req.params.email;
-    const password = req.body.password;
+router.post('/login/:email', (req, res) => {
 
     //find user by email 
     User.find({ email: req.params.email })
