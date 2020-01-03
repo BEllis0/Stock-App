@@ -1,9 +1,16 @@
 import React from 'react';
 import { Paper, TextField, Button } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 export default function UserSignIn(props) {
 
+    if(props.displayMenu) {
+        return (
+            <p>asdf</p>
+        )
+    }
+
+    else {
         return (
             <div>
                 <h1>Sign In</h1>
@@ -16,7 +23,7 @@ export default function UserSignIn(props) {
                 <TextField //username or email
                     className="signInFormField"
                     id=""
-                    label="Username"
+                    label="Email Address"
                     type="text"
                     variant="outlined"
                     onChange={props.onChangeSignInEmail}
@@ -34,7 +41,7 @@ export default function UserSignIn(props) {
                 />
 
                 <Button
-                    // disabled={this.state.error} 
+                    // disabled={this.state.error}
                     className="createUserButton" 
                     type="submit" 
                     variant="contained" 
@@ -50,4 +57,5 @@ export default function UserSignIn(props) {
                 </Paper>
             </div>
         );
+    }
 };
