@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { HashRouter, Route, useHistory } from "react-router-dom";
+import { HashRouter, Route, useHistory, Redirect } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
 import { throttle, debounce } from 'lodash';
@@ -11,6 +11,7 @@ import NewsView from './components/news-view.component.jsx';
 import StockView from './components/stock-view.component.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
+import Menu from './components/menu.component.jsx';
 
 
 export default class App extends React.Component {
@@ -19,6 +20,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
+      displayMenu: undefined  ,
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
@@ -80,7 +82,9 @@ export default class App extends React.Component {
     this.onAddWatchlist = this.onAddWatchlist.bind(this);
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
     this.removeStock = this.removeStock.bind(this);
-  }
+
+    this.onDisplayMenu = this.onDisplayMenu.bind(this);
+  };
   
   componentDidMount() {
     // fetches NEWS API data on page load, taking 'stock' as initial enpoint
@@ -110,6 +114,10 @@ export default class App extends React.Component {
       }
   };
 
+  onDisplayMenu() {
+    this.setState({ displayMenu: !this.state.displayMenu}, () => console.log(this.state.displayMenu));
+  }
+
   login(e) {
     e.preventDefault();
     //data to pass to signin route
@@ -129,8 +137,12 @@ export default class App extends React.Component {
           username: res.data.username,
           userId: res.data.userId,
           token: res.data.token,
-          loginError: false
+          loginError: false,
+          signInEmail: '',
+          signInPassword: '',
         }, () => this.getDbStocks());
+
+        useHistory().go('/');
       }
 
       else {
@@ -138,6 +150,8 @@ export default class App extends React.Component {
           loginError: true,
         }, () => console.log(this.state.loginError));
       }
+
+      
     })
     .catch(err => console.log(err));
   };
@@ -152,11 +166,11 @@ export default class App extends React.Component {
         this.setState({
           watchlistDb: stock.data,
           watchlist: stock.data
-        }, () => console.log(this.state.watchlistDb))
+        });
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
     }
-  }
+  };
 
   onChangeSignInEmail(event) {
     event.persist();
@@ -207,11 +221,8 @@ export default class App extends React.Component {
         }, () => this.watchlistUpdateDb())
       }
     }
-    //redirect to sign in page if not logged in
-    else {
-      window.location = '/sign-in';
-    }
-  }
+    //redirect to sign in page if not logged in; handled on Link on sign in component
+  };
 
   // takes internal watchlist and posts to DB
   watchlistUpdateDb() {
@@ -236,7 +247,7 @@ export default class App extends React.Component {
       .catch(err => console.log(err))
     })
     .catch(err => console.log(err))
-  }
+  };
 
   // handles user typing in stock name, running stock api search and displaying
   onChangeStock(event) {
@@ -253,7 +264,7 @@ export default class App extends React.Component {
     })
     .catch(err => console.log(err));
     }
-  }
+  };
 
   onSearchSelect(stock, company) {
 
@@ -276,75 +287,77 @@ export default class App extends React.Component {
     .then(res => {
       console.log(res);
 
-      //triggers error view on stock page
-      // if(res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: true,
-      //   })
-      // }
-      // else if (!res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: false,
-      //   })
-      // }
-
-      //stock chart values for 1 business day; references the last recorded day
-      const chartValues = Object.keys(res.data['Time Series (5min)'])
-      .filter((date) => {
-        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-      })
-      .map(key => {
-        return res.data['Time Series (5min)'][key]['4. close'];
-      });
-
-      //stock chart labels; filtered for 1 business day
-      const chartLabels = Object.keys(res.data['Time Series (5min)'])
-      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-      //stock volume chart data
-      const chartVolumeData = Object.keys(res.data['Time Series (5min)'])
-      .filter((date) => {
-        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-      })
-      .map(key => {
-        return res.data['Time Series (5min)'][key]['5. volume'];
-      });
-
-      //stock volume chart labels
-      const chartVolumeLabels = Object.keys(res.data['Time Series (5min)'])
-      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-      const dayFilter = Object.keys(res.data['Time Series (5min)'])
-      .filter(day => day.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]))
+      //triggers error view on stock page; caused by api call limit
+      if(res.data.hasOwnProperty('Note')) {
+        this.setState({
+          flagUndefined: true,
+        }, () => console.log(this.state.flagUndefined))
+      }
       
-      const percentOld = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[dayFilter.length-1]]['1. open'].slice(0, -2);
-      const currentPrice = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[0]]['4. close'].slice(0, -2);
-      const percentChange = Number((((currentPrice - percentOld) / percentOld) * 100).toFixed(2));
+      //if no error
+      else if (!res.data.hasOwnProperty('Note')) {
 
-      console.log(percentOld, dayFilter.length-1);
+        //stock chart values for 1 business day; references the last recorded day
+        const chartValues = Object.keys(res.data['Time Series (5min)'])
+        .filter((date) => {
+          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+        })
+        .map(key => {
+          return res.data['Time Series (5min)'][key]['4. close'];
+        });
 
-      this.setState({
-        stockPrice: currentPrice,
-        stockNameDisplay: stock,
-        percentChange: percentChange,
-        stockTimeSeriesFiveMinute: [res.data],
-        chartData: {
-          labels: [...chartLabels.reverse()],
-          datasets: [{
-            label: 'price',
-            data: chartValues.reverse(),
-            backgroundColor: '#5EEEFF'
-          }]
-        },
-        chartVolumeData: {
-          labels: [...chartVolumeLabels.reverse()],
-          datasets: [{
-            label: 'volume',
-            data: chartVolumeData.reverse(),
-            backgroundColor: '#8E3CF5'
-          }]
-        }
-      }, () => console.log(this.state.chartData))
+        //stock chart labels; filtered for 1 business day
+        const chartLabels = Object.keys(res.data['Time Series (5min)'])
+        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
+
+        //stock volume chart data
+        const chartVolumeData = Object.keys(res.data['Time Series (5min)'])
+        .filter((date) => {
+          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+        })
+        .map(key => {
+          return res.data['Time Series (5min)'][key]['5. volume'];
+        });
+
+        //stock volume chart labels
+        const chartVolumeLabels = Object.keys(res.data['Time Series (5min)'])
+        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
+
+        const dayFilter = Object.keys(res.data['Time Series (5min)'])
+        .filter(day => day.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]))
+        
+        const percentOld = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[dayFilter.length-1]]['1. open'].slice(0, -2);
+        const currentPrice = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[0]]['4. close'].slice(0, -2);
+        const percentChange = Number((((currentPrice - percentOld) / percentOld) * 100).toFixed(2));
+
+        console.log(percentOld, dayFilter.length-1);
+
+        this.setState({
+          flagUndefined: false,
+          stockPrice: currentPrice,
+          stockNameDisplay: stock,
+          percentChange: percentChange,
+          stockTimeSeriesFiveMinute: [res.data],
+          chartData: {
+            labels: [...chartLabels.reverse()],
+            datasets: [{
+              label: 'price',
+              data: chartValues.reverse(),
+              backgroundColor: '#5EEEFF'
+            }]
+          },
+          chartVolumeData: {
+            labels: [...chartVolumeLabels.reverse()],
+            datasets: [{
+              label: 'volume',
+              data: chartVolumeData.reverse(),
+              backgroundColor: '#8E3CF5'
+            }]
+          }
+        }, () => console.log(this.state.chartData))
+      }
+
+      
 
     })
     .catch(err => console.log(err));
@@ -355,21 +368,17 @@ export default class App extends React.Component {
     .then(res => {
       console.log(res);
 
-      // if(res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: true,
-      //   })
-      // }
-      // else if (!res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: false,
-      //   })
-      // }
-
-      this.setState({
-        stockTimeSeriesDaily: [res.data]
-      })
-
+      if(res.data.hasOwnProperty('Note')) {
+        this.setState({
+          flagUndefined: true,
+        })
+      }
+      else if (!res.data.hasOwnProperty('Note')) {
+        this.setState({
+          flagUndefined: false,
+          stockTimeSeriesDaily: [res.data]
+        })
+      }
     })
     .catch(err => console.log(err));
 
@@ -379,42 +388,38 @@ export default class App extends React.Component {
     .then(res => {
         console.log(res);
 
-        // if(res.data.hasOwnProperty('Note')) {
-        //   this.setState({
-        //     flagUndefined: true,
-        //   })
-        // }
-        // else if (!res.data.hasOwnProperty('Note')) {
-        //   this.setState({
-        //     flagUndefined: false,
-        //   })
-        // }
-
-        const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-          return res.data['Weekly Time Series'][key]['2. high']
-        });
-
-        const weekLowArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-          return res.data['Weekly Time Series'][key]['3. low']
-        });
-
-        const avgVolArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-          return res.data['Weekly Time Series'][key]['5. volume']
-        });
-
-        const weekHigh = Math.max(...weekHighArr);
-        const weekLow = Math.min(...weekLowArr);
-
-        const avgVol = avgVolArr.reduce((a, b) => {
-          return (a + b) / avgVolArr.length;
-        });
-
-        this.setState({
-          stockTimeSeriesWeekly: [res.data],
-          weekHigh: weekHigh,
-          weekLow: weekLow,
-          avgVol: Math.round(avgVol)
-        })
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        else if (!res.data.hasOwnProperty('Note')) {
+          const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+            return res.data['Weekly Time Series'][key]['2. high']
+          });
+  
+          const weekLowArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+            return res.data['Weekly Time Series'][key]['3. low']
+          });
+  
+          const avgVolArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
+            return res.data['Weekly Time Series'][key]['5. volume']
+          });
+  
+          const weekHigh = Math.max(...weekHighArr);
+          const weekLow = Math.min(...weekLowArr);
+  
+          const avgVol = avgVolArr.reduce((a, b) => {
+            return (a + b) / avgVolArr.length;
+          });
+  
+          this.setState({
+            stockTimeSeriesWeekly: [res.data],
+            weekHigh: weekHigh,
+            weekLow: weekLow,
+            avgVol: Math.round(avgVol)
+          });
+        }
     })
     .catch(err => console.log(err));
 
@@ -423,46 +428,42 @@ export default class App extends React.Component {
     .then(res => {
       console.log(res);
 
-      // if(res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: true,
-      //   })
-      // }
-      // else if (!res.data.hasOwnProperty('Note')) {
-      //   this.setState({
-      //     flagUndefined: false,
-      //   })
-      // }
+      if(res.data.hasOwnProperty('Note')) {
+        this.setState({
+          flagUndefined: true,
+        })
+      }
+      else if (!res.data.hasOwnProperty('Note')) {
+        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
+        .filter((date) => {
+          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
+        })
+        .map(key => {
+          return res.data['Technical Analysis: RSI'][key]['RSI'];
+        });
 
-      const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
-      .filter((date) => {
-        return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-      })
-      .map(key => {
-        return res.data['Technical Analysis: RSI'][key]['RSI'];
-      });
+        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
+        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
-      const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
-      .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-      this.setState({
-        rsiFiveMinute: [res.data],
-        rsiChartData: {
-          labels: [...rsiChartLabels.reverse()],
-          datasets: [{
-            label: 'RSI 10',
-            fill: false,
-            data: rsiChartValues.reverse(),
-            backgroundColor: '#5EEEFF',
-            pointHoverBackgroundColor: "#fff",
-            pointHoverBorderColor: "#000",
-            borderColor: "#bae755",
-          }]
-        },
-      })
+        this.setState({
+          rsiFiveMinute: [res.data],
+          rsiChartData: {
+            labels: [...rsiChartLabels.reverse()],
+            datasets: [{
+              label: 'RSI 10',
+              fill: false,
+              data: rsiChartValues.reverse(),
+              backgroundColor: '#5EEEFF',
+              pointHoverBackgroundColor: "#fff",
+              pointHoverBorderColor: "#000",
+              borderColor: "#bae755",
+            }]
+          },
+        })
+      }
     })
     .catch(err => console.log(err));
-  }
+  };
 
   //used to change state of the timeline reference; calls the function below to run new api calls
   onSelectTimeline(timeline) {
@@ -1641,7 +1642,7 @@ export default class App extends React.Component {
 
 
     else {console.log('unknown selector')} 
-  }
+  };
 
 
 
@@ -1657,6 +1658,9 @@ export default class App extends React.Component {
           searchItems={this.state.searchItems}
           loggedIn={this.state.loggedIn}
           username={this.state.username}
+          onDisplayMenu={this.onDisplayMenu}
+          displayMenu={this.state.displayMenu}
+
           />
         <Sidebar 
           searchItems={this.state.searchItems}
@@ -1667,15 +1671,25 @@ export default class App extends React.Component {
           onAddWatchlist={this.onAddWatchlist}
           watchlistUpdateDb={this.watchlistUpdateDb}
           removeStock={this.removeStock}
+          loggedIn={this.state.loggedIn}
+          displayMenu={this.state.displayMenu}
+          onDisplayMenu={this.onDisplayMenu}
           />
       </Grid>
 
       <Grid className="mainViewGrid" item sm={8}>
+        {this.state.displayMenu && 
+        <Menu />
+        }
+        
+        {!this.state.displayMenu &&
+        <div>
         <Route 
           path={process.env.PUBLIC_URL + '/stocks'}
           exact
           render={(props) => 
             <StockView 
+              displayMenu={this.state.displayMenu}
               stockName={this.state.stockName}
               stockNameDisplay={this.state.stockNameDisplay} 
               stockPrice={this.state.stockPrice}
@@ -1695,32 +1709,41 @@ export default class App extends React.Component {
               onSelectTimeline={this.onSelectTimeline}
               timelineRef={this.state.timelineRef}
               flagUndefined={this.state.flagUndefined}
-            />
-          } 
+            /> } 
           />
         <Route 
           path={process.env.PUBLIC_URL + '/'} 
           exact
-          render={(props) => <NewsView newsItems={this.state.newsItems} /> } 
+          render={(props) => 
+            <NewsView 
+              newsItems={this.state.newsItems} 
+              displayMenu={this.state.displayMenu} 
+            /> } 
           /> 
         <Route 
           path={process.env.PUBLIC_URL + '/create-user'} 
           exact
-          render={(props) => <CreateUser /> } 
+          render={(props) => 
+            <CreateUser 
+              displayMenu={this.state.displayMenu} 
+            /> } 
           />
         <Route 
           path={process.env.PUBLIC_URL + '/sign-in'} 
           exact
-          render={(props) => <UserSignIn 
+          render={(props) => <UserSignIn
+            displayMenu={this.state.displayMenu}
             onChangeSignInEmail={this.onChangeSignInEmail} 
             onChangeSignInPassword={this.onChangeSignInPassword}
             login={this.login}
             /> } 
           />
-
+          </div>
+        }
+        
       </Grid>
       </div>
     </HashRouter>
   )
-  }
-}
+  };
+};
