@@ -10,7 +10,7 @@ export default function Navbar(props) {
             <AppBar className="navbar" position="sticky" color="secondary" >
                 <Toolbar className="nav-menu" >
                     <div>
-                    <MenuIcon className="menu-icon" />
+                    <MenuIcon className="menu-icon" onClick={props.onDisplayMenu} />
                     </div>
                     {props.loggedIn &&
                     <div>
@@ -18,9 +18,17 @@ export default function Navbar(props) {
                     </div>
                     }
                     <div>
-                    <Link to="/sign-in" className="nav-link">Sign In</Link>
+                    <Link
+                        to="/sign-in" 
+                        onClick={(props.displayMenu && props.onDisplayMenu )} 
+                        className="nav-link">Sign In
+                    </Link>
                     <Divider orientation="vertical" />
-                    <Link to="/create-user" className="nav-link">Create User</Link>
+                    <Link
+                        to="/create-user"
+                        onClick={(props.displayMenu && props.onDisplayMenu )}
+                        className="nav-link">Create User
+                    </Link>
                     </div>
                 </Toolbar>
                 <form className="stock-input-form">
@@ -28,7 +36,8 @@ export default function Navbar(props) {
                     id="standard-search" 
                     label="Search for stocks" 
                     type="search" 
-                    onChange={props.onChangeStock} 
+                    onChange={props.onChangeStock}
+                    onClick={(props.displayMenu && props.onDisplayMenu )}
                     />
                 </form>
 
