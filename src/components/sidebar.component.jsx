@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import { Toolbar, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
@@ -23,7 +23,11 @@ const Sidebar = (props) => {
                             {stock['1. symbol']}</Link>
                             <p className="stockSearchCompanyName">{stock['2. name']}</p>
                         </div>
-                        <AddCircleIcon onClick={(event) => { event.persist(); props.onAddWatchlist(stock['1. symbol'])}} />
+                        
+                        <Link to="/sign-in" className={(props.loggedIn ? "disabledButton" : "addStockRedirect")}>
+                            <AddCircleIcon onClick={(event) => { event.persist(); props.onAddWatchlist(stock['1. symbol']);}} />
+                        </Link>
+                
                     </div>
                     <Divider variant="middle" />
                     </div>
@@ -38,7 +42,7 @@ const Sidebar = (props) => {
         return (
             <div className="sidebar">
             <Toolbar disableGutters={true} className="sidebarNewsButton">
-            <Link to="/" className="nav-link"><h3>Stock News</h3></Link>
+            <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
             </Toolbar>
     
             <Divider variant="middle" />
@@ -57,7 +61,12 @@ const Sidebar = (props) => {
                 return (
                     <div className="watchlistItem" key={props.watchlistDb.indexOf(watchlist)}>
                         <div className="flex-row">
-                        <h4 className="watchlistItemName">{watchlist}</h4>
+                        <Link 
+                            className="watchlistItemName"
+                            to="/stocks"
+                            onClick={() => props.onSearchSelect(watchlist, watchlist)}>
+                            {watchlist}
+                        </Link>
                         <RemoveCircleOutlineIcon onClick={() => props.removeStock(watchlist)}  /> 
                         </div>
                         <Divider variant="middle" />
