@@ -6,8 +6,6 @@ import { Line, Bar } from 'react-chartjs-2'
 export default function StockView(props) {
 
     if (props.flagUndefined) {
-        
-            // setInterval(props.onSearchSelect(props.stockNameDisplay, props.company), 60000);
             
             return (
                 <div className="stockPageLayout">
@@ -25,7 +23,7 @@ export default function StockView(props) {
             )
     }
 
-    else {
+    else if (!props.flagUndefined) {
         return (
             <div className="stockPageLayout">
                 <div className="flex-row">
