@@ -13,6 +13,7 @@ export default function StockView(props) {
                 <div className="stockPageLayout">
                     <div className="loadingStockChart">
                         <Skeleton variant="rect" className="loadingStockPrice"/>
+                        <h3>Please try again in 1 minute.</h3>
                         <Skeleton variant="rect" className="loadingChart"/>
                         <Skeleton variant="rect" className="loadingChart"/>
                         <Skeleton variant="rect" className="loadingChart"/>
