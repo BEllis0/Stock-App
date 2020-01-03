@@ -295,7 +295,44 @@ ul li {
 
 @media (max-width: 597px) {
   .app {
-    flex-direction: column-reverse;
+    flex-direction: column;
+    height: auto;
+  }
 
+  .navbar {
+    height: 150px;
+  }
+
+  .sidebar {
+    height: 200px;
+  }
+
+  .stockPageStockName {
+    display: inline;
+  }
+
+  .mainViewGrid {
+    padding: 10px;
+  }
+
+  .margin-left {
+    margin-left: 2px;
+  }
+
+  .chart, .indicators, .volumeChart {
+    padding: 1px;
+  }
+
+  .newsArticle {
+    width: 100%;
+  }
+
+  .details {
+    flex-direction: column;
+  }
+
+  .detailRow {
+    border-left: none;
+    border-bottom: 1px solid gray;
   }
 }
