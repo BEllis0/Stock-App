@@ -114,6 +114,26 @@ export default class App extends React.Component {
       }
   };
 
+  componentDidUpdate() {
+    console.log('did update')
+    let refresh;
+    if(this.state.flagUndefined) {
+      refresh = setTimeout(
+        this.onSearchSelect(this.state.stockNameDisplay, this.state.company),
+        20000
+
+      );
+    }
+    if(!this.state.flagUndefined) {
+      console.log('flag undefined false');
+      clearInterval(refresh)
+    }
+  }
+
+  componentWillUnmount() {
+    console.log('unmount')
+  }
+
   onDisplayMenu() {
     this.setState({ displayMenu: !this.state.displayMenu}, () => console.log(this.state.displayMenu));
   }
@@ -266,13 +286,14 @@ export default class App extends React.Component {
     }
   };
 
-  onSearchSelect(stock, company) {
+  async onSearchSelect(stock, company) {
 
     //NEWS API
     Axios.get(`http://localhost:5000/top-news/${company}`)
     .then(articles => {
 
         this.setState({
+          timelineRef: '1D',
           newsItems: [articles.data],
           stockCompany: company
       }, () => console.log(this.state.newsItems));
@@ -280,16 +301,38 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     // STOCK API CONNECTION
+
+    //daily
+    await Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
+    .then(res => {
+      console.log(res);
+
+      if(res.data.hasOwnProperty('Note')) {
+        this.setState({
+          flagUndefined: true,
+          timelineRef: '1D',
+        }, () => console.log(this.state.flagUndefined))
+      }
+      else if (!res.data.hasOwnProperty('Note')) {
+        this.setState({
+          timelineRef: '1D',
+          flagUndefined: false,
+          stockTimeSeriesDaily: [res.data]
+        }, () => console.log(this.state.flagUndefined))
+      }
+    })
+    .catch(err => console.log(err));
   
 
     //5minute
-    Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
+    await Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
 
       //triggers error view on stock page; caused by api call limit
       if(res.data.hasOwnProperty('Note')) {
         this.setState({
+          timelineRef: '1D',
           flagUndefined: true,
         }, () => console.log(this.state.flagUndefined))
       }
@@ -333,6 +376,7 @@ export default class App extends React.Component {
         console.log(percentOld, dayFilter.length-1);
 
         this.setState({
+          timelineRef: '1D',
           flagUndefined: false,
           stockPrice: currentPrice,
           stockNameDisplay: stock,
@@ -354,7 +398,7 @@ export default class App extends React.Component {
               backgroundColor: '#8E3CF5'
             }]
           }
-        }, () => console.log(this.state.chartData))
+        }, () => console.log(this.state.flagUndefined))
       }
 
       
@@ -362,36 +406,16 @@ export default class App extends React.Component {
     })
     .catch(err => console.log(err));
 
-
-    //daily
-    Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
-    .then(res => {
-      console.log(res);
-
-      if(res.data.hasOwnProperty('Note')) {
-        this.setState({
-          flagUndefined: true,
-        })
-      }
-      else if (!res.data.hasOwnProperty('Note')) {
-        this.setState({
-          flagUndefined: false,
-          stockTimeSeriesDaily: [res.data]
-        })
-      }
-    })
-    .catch(err => console.log(err));
-
-
     // weekly
-    Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
+    await Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
     .then(res => {
         console.log(res);
 
         if(res.data.hasOwnProperty('Note')) {
           this.setState({
+            timelineRef: '1D',
             flagUndefined: true,
-          })
+          }, () => console.log(this.state.flagUndefined))
         }
         else if (!res.data.hasOwnProperty('Note')) {
           const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
@@ -414,24 +438,27 @@ export default class App extends React.Component {
           });
   
           this.setState({
+            timelineRef: '1D',
+            flagUndefined: false,
             stockTimeSeriesWeekly: [res.data],
             weekHigh: weekHigh,
             weekLow: weekLow,
             avgVol: Math.round(avgVol)
-          });
+          }, () => console.log(this.state.flagUndefined));
         }
     })
     .catch(err => console.log(err));
 
     //RSI
-    Axios.get(`http://localhost:5000/stock-rsi/${stock}/5min/10`)
+    await Axios.get(`http://localhost:5000/stock-rsi/${stock}/5min/10`)
     .then(res => {
       console.log(res);
 
       if(res.data.hasOwnProperty('Note')) {
         this.setState({
           flagUndefined: true,
-        })
+          timelineRef: '1D',
+        }, () => console.log(this.state.flagUndefined))
       }
       else if (!res.data.hasOwnProperty('Note')) {
         const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
@@ -446,6 +473,8 @@ export default class App extends React.Component {
         .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
         this.setState({
+          timelineRef: '1D',
+          flagUndefined: false,
           rsiFiveMinute: [res.data],
           rsiChartData: {
             labels: [...rsiChartLabels.reverse()],
@@ -459,7 +488,7 @@ export default class App extends React.Component {
               borderColor: "#bae755",
             }]
           },
-        })
+        }, () => console.log(this.state.flagUndefined))
       }
     })
     .catch(err => console.log(err));
@@ -484,39 +513,49 @@ export default class App extends React.Component {
         Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${this.state.stockName}`)
         .then(res => {
 
-          // hour data
-          const hourData = Object.keys(res.data['Time Series (1min)']).slice(0, 60).map(key => {
-            return res.data['Time Series (1min)'][key]['4. close']
-          });
+          // logic for api call limit
+          if(res.data.hasOwnProperty('Note')) {
+            this.setState({
+              flagUndefined: true,
+            })
+          }
+          
+          else if (!res.data.hasOwnProperty('Note')) {
+            // hour data
+            const hourData = Object.keys(res.data['Time Series (1min)']).slice(0, 60).map(key => {
+              return res.data['Time Series (1min)'][key]['4. close']
+            });
 
-          const hourVolume = Object.keys(res.data['Time Series (1min)']).slice(0,60).map(key => {
-            return res.data['Time Series (1min)'][key]['5. volume']
-          });
+            const hourVolume = Object.keys(res.data['Time Series (1min)']).slice(0,60).map(key => {
+              return res.data['Time Series (1min)'][key]['5. volume']
+            });
 
-          // labels for volume and data
-          const labels = Object.keys(res.data['Time Series (1min)']).slice(0,60);
+            // labels for volume and data
+            const labels = Object.keys(res.data['Time Series (1min)']).slice(0,60);
 
-          this.setState({
-            firstMinClick: false,
-            stockTimeSeriesOneMinute: [res.data],
-            chartData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'price',
-                data: hourData.reverse(),
-                backgroundColor: '#5EEEFF'
-              }]
-            },
-            chartVolumeData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'volume',
-                data: hourVolume.reverse(),
-                backgroundColor: '#8E3CF5'
-              }]
-            }
+            this.setState({
+              firstMinClick: false,
+              flagUndefined: false,
+              stockTimeSeriesOneMinute: [res.data],
+              chartData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'price',
+                  data: hourData.reverse(),
+                  backgroundColor: '#5EEEFF'
+                }]
+              },
+              chartVolumeData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'volume',
+                  data: hourVolume.reverse(),
+                  backgroundColor: '#8E3CF5'
+                }]
+              }
 
-          })
+            })
+          }
         })
         .catch(err => console.log(err));
 
@@ -525,27 +564,38 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiOneMinute: [res.data],
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60);
+
+          this.setState({
+            flagUndefined: false,
+            rsiOneMinute: [res.data],
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -571,6 +621,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiOneMinute[0]['Technical Analysis: RSI']).slice(0,60);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -647,6 +698,7 @@ export default class App extends React.Component {
       .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
 
       this.setState({
+        flagUndefined: false,
         chartData: {
           labels: [...chartLabels.reverse()],
           datasets: [{
@@ -685,38 +737,49 @@ export default class App extends React.Component {
         Axios.get(`http://localhost:5000/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
-          const hourData = Object.keys(res.data['Time Series (60min)']).slice(0, 53).map(key => {
-            return res.data['Time Series (60min)'][key]['4. close']
-          });
-
-          const hourVolume = Object.keys(res.data['Time Series (60min)']).slice(0, 53).map(key => {
-            return res.data['Time Series (60min)'][key]['5. volume']
-          });
-
-          // labels for volume and data
-          const labels = Object.keys(res.data['Time Series (60min)']).slice(0, 53);
-
+          // logic for api call limit
+          if(res.data.hasOwnProperty('Note')) {
+            this.setState({
+              flagUndefined: true,
+            })
+          }
           
-          this.setState({
-            firstHourClick: false,
-            stockTimeSeriesSixtyMinute: [res.data],
-            chartData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'price',
-                data: hourData.reverse(),
-                backgroundColor: '#5EEEFF'
-              }]
-            },
-            chartVolumeData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'volume',
-                data: hourVolume.reverse(),
-                backgroundColor: '#8E3CF5'
-              }]
-            }
-          }, console.log(this.state.stockTimeSeriesSixtyMinute))
+          else if (!res.data.hasOwnProperty('Note')) {
+
+            const hourData = Object.keys(res.data['Time Series (60min)']).slice(0, 53).map(key => {
+              return res.data['Time Series (60min)'][key]['4. close']
+            });
+
+            const hourVolume = Object.keys(res.data['Time Series (60min)']).slice(0, 53).map(key => {
+              return res.data['Time Series (60min)'][key]['5. volume']
+            });
+
+            // labels for volume and data
+            const labels = Object.keys(res.data['Time Series (60min)']).slice(0, 53);
+
+            
+            this.setState({
+              flagUndefined: false,
+              firstHourClick: false,
+              stockTimeSeriesSixtyMinute: [res.data],
+              chartData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'price',
+                  data: hourData.reverse(),
+                  backgroundColor: '#5EEEFF'
+                }]
+              },
+              chartVolumeData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'volume',
+                  data: hourVolume.reverse(),
+                  backgroundColor: '#8E3CF5'
+                }]
+              }
+            }, console.log(this.state.stockTimeSeriesSixtyMinute))
+          }
         })
         .catch(err => console.log(err));
 
@@ -727,27 +790,38 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,53).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,53);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,53).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiSixtyMinute: [res.data],
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,53);
+
+          this.setState({
+            flagUndefined: false,
+            rsiSixtyMinute: [res.data],
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -773,6 +847,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiSixtyMinute[0]['Technical Analysis: RSI']).slice(0, 53);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -813,38 +888,49 @@ export default class App extends React.Component {
         Axios.get(`http://localhost:5000/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
-          const hourData = Object.keys(res.data['Time Series (60min)']).slice(0, 141).map(key => {
-            return res.data['Time Series (60min)'][key]['4. close']
-          });
-
-          const hourVolume = Object.keys(res.data['Time Series (60min)']).slice(0, 141).map(key => {
-            return res.data['Time Series (60min)'][key]['5. volume']
-          });
-
-          // labels for volume and data
-          const labels = Object.keys(res.data['Time Series (60min)']).slice(0, 141);
-
+          // logic for api call limit
+          if(res.data.hasOwnProperty('Note')) {
+            this.setState({
+              flagUndefined: true,
+            })
+          }
           
-          this.setState({
-            firstHourClick: false,
-            stockTimeSeriesSixtyMinute: [res.data],
-            chartData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'price',
-                data: hourData.reverse(),
-                backgroundColor: '#5EEEFF'
-              }]
-            },
-            chartVolumeData: {
-              labels: [...labels.reverse()],
-              datasets: [{
-                label: 'volume',
-                data: hourVolume.reverse(),
-                backgroundColor: '#8E3CF5'
-              }]
-            }
-          }, console.log(this.state.stockTimeSeriesSixtyMinute))
+          else if (!res.data.hasOwnProperty('Note')) {
+
+            const hourData = Object.keys(res.data['Time Series (60min)']).slice(0, 141).map(key => {
+              return res.data['Time Series (60min)'][key]['4. close']
+            });
+
+            const hourVolume = Object.keys(res.data['Time Series (60min)']).slice(0, 141).map(key => {
+              return res.data['Time Series (60min)'][key]['5. volume']
+            });
+
+            // labels for volume and data
+            const labels = Object.keys(res.data['Time Series (60min)']).slice(0, 141);
+
+            
+            this.setState({
+              flagUndefined: false,
+              firstHourClick: false,
+              stockTimeSeriesSixtyMinute: [res.data],
+              chartData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'price',
+                  data: hourData.reverse(),
+                  backgroundColor: '#5EEEFF'
+                }]
+              },
+              chartVolumeData: {
+                labels: [...labels.reverse()],
+                datasets: [{
+                  label: 'volume',
+                  data: hourVolume.reverse(),
+                  backgroundColor: '#8E3CF5'
+                }]
+              }
+            }, console.log(this.state.stockTimeSeriesSixtyMinute))
+          }
         })
         .catch(err => console.log(err));
 
@@ -855,27 +941,38 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,141).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,141);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,141).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiSixtyMinute: [res.data],
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,141);
+
+          this.setState({
+            flagUndefined: false,
+            rsiSixtyMinute: [res.data],
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -901,6 +998,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiSixtyMinute[0]['Technical Analysis: RSI']).slice(0, 141);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -943,55 +1041,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60).map(key => {
-          return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60).map(key => {
-          return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+          
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60).map(key => {
+            return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60).map(key => {
+            return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 60);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiDay: [res.data],
-          firstDayClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,60);
+
+          this.setState({
+            flagUndefined: false,
+            rsiDay: [res.data],
+            firstDayClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1017,6 +1126,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiDay[0]['Technical Analysis: RSI']).slice(0, 60);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1060,55 +1170,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130).map(key => {
-          return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130).map(key => {
-          return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,130).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130).map(key => {
+            return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130).map(key => {
+            return this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)']).slice(0, 130);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,130);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,130).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiDay: [res.data],
-          firstDayClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,130);
+
+          this.setState({
+            flagUndefined: false,
+            rsiDay: [res.data],
+            firstDayClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1134,6 +1255,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiDay[0]['Technical Analysis: RSI']).slice(0, 130);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1178,55 +1300,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,52).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 52);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,52);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,52).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiWeek: [res.data],
-          firstWeekClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,52);
+
+          this.setState({
+            flagUndefined: false,
+            rsiWeek: [res.data],
+            firstWeekClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1252,6 +1385,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiWeek[0]['Technical Analysis: RSI']).slice(0, 52);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1296,55 +1430,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,156).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 156);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,156);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,156).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiWeek: [res.data],
-          firstWeekClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,156);
+
+          this.setState({
+            flagUndefined: false,
+            rsiWeek: [res.data],
+            firstWeekClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1370,6 +1515,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiWeek[0]['Technical Analysis: RSI']).slice(0, 156);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1415,55 +1561,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,260).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).slice(0, 260);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,260);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).slice(0,260).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiWeek: [res.data],
-          firstWeekClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']).slice(0,260);
+
+          this.setState({
+            flagUndefined: false,
+            rsiWeek: [res.data],
+            firstWeekClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1489,6 +1646,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiWeek[0]['Technical Analysis: RSI']).slice(0, 260);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1534,55 +1692,66 @@ export default class App extends React.Component {
         .then(res => {
         console.log(res)
 
-        const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
-        });
-  
-        const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).map(key => {
-          return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
-        });
-  
-        // labels for volume and data
-        const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']);
+        // logic for api call limit
+        if(res.data.hasOwnProperty('Note')) {
+          this.setState({
+            flagUndefined: true,
+          })
+        }
+        
+        else if (!res.data.hasOwnProperty('Note')) {
 
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI']
-        });
+          const hourData = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['4. close']
+          });
+    
+          const hourVolume = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']).map(key => {
+            return this.state.stockTimeSeriesWeekly[0]['Weekly Time Series'][key]['5. volume']
+          });
+    
+          // labels for volume and data
+          const labels = Object.keys(this.state.stockTimeSeriesWeekly[0]['Weekly Time Series']);
 
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']);
+          const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI']).map(key => {
+            return res.data['Technical Analysis: RSI'][key]['RSI']
+          });
 
-        this.setState({
-          rsiWeek: [res.data],
-          firstWeekClick: false,
-          chartData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: hourData.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...labels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: hourVolume.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          },
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
+          const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI']);
+
+          this.setState({
+            flagUndefined: false,
+            rsiWeek: [res.data],
+            firstWeekClick: false,
+            chartData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'price',
+                data: hourData.reverse(),
+                backgroundColor: '#5EEEFF'
+              }]
+            },
+            chartVolumeData: {
+              labels: [...labels.reverse()],
+              datasets: [{
+                label: 'volume',
+                data: hourVolume.reverse(),
+                backgroundColor: '#8E3CF5'
+              }]
+            },
+            rsiChartData: {
+              labels: [...rsiChartLabels.reverse()],
+              datasets: [{
+                label: 'RSI 10',
+                fill: false,
+                data: rsiChartValues.reverse(),
+                backgroundColor: '#5EEEFF',
+                pointHoverBackgroundColor: "#fff",
+                pointHoverBorderColor: "#000",
+                borderColor: "#bae755",
+              }]
+            },
+          })
+        }
         })
         .catch(err => console.log(err));
       }
@@ -1608,6 +1777,7 @@ export default class App extends React.Component {
         const rsiChartLabels = Object.keys(this.state.rsiWeek[0]['Technical Analysis: RSI']);
 
         this.setState({
+          flagUndefined: false,
           chartData: {
             labels: [...labels.reverse()],
             datasets: [{
@@ -1702,6 +1872,7 @@ export default class App extends React.Component {
               weekLow={this.state.weekLow}
               avgVol={this.state.avgVol}
               onSearchSelect={this.onSearchSelect}
+              changeTimeline={this.changeTimeline}
               newsItems={this.state.newsItems}
               chartData={this.state.chartData}
               chartVolumeData={this.state.chartVolumeData}
@@ -1709,6 +1880,7 @@ export default class App extends React.Component {
               onSelectTimeline={this.onSelectTimeline}
               timelineRef={this.state.timelineRef}
               flagUndefined={this.state.flagUndefined}
+              refresh={this.refresh}
             /> } 
           />
         <Route 
