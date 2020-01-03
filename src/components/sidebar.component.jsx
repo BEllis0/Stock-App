@@ -18,7 +18,7 @@ const Sidebar = (props) => {
                         <div className="top-padding">
                             <Link
                             to="/stocks"
-                            onClick={(event) => { event.persist(); props.onSearchSelect(stock['1. symbol'], `${stock['2. name']} stock`)}} 
+                            onClick={(event) => { event.persist(); props.onSearchSelect(stock['1. symbol'], stock['2. name'])}} 
                             className="stockSearchSymbol">
                             {stock['1. symbol']}</Link>
                             <p className="stockSearchCompanyName">{stock['2. name']}</p>
