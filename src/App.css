@@ -293,6 +293,22 @@ ul li {
   pointer-events: none;
 }
 
+.earningsCalendarList {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.calendarItem {
+  padding: 0 10px;
+  padding-top: 10px;
+  border-right: 1px solid rgb(201, 201, 201);
+}
+
+.earningsCalendarSection h4 {
+  margin-bottom: 0 !important;
+  padding-bottom: 5px;
+}
+
 @media (max-width: 597px) {
   .app {
     flex-direction: column;
