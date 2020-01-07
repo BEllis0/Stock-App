@@ -1,5 +1,7 @@
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
+import { Link } from 'react-router-dom';
+import { Divider } from '@material-ui/core';
 
 export default function NewsView(props) {
 
@@ -10,6 +12,29 @@ export default function NewsView(props) {
 
     <div className="newsLayout">
             <h1>Top Stories</h1>
+            <Divider />
+            <div className="earningsCalendarSection">
+            <h4>Corporate Earnings Call Calendar: Today</h4>
+            <Divider />
+            {props.earningsCalendar &&
+            
+                <div className="earningsCalendarList">
+                    {props.earningsCalendar.length === 0 &&
+                    //handles if array is empty; none today
+                        <p>None scheduled today.</p>
+                    }
+                    {props.earningsCalendar.map(item => {
+                        return (
+                            <div className="calendarItem" key={props.earningsCalendar.indexOf(item)}>
+                            <Link to="/stocks" onClick={() => props.onSearchSelect(item.ticker, item.ticker)}>Symbol: {item.ticker}</Link>
+                            <p>Time: {item.when}</p>
+                            </div>
+                        )
+                    })}
+                </div>
+            }
+            </div>
+            <Divider />
         
             <ul className="newsList">
             {props.newsItems[0].map(article => {
