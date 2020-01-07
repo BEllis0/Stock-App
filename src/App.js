@@ -20,7 +20,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      displayMenu: undefined  ,
+      displayMenu: undefined,
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
@@ -34,6 +34,7 @@ export default class App extends React.Component {
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
+      earningsCalendar: [],
       watchlist: [],
       watchlistDb: [],
       stockName: '', // user input
@@ -112,10 +113,37 @@ export default class App extends React.Component {
         })
         .catch(err => console.log(err))
       }
+
+      //earnings calendar 
+      const date = (dateObj) => {
+        let day = String(dateObj.getDate());
+        let month = String(dateObj.getMonth() + 1);
+        let year = String(dateObj.getFullYear());
+  
+        if(month.length === 1){
+          month = `0${month}`;
+        }
+        if(day.length === 1) {
+          day = `0${day}`
+        }
+  
+        return `${year}${month}${day}`
+      }
+
+      
+      Axios.get(`http://localhost:5000/earnings-calendar/${date(new Date())}`)
+      .then(item => {
+        console.log(item)
+        this.setState({
+          earningsCalendar: item.data,
+        })
+      })
+      .catch(err => console.log(err))
   };
 
   componentDidUpdate() {
     console.log('did update')
+  
     let refresh;
     if(this.state.flagUndefined) {
       refresh = setTimeout(
@@ -1890,6 +1918,8 @@ export default class App extends React.Component {
             <NewsView 
               newsItems={this.state.newsItems} 
               displayMenu={this.state.displayMenu} 
+              earningsCalendar={this.state.earningsCalendar}
+              onSearchSelect={this.onSearchSelect}
             /> } 
           /> 
         <Route 
