@@ -155,6 +155,18 @@ app.get('/stock-search/:keywords', (req, res) => {
     .catch(err => res.status(400).json("Error" + err));
 });
 
+
+// --- EARNINGS CALL CALENDAR
+
+app.get('/earnings-calendar/:date', (req, res) => {
+    axios.get(`https://api.earningscalendar.net/?date=${req.params.date}`)
+    .then(response => res.json(response.data))
+    .catch(err => res.status(400).json("Error" + err))
+})
+
+
+// PORT
+
 app.listen(port, () => {
     console.log(`server is live on port ${port}`);
 });
