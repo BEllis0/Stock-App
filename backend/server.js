@@ -25,10 +25,15 @@ mongoose.connect(uri)
     .catch(err => console.log(err));
 
 const usersRouter = require('./routes/users');
-const stocksRouter = require('./routes/stocks');
+// const stocksRouter = require('./routes/stocks');
 
 app.use('/users', usersRouter);
-app.use('/stocks', stocksRouter);
+// app.use('/stocks', stocksRouter);
+
+// -- FOR DEPLOYMENT TO HEROKU
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static(__dirname + '/build'));
+}
 
 
 // --- NEWS API connection
@@ -50,20 +55,6 @@ const fetchNews = (searchTerm, pageNum) =>
       page: pageNum,
       pageSize: 12,
     });
-
-function updateFeed(topic) {
-    let counter = 2;
-    setInterval(() => {
-        fetchNews(topic, counter)
-        .then(response => {
-            pusher.trigger('news-channel', 'update-news', {
-            articles: response.articles,
-            });
-            //   counter += 1;
-        })
-        .catch(error => console.log(error));
-    }, 5000);
-}
 
 // --- ENDPOINT TO GET NEWS DATA
 
