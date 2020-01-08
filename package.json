@@ -1,5 +1,6 @@
 {
   "name": "stock-app",
+  "proxy": "http://localhost:5000",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -22,10 +23,11 @@
     "react-scripts": "3.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build",
+    "start": "node server.js",
     "build": "react-scripts build",
+    "predeploy": "npm run build",
+    "install": "npm run install && npm run build",
+    "heroku-postbuild": "npm run install",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

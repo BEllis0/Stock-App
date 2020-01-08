@@ -91,7 +91,7 @@ export default class App extends React.Component {
     // fetches NEWS API data on page load, taking 'stock' as initial enpoint
     // when user searches for a stock, new endpoint is used
 
-    Axios.get(`/top-news/stocks`)
+    Axios.get(`${process.env.port ? process.env.port : 'http://localhost:5000'}/top-news/stocks`)
     .then(articles => {
 
         this.setState({
@@ -103,7 +103,7 @@ export default class App extends React.Component {
 
     // pull the user's saved stocks from DB
       if(this.state.loggedIn && this.state.userId) {
-        Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
+        Axios.get(`${process.env.port ? process.env.port : 'http://localhost:5000'}/users/saved-stocks/${this.state.userId}`)
         .then(stock => {
           console.log(stock)
           this.setState({
@@ -131,7 +131,7 @@ export default class App extends React.Component {
       }
 
       
-      Axios.get(`http://localhost:5000/earnings-calendar/${date(new Date())}`)
+      Axios.get(`${process.env.port ? process.env.port : 'http://localhost:5000'}/earnings-calendar/${date(new Date())}`)
       .then(item => {
         console.log(item)
         this.setState({
