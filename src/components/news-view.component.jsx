@@ -14,7 +14,7 @@ export default function NewsView(props) {
             <h1>Top Stories</h1>
             <Divider />
             <div className="earningsCalendarSection">
-            <h4>Corporate Earnings Call Calendar: Today</h4>
+            <h4>Corporate Earnings Call Calendar: Today({props.earningsCalendar.length})</h4>
             <Divider />
             {props.earningsCalendar &&
             

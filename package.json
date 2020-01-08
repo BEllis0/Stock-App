@@ -1,8 +1,9 @@
 {
+  
   "name": "stock-app",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://bellis0.github.io/stock-app",
+  "proxy": "http://localhost:5000",
   "dependencies": {
     "@material-ui/core": "^4.7.2",
     "@material-ui/icons": "^4.5.1",
