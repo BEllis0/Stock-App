@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Pusher = require('pusher');
 const NewsAPI = require('newsapi');
 const axios = require('axios');
+const proxy = require('http-proxy-middleware');
 
 require('dotenv').config();
 
@@ -25,14 +26,26 @@ mongoose.connect(uri)
     .catch(err => console.log(err));
 
 const usersRouter = require('./routes/users');
-// const stocksRouter = require('./routes/stocks');
-
 app.use('/users', usersRouter);
-// app.use('/stocks', stocksRouter);
 
 // -- FOR DEPLOYMENT TO HEROKU
 if(process.env.NODE_ENV === "production") {
     app.use(express.static(__dirname + '/build'));
+
+    // const path = require('path');
+    // app.get('*', (req, res) => {
+    //     res.sendFile(
+    //         path.resolve(__dirname, 'build', 'index.html')
+    //     );
+    // });
+
+    
+
+    module.exports = function(app) {
+    // add other server routes to path array
+    app.use(proxy(['/users', '/top-news/:search' ], { target: 'http://localhost:5000' }));
+} 
+    
 }
 
 
