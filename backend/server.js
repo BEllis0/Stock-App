@@ -44,9 +44,9 @@ if(process.env.NODE_ENV === "production") {
     
     
 }
-module.exports = function(app) {
-    app.use(proxy(['/users', '/top-news', '/earnings-calendar' ], { target: 'http://localhost:5000' }));
-    };
+// module.exports = function(app) {
+//     app.use(proxy(['/users', '/top-news', '/earnings-calendar' ], { target: 'http://localhost:5000' }));
+//     };
 
 
 // --- NEWS API connection

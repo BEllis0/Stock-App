@@ -23,7 +23,7 @@
     "react-scripts": "3.3.0"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "install": "npm run install && npm run build",
