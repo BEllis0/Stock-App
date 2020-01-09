@@ -23,7 +23,7 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "cd ./backend && node server.js",
+    "start": "react-scripts start && cd ./backend && node server.js",
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "postinstall": "npm run build",
