@@ -5,6 +5,7 @@ const Pusher = require('pusher');
 const NewsAPI = require('newsapi');
 const axios = require('axios');
 const proxy = require('http-proxy-middleware');
+const path = require('path');
 
 require('dotenv').config();
 
@@ -31,9 +32,11 @@ app.use('/users', usersRouter);
 
 // -- FOR DEPLOYMENT TO HEROKU
 if(process.env.NODE_ENV === "production") {
-    app.use(express.static(__dirname + '/build'));
+    app.use(express.static(path.join(__dirname + '/build')));
 
-    // const path = require('path');
+    app.get('/', function (req, res, next) {
+        res.sendFile(path.resolve('build/index.html'));
+    });
     // app.get('*', (req, res) => {
     //     res.sendFile(
     //         path.resolve(__dirname, 'build', 'index.html')
