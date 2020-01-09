@@ -25,8 +25,6 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "predeploy": "npm run build",
-    "install": "npm run install && npm run build",
-    "heroku-postbuild": "npm run install",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
