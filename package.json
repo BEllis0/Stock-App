@@ -22,11 +22,14 @@
     "react-scripts": "3.3.0"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node server.js",
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "engines": {
+    "node": "12.6.0"
   },
   "eslintConfig": {
     "extends": "react-app"
