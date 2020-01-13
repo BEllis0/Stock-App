@@ -30,15 +30,6 @@ mongoose.connect(uri)
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
 
-// -- FOR DEPLOYMENT TO HEROKU
-if(process.env.NODE_ENV === "production") {
-    app.use(express.static((path.join(__dirname, 'build'))));
-
-    app.get('/', (req, res) => {
-        res.sendFile(path.join(__dirname, 'build', 'index.html'));
-    });    
-}
-
 // --- NEWS API connection
 const pusher = new Pusher({
     appId: process.env.PUSHER_APP_ID,
@@ -157,6 +148,15 @@ app.get('/earnings-calendar/:date', (req, res) => {
     .then(response => res.json(response.data))
     .catch(err => res.status(400).json("Error" + err))
 })
+
+// -- FOR DEPLOYMENT TO HEROKU
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static((path.join(__dirname, 'build'))));
+
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    });    
+}
 
 
 // PORT
