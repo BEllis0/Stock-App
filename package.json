@@ -11,6 +11,7 @@
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.0",
     "chart.js": "^2.9.3",
+    "concurrently": "^5.0.2",
     "gh-pages": "^2.1.1",
     "http-proxy-middleware": "^0.20.0",
     "lodash": "^4.17.15",
@@ -29,7 +30,8 @@
     "build": "react-scripts build",
     "server": "cd backend && node server.js",
     "predeploy": "npm run build",
-    "heroku-postbuild": "npm run build",
+    "install-client": "cd - && npm install",
+    "heroku-postbuild": "npm run install-client && npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -52,5 +54,4 @@
       "last 1 safari version"
     ]
   }
-  
 }
