@@ -27,7 +27,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "server": "cd backend && nodemon server.js",
+    "server": "cd backend && node server.js",
     "predeploy": "npm run build",
     "postinstall": "npm run build && npm run server",
     "heroku-postbuild": "npm run build && npm run server",
