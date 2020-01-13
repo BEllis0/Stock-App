@@ -3,6 +3,7 @@ import './App.css';
 import { HashRouter, Route, useHistory, Redirect } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
+
 import { throttle, debounce } from 'lodash';
 
 import Navbar from './components/navbar.component.jsx';
@@ -12,7 +13,6 @@ import StockView from './components/stock-view.component.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
-
 
 export default class App extends React.Component {
   
@@ -91,7 +91,11 @@ export default class App extends React.Component {
     // fetches NEWS API data on page load, taking 'stock' as initial enpoint
     // when user searches for a stock, new endpoint is used
 
-    Axios.get(`/top-news/stocks`)
+    Axios.get(`/top-news/stocks`, {proxy: {
+      host: 'http://localhost',
+      port: 5000
+    }
+    })
     .then(articles => {
 
         this.setState({
@@ -103,7 +107,11 @@ export default class App extends React.Component {
 
     // pull the user's saved stocks from DB
       if(this.state.loggedIn && this.state.userId) {
-        Axios.get(`/users/saved-stocks/${this.state.userId}`)
+        Axios.get(`/users/saved-stocks/${this.state.userId}`, {proxy: {
+          host: 'http://localhost',
+          port: 5000
+        }
+        })
         .then(stock => {
           console.log(stock)
           this.setState({
@@ -133,7 +141,11 @@ export default class App extends React.Component {
       }
 
       
-      Axios.get(`/earnings-calendar/${date(new Date())}`)
+      Axios.get(`/earnings-calendar/${date(new Date())}`, {proxy: {
+        host: 'http://localhost',
+        port: 5000
+      }
+      })
       .then(item => {
         console.log(item)
         this.setState({
@@ -148,7 +160,7 @@ export default class App extends React.Component {
   
     let refresh;
     if(this.state.flagUndefined) {
-      refresh = setTimeout(
+      refresh = setTimeout( () =>
         this.onSearchSelect(this.state.stockNameDisplay, this.state.company),
         20000
 
@@ -160,6 +172,7 @@ export default class App extends React.Component {
     }
   }
 
+  //not returning
   componentWillUnmount() {
     console.log('unmount')
   }
@@ -209,7 +222,7 @@ export default class App extends React.Component {
   getDbStocks() {
     // if user is logged in, get their watchlist
     if(this.state.loggedIn && this.state.userId !== 0) {
-      Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
+      Axios.get(`/users/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
@@ -304,7 +317,7 @@ export default class App extends React.Component {
     event.persist();
 
     if (event.target && event.target.value.length > 0) {
-    Axios.get(`http://localhost:5000/stock-search/${event.target.value}`)
+    Axios.get(`/stock-search/${event.target.value}`)
     .then(res => {
         console.log(res);
         this.setState({
@@ -319,7 +332,7 @@ export default class App extends React.Component {
   async onSearchSelect(stock, company) {
 
     //NEWS API
-    Axios.get(`http://localhost:5000/top-news/${company}`)
+    Axios.get(`/top-news/${company}`)
     .then(articles => {
 
         this.setState({
@@ -333,7 +346,7 @@ export default class App extends React.Component {
     // STOCK API CONNECTION
 
     //daily
-    await Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
+    await Axios.get(`/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
     .then(res => {
       console.log(res);
 
@@ -355,7 +368,7 @@ export default class App extends React.Component {
   
 
     //5minute
-    await Axios.get(`http://localhost:5000/stock-timeseries-intra/5min/${stock}`)
+    await Axios.get(`/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
 
@@ -437,7 +450,7 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     // weekly
-    await Axios.get(`http://localhost:5000/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
+    await Axios.get(`/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
     .then(res => {
         console.log(res);
 
@@ -480,7 +493,7 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     //RSI
-    await Axios.get(`http://localhost:5000/stock-rsi/${stock}/5min/10`)
+    await Axios.get(`/stock-rsi/${stock}/5min/10`)
     .then(res => {
       console.log(res);
 
@@ -540,7 +553,7 @@ export default class App extends React.Component {
       
       //first click will trigger api call and save the response
       if(this.state.firstMinClick === true) {
-        Axios.get(`http://localhost:5000/stock-timeseries-intra/1min/${this.state.stockName}`)
+        Axios.get(`/stock-timeseries-intra/1min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -590,7 +603,7 @@ export default class App extends React.Component {
         .catch(err => console.log(err));
 
         // on first click, rsi api call; saves response
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/1min/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/1min/10`)
         .then(res => {
         console.log(res)
 
@@ -764,7 +777,7 @@ export default class App extends React.Component {
 
     else if (this.state.timelineRef === '10D') {
       if(this.state.firstHourClick) {
-        Axios.get(`http://localhost:5000/stock-timeseries-intra/60min/${this.state.stockName}`)
+        Axios.get(`/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -816,7 +829,7 @@ export default class App extends React.Component {
 
 
         // 10D -- on first click, rsi api call; saves response
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/60min/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/60min/10`)
         .then(res => {
         console.log(res)
 
@@ -915,7 +928,7 @@ export default class App extends React.Component {
     else if (this.state.timelineRef === '1M') {
       
       if(this.state.firstHourClick) {
-        Axios.get(`http://localhost:5000/stock-timeseries-intra/60min/${this.state.stockName}`)
+        Axios.get(`/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -967,7 +980,7 @@ export default class App extends React.Component {
 
 
         // 1M -- on first click, rsi api call; saves response
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/60min/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/60min/10`)
         .then(res => {
         console.log(res)
 
@@ -1067,7 +1080,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstDayClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/daily/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/daily/10`)
         .then(res => {
         console.log(res)
 
@@ -1196,7 +1209,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstDayClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/daily/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/daily/10`)
         .then(res => {
         console.log(res)
 
@@ -1326,7 +1339,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1456,7 +1469,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1587,7 +1600,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1718,7 +1731,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`http://localhost:5000/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 

@@ -10,7 +10,7 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 
 //middleware
 app.use(cors());
@@ -32,26 +32,12 @@ app.use('/users', usersRouter);
 
 // -- FOR DEPLOYMENT TO HEROKU
 if(process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname + '/build')));
+    app.use(express.static((path.join(__dirname, 'build'))));
 
-    app.get('/', function (req, res, next) {
-        res.sendFile(path.resolve('build/index.html'));
-    });
-    // app.get('*', (req, res) => {
-    //     res.sendFile(
-    //         path.resolve(__dirname, 'build', 'index.html')
-    //     );
-    // });
-
-    
-
-    
-    
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'build', 'index.html'));
+    });    
 }
-// module.exports = function(app) {
-//     app.use(proxy(['/users', '/top-news', '/earnings-calendar' ], { target: 'http://localhost:5000' }));
-//     };
-
 
 // --- NEWS API connection
 const pusher = new Pusher({

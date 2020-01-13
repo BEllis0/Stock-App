@@ -6,6 +6,8 @@ import { Line, Bar } from 'react-chartjs-2'
 export default function StockView(props) {
 
     if (props.flagUndefined) {
+
+        // props.refresh()
             
             return (
                 <div className="stockPageLayout">
