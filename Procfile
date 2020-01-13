@@ -1,1 +1,1 @@
-web: cd backend && node server.js
+web: npm react-scripts && cd backend && node server.js
