@@ -26,12 +26,12 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cd backend && npm start",
     "build": "react-scripts build",
     "server": "cd backend && node server.js",
     "predeploy": "npm run build",
     "install-client": "cd - && npm install",
-    "heroku-postbuild": "npm run install-client && npm run build",
+    "heroku-postbuild": "npm run install-client && npm react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
