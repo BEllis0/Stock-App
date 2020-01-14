@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const Pusher = require('pusher');
 const NewsAPI = require('newsapi');
 const axios = require('axios');
-const proxy = require('http-proxy-middleware');
 const path = require('path');
 
 require('dotenv').config();
