@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { HashRouter, Route, useHistory, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route, useHistory, Redirect } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 import Axios from 'axios';
 
@@ -1849,7 +1849,7 @@ export default class App extends React.Component {
   render() {
   
   return (
-    <HashRouter basename={process.env.PUBLIC_URL + '/'}>
+    <Router basename={process.env.PUBLIC_URL + '/'}>
     <div className="app">
       <Grid className="sidebarGrid" item sm={4}>
         <Navbar 
@@ -1947,7 +1947,7 @@ export default class App extends React.Component {
         
       </Grid>
       </div>
-    </HashRouter>
+    </Router>
   )
   };
 };
