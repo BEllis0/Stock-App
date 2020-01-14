@@ -10,4 +10,4 @@
 ## Dependencies
 Backend: bcrypt, cors, dotenv, express, mongoose, newsapi, nodemon, pusher, validator
 
-Frontend: axios, @material-ui/core, @material-ui/icons, @material-ui/lab, gh-pages, react, react-dom, react-router, react-router-dom, chart.js, react-chartjs-2, lodash
+Frontend: axios, @material-ui/core, @material-ui/icons, @material-ui/lab, gh-pages, react, react-dom, react-router, react-router-dom, chart.js, react-chartjs-2, lodash, http-proxy-middleware
