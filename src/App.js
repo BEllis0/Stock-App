@@ -1879,7 +1879,12 @@ export default class App extends React.Component {
 
       <Grid className="mainViewGrid" item sm={8}>
         {this.state.displayMenu && 
-        <Menu />
+        <Menu 
+          loggedIn={this.state.loggedIn}
+          onDisplayMenu={this.onDisplayMenu}
+          email={this.state.email}
+          username={this.state.username}
+        />
         }
         
         {!this.state.displayMenu &&

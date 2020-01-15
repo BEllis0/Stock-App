@@ -5,13 +5,23 @@ import { Toolbar, AppBar, Divider, TextField } from '@material-ui/core';
 const Menu = (props) => {
 
     return (
+
+        
+
         <div className="MenuLayout">
             <h1>Menu</h1>
             <div className="accountSettings" >
                 <h3>Account Settings</h3>
                 <Divider />
+            
+            {props.loggedIn &&
+            
+            <div>
                 <div className="usernameSettings">
-                    <h4>Change Username </h4>
+                    <div className="flex">
+                        <h4>Change Username</h4>
+                        <p>Current: {props.username}</p>
+                    </div>
                     <input type="text" />
                 </div>
                 <div className="emailSettings">
@@ -24,7 +34,39 @@ const Menu = (props) => {
                 </div>
                 
             </div>
+            }
+
+            {!props.loggedIn &&
+                    <div>
+                        <p><Link to="/sign-in" onClick={() => props.onDisplayMenu()}>Sign in</Link> to manage account settings</p>
+                    </div>
+            }
+            
+            </div>
+
+            <div className="watchlistSettings">
+                <h3>Watchlist</h3>
+                <Divider />
+
+                {props.loggedIn &&
+                    <p>Clear Watchlist</p>
+                }
+
+                {!props.loggedIn &&
+                    <div>
+                        <p><Link to="/sign-in" onClick={() => props.onDisplayMenu()}>Sign in</Link> to manage watchlist settings</p>
+                    </div>
+                }
+
+            </div>
+
+            <div className="displaySettings">
+                <h3>Display</h3>
+                <Divider />
+                
+            </div>
         </div>
+        
     )
 
 };
