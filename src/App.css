@@ -50,6 +50,15 @@ ul li {
   display: inline;
 }
 
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.flex p {
+  margin-left: 15px;
+}
+
 .flex-row {
   width: 90%;
   display: flex;
@@ -307,6 +316,10 @@ ul li {
 .earningsCalendarSection h4 {
   margin-bottom: 0 !important;
   padding-bottom: 5px;
+}
+
+.accountSettings, .watchlistSettings, .displaySettings {
+  padding: 20px 0px;
 }
 
 @media (max-width: 597px) {
