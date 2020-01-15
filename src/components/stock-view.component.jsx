@@ -7,6 +7,7 @@ export default function StockView(props) {
 
     if (props.flagUndefined) {
 
+        //need to add setInterval to refresh the page when api can be called again
         // props.refresh()
             
             return (
