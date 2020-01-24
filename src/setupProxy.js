@@ -97,12 +97,8 @@ module.exports = function(app) {
   })
   );
 
-  //earnings calendar
-  app.use(proxy( '/earnings-calendar/**', {
-    target: 'http://localhost:5000',
-    changeOrigin: true,
-  })
-  );
+  // earnings calendar
+
 
   //news 
   app.use(proxy( '/top-news/*', {

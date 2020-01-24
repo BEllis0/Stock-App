@@ -128,19 +128,21 @@ export default class App extends React.Component {
         if(day.length === 1) {
           day = `0${day}`
         }
-  
+        
         return `${year}${month}${day}`
+        
       }
 
-      
-      Axios.get(`https://watchlist-stock-app.herokuapp.com/earnings-calendar/${date(new Date())}`)
-      .then(item => {
-        console.log(item)
-        this.setState({
-          earningsCalendar: item.data,
-        })
-      })
-      .catch(err => console.log(err))
+      //api trial finished
+      // Axios.get(`https://watchlist-stock-app.herokuapp.com/earnings-calendar/${date(new Date())}`)
+      // .then(item => {
+      //   console.log(date(new Date()))
+      //   console.log(item)
+      //   this.setState({
+      //     earningsCalendar: item.data,
+      //   })
+      // })
+      // .catch(err => console.log(err))
   };
 
   componentDidUpdate() {
