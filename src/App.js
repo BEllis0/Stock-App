@@ -103,7 +103,7 @@ export default class App extends React.Component {
 
     // pull the user's saved stocks from DB
       if(this.state.loggedIn && this.state.userId) {
-        Axios.get(`/users/saved-stocks/${this.state.userId}`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/users/saved-stocks/${this.state.userId}`)
         .then(stock => {
           console.log(stock)
           this.setState({
@@ -179,7 +179,7 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`http://localhost:5000/users/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`https://watchlist-stock-app.herokuapp.com/users/login/${this.state.signInEmail}`, loginCreds)
     .then(res => {
       
       if(res) {
@@ -212,7 +212,7 @@ export default class App extends React.Component {
   getDbStocks() {
     // if user is logged in, get their watchlist
     if(this.state.loggedIn && this.state.userId !== 0) {
-      Axios.get(`/users/saved-stocks/${this.state.userId}`)
+      Axios.get(`https://watchlist-stock-app.herokuapp.com/users/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
@@ -284,12 +284,12 @@ export default class App extends React.Component {
     };
 
     //adds the new watchlist to db
-    Axios.post(`http://localhost:5000/users/new-stock/${this.state.userId}`, watchlist)
+    Axios.post(`https://watchlist-stock-app.herokuapp.com/users/new-stock/${this.state.userId}`, watchlist)
     .then(res => console.log(res))
     .then(() => {
 
       //retrieves new watchlist
-      Axios.get(`http://localhost:5000/users/saved-stocks/${this.state.userId}`)
+      Axios.get(`https://watchlist-stock-app.herokuapp.com/users/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
@@ -307,7 +307,7 @@ export default class App extends React.Component {
     event.persist();
 
     if (event.target && event.target.value.length > 0) {
-    Axios.get(`/stock-search/${event.target.value}`)
+    Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-search/${event.target.value}`)
     .then(res => {
         console.log(res);
         this.setState({
@@ -322,7 +322,7 @@ export default class App extends React.Component {
   async onSearchSelect(stock, company) {
 
     //NEWS API
-    Axios.get(`/top-news/${company}`)
+    Axios.get(`https://watchlist-stock-app.herokuapp.com/top-news/${company}`)
     .then(articles => {
 
         this.setState({
@@ -336,7 +336,7 @@ export default class App extends React.Component {
     // STOCK API CONNECTION
 
     //daily
-    await Axios.get(`/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
+    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
     .then(res => {
       console.log(res);
 
@@ -358,7 +358,7 @@ export default class App extends React.Component {
   
 
     //5minute
-    await Axios.get(`/stock-timeseries-intra/5min/${stock}`)
+    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
 
@@ -440,7 +440,7 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     // weekly
-    await Axios.get(`/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
+    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
     .then(res => {
         console.log(res);
 
@@ -483,7 +483,7 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     //RSI
-    await Axios.get(`/stock-rsi/${stock}/5min/10`)
+    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${stock}/5min/10`)
     .then(res => {
       console.log(res);
 
@@ -543,7 +543,7 @@ export default class App extends React.Component {
       
       //first click will trigger api call and save the response
       if(this.state.firstMinClick === true) {
-        Axios.get(`/stock-timeseries-intra/1min/${this.state.stockName}`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries-intra/1min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -593,7 +593,7 @@ export default class App extends React.Component {
         .catch(err => console.log(err));
 
         // on first click, rsi api call; saves response
-        Axios.get(`/stock-rsi/${this.state.stockName}/1min/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/1min/10`)
         .then(res => {
         console.log(res)
 
@@ -767,7 +767,7 @@ export default class App extends React.Component {
 
     else if (this.state.timelineRef === '10D') {
       if(this.state.firstHourClick) {
-        Axios.get(`/stock-timeseries-intra/60min/${this.state.stockName}`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -819,7 +819,7 @@ export default class App extends React.Component {
 
 
         // 10D -- on first click, rsi api call; saves response
-        Axios.get(`/stock-rsi/${this.state.stockName}/60min/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/60min/10`)
         .then(res => {
         console.log(res)
 
@@ -918,7 +918,7 @@ export default class App extends React.Component {
     else if (this.state.timelineRef === '1M') {
       
       if(this.state.firstHourClick) {
-        Axios.get(`/stock-timeseries-intra/60min/${this.state.stockName}`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries-intra/60min/${this.state.stockName}`)
         .then(res => {
 
           // logic for api call limit
@@ -970,7 +970,7 @@ export default class App extends React.Component {
 
 
         // 1M -- on first click, rsi api call; saves response
-        Axios.get(`/stock-rsi/${this.state.stockName}/60min/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/60min/10`)
         .then(res => {
         console.log(res)
 
@@ -1070,7 +1070,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstDayClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/daily/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/daily/10`)
         .then(res => {
         console.log(res)
 
@@ -1199,7 +1199,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstDayClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/daily/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/daily/10`)
         .then(res => {
         console.log(res)
 
@@ -1329,7 +1329,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1459,7 +1459,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1590,7 +1590,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
@@ -1721,7 +1721,7 @@ export default class App extends React.Component {
       // if first click
       if(this.state.firstWeekClick) {
 
-        Axios.get(`/stock-rsi/${this.state.stockName}/weekly/10`)
+        Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${this.state.stockName}/weekly/10`)
         .then(res => {
         console.log(res)
 
