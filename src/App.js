@@ -91,7 +91,7 @@ export default class App extends React.Component {
     // fetches NEWS API data on page load, taking 'stock' as initial enpoint
     // when user searches for a stock, new endpoint is used
 
-    Axios.get(`/top-news/stocks`)
+    Axios.get(`https://watchlist-stock-app.herokuapp.com/top-news/stocks`)
     .then(articles => {
 
         this.setState({
@@ -133,7 +133,7 @@ export default class App extends React.Component {
       }
 
       
-      Axios.get(`/earnings-calendar/${date(new Date())}`)
+      Axios.get(`https://watchlist-stock-app.herokuapp.com/earnings-calendar/${date(new Date())}`)
       .then(item => {
         console.log(item)
         this.setState({
@@ -146,17 +146,20 @@ export default class App extends React.Component {
   componentDidUpdate() {
   
     let refresh;
-    if(this.state.flagUndefined) {
-      refresh = setTimeout( () =>
-        this.onSearchSelect(this.state.stockNameDisplay, this.state.company),
-        20000
 
-      );
-    }
     if(!this.state.flagUndefined) {
       console.log('flag undefined false');
       clearInterval(refresh)
     }
+
+    else if(this.state.flagUndefined) {
+      refresh = setTimeout( function() {
+        this.onSearchSelect(this.state.stockNameDisplay, this.state.company)
+        },
+        70000
+      );
+    }
+    
   }
 
   //not returning

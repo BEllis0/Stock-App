@@ -8,13 +8,13 @@ export default function StockView(props) {
     if (props.flagUndefined) {
 
         //need to add setInterval to refresh the page when api can be called again
-        // props.refresh()
+        
             
             return (
                 <div className="stockPageLayout">
                     <div className="loadingStockChart">
                         <Skeleton variant="rect" className="loadingStockPrice"/>
-                        <h3>Please try again in 1 minute.</h3>
+                        <h3>Refreshing, please wait. Typically takes around 60 seconds.</h3>
                         <Skeleton variant="rect" className="loadingChart"/>
                         <Skeleton variant="rect" className="loadingChart"/>
                         <Skeleton variant="rect" className="loadingChart"/>

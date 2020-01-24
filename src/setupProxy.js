@@ -7,11 +7,11 @@ module.exports = function(app) {
     target: 'http://localhost:5000',
     changeOrigin: true,
   })
-);
+  );
   app.use(proxy( '/users/*', {
       target: 'http://localhost:5000',
       changeOrigin: true,
-    })
+  })
   );
   
   app.use(proxy( '/users/saved-stocks/*', {
@@ -98,7 +98,7 @@ module.exports = function(app) {
   );
 
   //earnings calendar
-  app.use(proxy( '/earnings-calendar/*', {
+  app.use(proxy( '/earnings-calendar/**', {
     target: 'http://localhost:5000',
     changeOrigin: true,
   })
