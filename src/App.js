@@ -114,8 +114,6 @@ export default class App extends React.Component {
         .catch(err => console.log(err))
       }
 
-      //${process.env.PORT ? process.env.PORT : 'http://localhost:5000'}
-
       //earnings calendar 
       const date = (dateObj) => {
         let day = String(dateObj.getDate());
@@ -147,20 +145,20 @@ export default class App extends React.Component {
 
   componentDidUpdate() {
   
-    let refresh;
+    // let refresh;
 
-    if(!this.state.flagUndefined) {
-      console.log('flag undefined false');
-      clearInterval(refresh)
-    }
+    // if(!this.state.flagUndefined) {
+    //   console.log('flag undefined false');
+    //   clearInterval(refresh)
+    // }
 
-    else if(this.state.flagUndefined) {
-      refresh = setTimeout( function() {
-        this.onSearchSelect(this.state.stockNameDisplay, this.state.company)
-        },
-        70000
-      );
-    }
+    // else if(this.state.flagUndefined) {
+    //   refresh = setTimeout( function() {
+    //     this.onSearchSelect(this.state.stockNameDisplay, this.state.company)
+    //     },
+    //     70000
+    //   );
+    // }
     
   }
 
@@ -346,14 +344,13 @@ export default class App extends React.Component {
         this.setState({
           flagUndefined: true,
           timelineRef: '1D',
-        }, () => console.log(this.state.flagUndefined))
+        })
       }
       else if (!res.data.hasOwnProperty('Note')) {
         this.setState({
           timelineRef: '1D',
-          flagUndefined: false,
           stockTimeSeriesDaily: [res.data]
-        }, () => console.log(this.state.flagUndefined))
+        })
       }
     })
     .catch(err => console.log(err));
@@ -412,7 +409,6 @@ export default class App extends React.Component {
 
         this.setState({
           timelineRef: '1D',
-          flagUndefined: false,
           stockPrice: currentPrice,
           stockNameDisplay: stock,
           percentChange: percentChange,
@@ -433,7 +429,7 @@ export default class App extends React.Component {
               backgroundColor: '#8E3CF5'
             }]
           }
-        }, () => console.log(this.state.flagUndefined))
+        });
       }
 
       
@@ -474,12 +470,11 @@ export default class App extends React.Component {
   
           this.setState({
             timelineRef: '1D',
-            flagUndefined: false,
             stockTimeSeriesWeekly: [res.data],
             weekHigh: weekHigh,
             weekLow: weekLow,
             avgVol: Math.round(avgVol)
-          }, () => console.log(this.state.flagUndefined));
+          });
         }
     })
     .catch(err => console.log(err));

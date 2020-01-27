@@ -5,28 +5,65 @@ import { Line, Bar } from 'react-chartjs-2'
 
 export default function StockView(props) {
 
+    let refresh;
+
+    //if api limit hit
     if (props.flagUndefined) {
 
-        //need to add setInterval to refresh the page when api can be called again
+        // need to add setInterval to refresh the page when api can be called again
+        // refresh = setTimeout( function() {
+        //     props.onSearchSelect(props.stockNameDisplay, props.company)
+        //     }, 60000);
         
-            
-            return (
-                <div className="stockPageLayout">
-                    <div className="loadingStockChart">
-                        <Skeleton variant="rect" className="loadingStockPrice"/>
-                        <h3>Refreshing, please wait. Typically takes around 60 seconds.</h3>
-                        <Skeleton variant="rect" className="loadingChart"/>
-                        <Skeleton variant="rect" className="loadingChart"/>
-                        <Skeleton variant="rect" className="loadingChart"/>
-                        <Skeleton variant="text"/>
-                        <Skeleton variant="text"/>
-                        <Skeleton variant="text"/>
-                    </div>
+        // clearInterval(refresh);
+        
+        console.log(refresh)
+        
+        return (
+            <div className="stockPageLayout">
+                <div className="loadingStockChart">
+                    <Skeleton variant="rect" className="loadingStockPrice"/>
+                    {/* <h3>Refreshing, please wait. Typically takes around 60 seconds.</h3> */}
+                    <h3>Api call limit reached. Please refresh in 60 seconds.</h3>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="text"/>
+                    <Skeleton variant="text"/>
+                    <Skeleton variant="text"/>
                 </div>
-            )
+            </div>
+        )
+        
     }
 
-    else if (!props.flagUndefined) {
+    //wait for data to load
+    if (props.chartData.datasets === undefined || props.chartVolumeData.datasets === undefined || props.rsiChartData.datasets === undefined) {
+
+
+        return (
+            <div className="stockPageLayout">
+                <div className="loadingStockChart">
+                    <Skeleton variant="rect" className="loadingStockPrice"/>
+                    <h3>Rendering data...</h3>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="rect" className="loadingChart"/>
+                    <Skeleton variant="text"/>
+                    <Skeleton variant="text"/>
+                    <Skeleton variant="text"/>
+                </div>
+            </div>
+        )
+    }
+
+    else if (props.flagUndefined === false) {
+
+        // stop page from refreshing
+        // refresh = null;
+        // clearInterval(refresh);
+        // console.log(refresh);
+
         return (
             <div className="stockPageLayout">
                 <div className="flex-row">
