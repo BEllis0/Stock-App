@@ -1,4 +1,4 @@
-## Link to live app coming soon
+## Link to live app: https://www.watchlists.io
 
 -Built using the MERN stack (Mongoose, Express, React & Node)<br>
 -Includes password hashing with bcryptjs<br>
