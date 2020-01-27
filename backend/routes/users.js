@@ -132,15 +132,17 @@ router.post('/login/:email', (req, res) => {
         bcrypt.compare(req.body.password, user[0].password)
         .then(isMatch => {
             if(isMatch) {
+                
                 const payload = {
                     id: user.id,
                     name: user.username
-                }
+                };
 
                 jwt.sign(
                     payload,
                     process.env.secretOrKey,
                     {
+                        algorithm: 'HS256',
                         expiresIn: 31556926 // 1 year in seconds
                     },
                     (err, token) => {

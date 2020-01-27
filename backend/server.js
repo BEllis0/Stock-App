@@ -15,6 +15,13 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// resolving issues with CORS
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
 // set the connection options, which will be applied to all connections
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
@@ -28,6 +35,7 @@ mongoose.connect(uri)
 
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
+
 
 // --- NEWS API connection
 const pusher = new Pusher({
@@ -147,6 +155,8 @@ app.get('/earnings-calendar/:date', (req, res) => {
     .then(response => res.json(response.data))
     .catch(err => res.status(400).json("Error" + err))
 })
+
+
 
 // -- FOR DEPLOYMENT TO HEROKU
 if(process.env.NODE_ENV == "production") {
