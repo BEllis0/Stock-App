@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Paper, Button, TextField } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import axios from 'axios';
+import { loadReCaptcha, ReCaptcha } from 'react-recaptcha-google';
 
 export default class CreateUser extends React.Component {
 
@@ -23,6 +24,25 @@ export default class CreateUser extends React.Component {
             this.onChangePassword = this.onChangePassword.bind(this);
             this.createUserSubmit = this.createUserSubmit.bind(this);
 
+            //for recaptcha
+            this.onLoadRecaptcha = this.onLoadRecaptcha.bind(this);
+            this.verifyCallback = this.verifyCallback.bind(this);
+
+        }
+
+        componentDidMount() {
+            loadReCaptcha();
+        }
+
+        onLoadRecaptcha() {
+            if (this.captchaDemo) {
+                this.captchaDemo.reset();
+                this.captchaDemo.execute();
+            }
+        }
+        verifyCallback(recaptchaToken) {
+          // Here you will get the final recaptchaToken
+          console.log(recaptchaToken, "<= your recaptcha token")
         }
 
         onChangeEmail(e) {
@@ -189,6 +209,15 @@ export default class CreateUser extends React.Component {
                     </li>
                 </ul>
                 <h4>Already have an account? <Link to="/sign-in">Sign in here.</Link></h4>
+
+                <ReCaptcha
+                    ref={(el) => {this.captchaDemo = el;}}
+                    size="invisible"
+                    render="explicit"
+                    sitekey="6LeIUtMUAAAAAL8jkR0so18q_iYSpjmhdG6nIuWy"
+                    onloadCallback={this.onLoadRecaptcha}
+                    verifyCallback={this.verifyCallback}
+                />
                 </Paper>
             </div>
         );
