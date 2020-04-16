@@ -125,7 +125,7 @@ export default class CreateUser extends React.Component {
 
             console.log(newUser);
 
-            axios.post('http://localhost:5000/users/newuser', newUser)
+            axios.post('/users/newuser', newUser)
             .then(res => console.log(res))
             .catch(err => console.log(err));
 
