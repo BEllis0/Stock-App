@@ -23,13 +23,6 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// resolving issues with CORS
-// app.use(function(req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
-
 //route handlers
 app.use('/users', usersRouter);
 app.use('/stocks', stockRouter);
