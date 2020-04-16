@@ -201,7 +201,7 @@ export default class App extends React.Component {
   getDbStocks() {
     // if user is logged in, get their watchlist
     if(this.state.loggedIn && this.state.userId !== 0) {
-      Axios.get(`https://watchlist-stock-app.herokuapp.com/users/saved-stocks/${this.state.userId}`)
+      Axios.get(`/api/users/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
