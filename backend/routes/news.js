@@ -1,6 +1,8 @@
 const router = require('express').Router();
-const controller = require('../controllers/controllers.js');
+const newsController = require('../controllers/news-controller.js');
 
+// --- NEWS API connection
 
+router.get('/top-news/:search', newsController.news.get.bySearchTerm); // get news by search term
 
 module.exports = router;
