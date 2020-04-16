@@ -29,14 +29,13 @@ app.use('/stocks', stockRouter);
 app.use('/login', loginRouter);
 app.use('/news', newsRouter);
 
-// -- FOR DEPLOYMENT
-if(process.env.NODE_ENV == "production") {
-    app.use(express.static(path.join(__dirname, 'build')));
+//serve static build files
+app.use(express.static(path.join(__dirname, '../build')));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'build', 'index.html'));
-    });    
-}
+//routes everything to html page, troubleshoots refreshing
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/resume_site/dist/"));
+});
 
 // Listen
 app.listen(port, () => {
