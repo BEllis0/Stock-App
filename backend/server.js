@@ -5,6 +5,13 @@ const Pusher = require('pusher');
 const NewsAPI = require('newsapi');
 const axios = require('axios');
 const path = require('path');
+const morgan = require('morgan');
+const { connection } = require('./database/connection.js');
+
+//routes
+const usersRouter = require('./routes/users');
+const stockRouter = require('./routes/stocks');
+const loginRouter = require('./routes/login');
 
 require('dotenv').config();
 
@@ -14,27 +21,18 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
 
 // resolving issues with CORS
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-  });
+// app.use(function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     next();
+// });
 
-// set the connection options, which will be applied to all connections
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-mongoose.set('useUnifiedTopology', true);
-
-const uri = process.env.ATLAS_URI;
-mongoose.connect(uri)
-    .then(() => console.log("MongoDB database connection established successfully"))
-    .catch(err => console.log(err));
-
-const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
+app.use('/stocks', stockRouter);
+app.use('/login', loginRouter);
 
 
 // --- NEWS API connection
