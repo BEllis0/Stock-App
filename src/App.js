@@ -130,17 +130,6 @@ export default class App extends React.Component {
         return `${year}${month}${day}`
         
       }
-
-      //api trial finished
-      // Axios.get(`https://watchlist-stock-app.herokuapp.com/earnings-calendar/${date(new Date())}`)
-      // .then(item => {
-      //   console.log(date(new Date()))
-      //   console.log(item)
-      //   this.setState({
-      //     earningsCalendar: item.data,
-      //   })
-      // })
-      // .catch(err => console.log(err))
   };
 
   componentDidUpdate() {
@@ -179,7 +168,7 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`https://watchlist-stock-app.herokuapp.com/users/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`https://watchlist-stock-app.herokuapp.com/login/${this.state.signInEmail}`, loginCreds)
     .then(res => {
       
       if(res) {
