@@ -23,27 +23,19 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-// resolving issues with CORS
-// app.use(function(req, res, next) {
-//     res.header("Access-Control-Allow-Origin", "*");
-//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-// });
-
 //route handlers
-app.use('/users', usersRouter);
-app.use('/stocks', stockRouter);
-app.use('/login', loginRouter);
-app.use('/news', newsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/stocks', stockRouter);
+app.use('/api/login', loginRouter);
+app.use('/api/news', newsRouter);
 
-// -- FOR DEPLOYMENT
-if(process.env.NODE_ENV == "production") {
-    app.use(express.static(path.join(__dirname, 'build')));
+//serve static build files
+app.use(express.static(path.join(__dirname, '../build')));
 
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, 'build', 'index.html'));
-    });    
-}
+//routes everything to html page, troubleshoots refreshing
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+});
 
 // Listen
 app.listen(port, () => {

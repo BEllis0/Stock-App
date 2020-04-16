@@ -15,7 +15,7 @@ backend/node_modules
 /coverage
 
 # production
-/build
+# /build
 
 # env 
 .env
