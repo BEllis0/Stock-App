@@ -168,7 +168,7 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`https://watchlist-stock-app.herokuapp.com/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`api/login/${this.state.signInEmail}`, loginCreds)
     .then(res => {
       
       if(res) {
