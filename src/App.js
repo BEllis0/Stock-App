@@ -273,12 +273,12 @@ export default class App extends React.Component {
     };
 
     //adds the new watchlist to db
-    Axios.post(`https://watchlist-stock-app.herokuapp.com/users/new-stock/${this.state.userId}`, watchlist)
+    Axios.post(`/api/stocks/new-stock/${this.state.userId}`, watchlist)
     .then(res => console.log(res))
     .then(() => {
 
       //retrieves new watchlist
-      Axios.get(`https://watchlist-stock-app.herokuapp.com/users/saved-stocks/${this.state.userId}`)
+      Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
       .then(stock => {
         console.log(stock);
 
