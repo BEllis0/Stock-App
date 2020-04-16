@@ -311,7 +311,7 @@ export default class App extends React.Component {
   async onSearchSelect(stock, company) {
 
     //NEWS API
-    Axios.get(`https://watchlist-stock-app.herokuapp.com/top-news/${company}`)
+    Axios.get(`/api/news/top-news/${company}`)
     .then(articles => {
 
         this.setState({
