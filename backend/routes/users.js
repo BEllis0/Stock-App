@@ -1,16 +1,13 @@
 const router = require('express').Router();
-let User = require('../models/user.model');
+const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const controller = require('../controllers/controllers.js')
 
 
 // --- For getting data
 
-router.get('/', (req, res) => {
-    User.find()
-        .then(users => res.json(users))
-        .catch(err => res.status(400).json('Error: ' + err));
-});
+router.get('/', controller.users.get.allUsers);
 
 //get user info by their ID
 router.get('/:id', (req, res) => {
