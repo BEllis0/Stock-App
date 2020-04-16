@@ -91,7 +91,7 @@ export default class App extends React.Component {
     // fetches NEWS API data on page load, taking 'stock' as initial enpoint
     // when user searches for a stock, new endpoint is used
 
-    Axios.get(`https://watchlist-stock-app.herokuapp.com/top-news/stocks`)
+    Axios.get(`https://watchlist-stock-app.herokuapp.com/news/top-news/stocks`)
     .then(articles => {
 
         this.setState({
