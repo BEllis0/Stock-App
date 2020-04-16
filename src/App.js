@@ -318,16 +318,15 @@ export default class App extends React.Component {
           timelineRef: '1D',
           newsItems: [articles.data],
           stockCompany: company
-      }, () => console.log(this.state.newsItems));
+      });
     })
     .catch(err => console.log(err));
 
     // STOCK API CONNECTION
 
     //daily
-    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
+    await Axios.get(`/api/stocks/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
     .then(res => {
-      console.log(res);
 
       if(res.data.hasOwnProperty('Note')) {
         this.setState({
@@ -346,7 +345,7 @@ export default class App extends React.Component {
   
 
     //5minute
-    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries-intra/5min/${stock}`)
+    await Axios.get(`/api/stocks/stock-timeseries-intra/5min/${stock}`)
     .then(res => {
       console.log(res);
 
@@ -355,7 +354,7 @@ export default class App extends React.Component {
         this.setState({
           timelineRef: '1D',
           flagUndefined: true,
-        }, () => console.log(this.state.flagUndefined))
+        })
       }
       
       //if no error
@@ -394,8 +393,6 @@ export default class App extends React.Component {
         const currentPrice = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[0]]['4. close'].slice(0, -2);
         const percentChange = Number((((currentPrice - percentOld) / percentOld) * 100).toFixed(2));
 
-        console.log(percentOld, dayFilter.length-1);
-
         this.setState({
           timelineRef: '1D',
           stockPrice: currentPrice,
@@ -420,22 +417,18 @@ export default class App extends React.Component {
           }
         });
       }
-
-      
-
     })
     .catch(err => console.log(err));
 
     // weekly
-    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
+    await Axios.get(`/api/stocks/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
     .then(res => {
-        console.log(res);
 
         if(res.data.hasOwnProperty('Note')) {
           this.setState({
             timelineRef: '1D',
             flagUndefined: true,
-          }, () => console.log(this.state.flagUndefined))
+          })
         }
         else if (!res.data.hasOwnProperty('Note')) {
           const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
@@ -469,15 +462,14 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     //RSI
-    await Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-rsi/${stock}/5min/10`)
+    await Axios.get(`/api/stocks/stock-rsi/${stock}/5min/10`)
     .then(res => {
-      console.log(res);
 
       if(res.data.hasOwnProperty('Note')) {
         this.setState({
           flagUndefined: true,
           timelineRef: '1D',
-        }, () => console.log(this.state.flagUndefined))
+        })
       }
       else if (!res.data.hasOwnProperty('Note')) {
         const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
@@ -507,7 +499,7 @@ export default class App extends React.Component {
               borderColor: "#bae755",
             }]
           },
-        }, () => console.log(this.state.flagUndefined))
+        })
       }
     })
     .catch(err => console.log(err));
