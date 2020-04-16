@@ -24,10 +24,10 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 //route handlers
-app.use('/users', usersRouter);
-app.use('/stocks', stockRouter);
-app.use('/login', loginRouter);
-app.use('/news', newsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/stocks', stockRouter);
+app.use('/api/login', loginRouter);
+app.use('/api/news', newsRouter);
 
 //serve static build files
 app.use(express.static(path.join(__dirname, '../build')));
