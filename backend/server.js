@@ -1,20 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const Pusher = require('pusher');
-const NewsAPI = require('newsapi');
-const axios = require('axios');
 const path = require('path');
 const morgan = require('morgan');
 const { connection } = require('./database/connection.js');
+
+//env vars
+require('dotenv').config();
 
 //routes
 const usersRouter = require('./routes/users');
 const stockRouter = require('./routes/stocks');
 const loginRouter = require('./routes/login');
+const newsRouter = require('./routes/news');
 
-require('dotenv').config();
-
+//app and port
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -30,133 +30,13 @@ app.use(morgan('dev'));
 //     next();
 // });
 
+//route handlers
 app.use('/users', usersRouter);
 app.use('/stocks', stockRouter);
 app.use('/login', loginRouter);
+app.use('/news', newsRouter);
 
-
-// --- NEWS API connection
-const pusher = new Pusher({
-    appId: process.env.PUSHER_APP_ID,
-    key: process.env.PUSHER_APP_KEY,
-    secret: process.env.PUSHER_APP_SECRET,
-    cluster: process.env.PUSHER_APP_CLUSTER,
-    forceTLS: true
-});
-
-const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
-
-const fetchNews = (searchTerm, pageNum) =>
-    newsapi.v2.everything({
-      q: searchTerm,
-      language: 'en',
-      sortBy: 'relevancy',
-      page: pageNum,
-      pageSize: 12,
-    });
-
-// --- ENDPOINT TO GET NEWS DATA
-
-app.get('/top-news/:search', (req, res) => {
-    const topic = req.params.search;
-    fetchNews(topic, 1)
-        .then(response => {
-            res.json(response.articles);
-            // updateFeed(topic);
-        })
-        .catch(error => console.log(error));
-});
-
-// --- BEGIN STOCK APIS
-
-//FOR GETTING STOCK API DATA (TIMESERIES: INTRADAY)
-app.get('/stock-timeseries-intra/:time/:stock', (req, res) => {
-
-    //function options:
-    //TIME_SERIES_INTRADAY -- multiple times per day (see interval options)
-
-    //interval options: 1min, 5min, 15min, 30min, 60min
-
-    axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${req.params.stock}&interval=${req.params.time}&outputsize=full&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error: " + err));
-});
-
-//FOR GETTING STOCK API DATA (TIMESERIES: DAILY, WEEKLY, MONTHLY )
-app.get('/stock-timeseries/:time/:stock', (req, res) => {
-
-    //function options:
-    //TIME_SERIES_DAILY
-    //TIME_SERIES_WEEKLY
-    //TIME_SERIES_MONTHLY
-
-    if(req.params.time === 'TIME_SERIES_DAILY') {
-        axios.get(`https://www.alphavantage.co/query?function=${req.params.time}&symbol=${req.params.stock}&outputsize=full&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error: " + err));
-    }
-    else {
-    axios.get(`https://www.alphavantage.co/query?function=${req.params.time}&symbol=${req.params.stock}&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error: " + err));
-    }
-});
-
-//CURRENT STOCK DATA
-
-app.get('/stock-current/:stock', (req, res) => {
-
-    axios.get(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${req.params.stock}&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error: " + err));
-});
-
-// --- INDICATORS
-
-//interval options: 1min, 5min, 15min, 30min, 60min, daily, weekly, monthly
-//time-period (# of data points) options: any number; recommended 200
-
-// RSI (Relative Strength Index)
-app.get('/stock-rsi/:stock/:interval/:timeperiod', (req, res) => {
-    axios.get(`https://www.alphavantage.co/query?function=RSI&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.timeperiod}&series_type=open&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error" + err))
-})
-
-// SMA (Simple Moving Average)
-app.get('/stock-sma/:stock/:interval/:time-period', (req, res) => {
-    axios.get(`https://www.alphavantage.co/query?function=SMA&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.time-period}&series_type=close&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error" + err))
-})
-
-// EMA (Exponential Moving Average)
-app.get('/stock-ema/:stock/:interval/:time-period', (req, res) => {
-    axios.get(`https://www.alphavantage.co/query?function=EMA&symbol=${req.params.stock}&interval=${req.params.interval}&time_period=${req.params.time-period}&series_type=close&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error" + err))
-})
-
-// STOCK SEARCH
-
-app.get('/stock-search/:keywords', (req, res) => {
-    axios.get(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${req.params.keywords}&apikey=${process.env.STOCK_API_KEY}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error" + err));
-});
-
-
-// --- EARNINGS CALL CALENDAR
-
-app.get('/earnings-calendar/:date', (req, res) => {
-    axios.get(`https://api.earningscalendar.net/?date=${req.params.date}`)
-    .then(response => res.json(response.data))
-    .catch(err => res.status(400).json("Error" + err))
-})
-
-
-
-// -- FOR DEPLOYMENT TO HEROKU
+// -- FOR DEPLOYMENT
 if(process.env.NODE_ENV == "production") {
     app.use(express.static(path.join(__dirname, 'build')));
 
@@ -165,9 +45,7 @@ if(process.env.NODE_ENV == "production") {
     });    
 }
 
-
-// PORT
-
+// Listen
 app.listen(port, () => {
     console.log(`server is live on port ${port}`);
 });
