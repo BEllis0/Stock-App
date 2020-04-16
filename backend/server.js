@@ -34,7 +34,7 @@ app.use(express.static(path.join(__dirname, '../build')));
 
 //routes everything to html page, troubleshoots refreshing
 app.get(/.*/, (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/resume_site/dist/"));
+    res.sendFile(path.join(__dirname, '../build/index.html'));
 });
 
 // Listen
