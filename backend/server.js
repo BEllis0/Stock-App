@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const path = require('path');
 const morgan = require('morgan');
+
+//db connection
 const { connection } = require('./database/connection.js');
 
 //env vars
