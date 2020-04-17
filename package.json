@@ -28,7 +28,7 @@
     "build:dev": "react-scripts build",
     "start": "cd backend && node server.js",
     "build": "cd backend && npm install",
-    "build:netlify": "npm run build",
+    "build:netlify": "npm run build:dev",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
