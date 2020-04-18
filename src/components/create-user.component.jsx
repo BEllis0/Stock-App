@@ -125,7 +125,7 @@ export default class CreateUser extends React.Component {
 
             console.log(newUser);
 
-            axios.post('https://watchlists-stock-app.herokuapp.com/api/users/newuser', newUser)
+            axios.post('/api/users/newuser', newUser)
             .then(res => console.log(res))
             .catch(err => console.log(err));
 
