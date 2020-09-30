@@ -86,6 +86,87 @@ module.exports = {
                         .catch(err => res.status(400).json("Error" + err));
                 }
             }
+        },
+        finnhub: {
+            stocks: {
+                timeSeries: (req, res) => {
+                    axios.get(`https://finnhub.io/api/v1/stock/candle?symbol=AAPL&resolution=W&from=1572651390&to=1572910590`, {
+                        headers: {
+                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                        }
+                    })
+                    .then(response => {
+                        console.log('Stock data', response.data);
+                        res.status(200).json(response.data);
+                    })
+                    .catch(err => {
+                        console.log("Error getting Stock Data", err);
+                        res.status(400).json(err);
+                    });
+                },
+                search: (req, res) => {
+                    axios.get(`https://finnhub.io/api/v1/stock/${req.params.symbol}?exchange=US`, {
+                        headers: {
+                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                        }
+                    })
+                    .then(response => {
+                        console.log('Stock Search', response.data);
+                        res.status(200).json(response.data);
+                    })
+                    .catch(err => {
+                        console.log("Error searching stock symbols", err);
+                        res.status(400).json(err);
+                    });
+                },
+                quote: (req, res) => {
+                    axios.get(`https://finnhub.io/api/v1/quote?symbol=${req.params.symbol}`, {
+                        headers: {
+                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                        }
+                    })
+                    .then(response => {
+                        console.log('Stock Quote', response.data);
+                        res.status(200).json(response.data);
+                    })
+                    .catch(err => {
+                        console.log("Error getting stock quote", err);
+                        res.status(400).json(err);
+                    });
+                }
+            },
+            company: {
+                profile: (req, res) => {
+                    axios.get(`https://finnhub.io/api/v1/stock/profile2?symbol=${req.params.symbol}`, {
+                        headers: {
+                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                        }
+                    })
+                    .then(response => {
+                        console.log('Company Profile', response.data);
+                        res.status(200).json(response.data);
+                    })
+                    .catch(err => {
+                        console.log("Error getting company profile", err);
+                        res.status(400).json(err);
+                    });
+                },
+                financials: (req, res) => {
+                    axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${req.params.symbol}&metric=all`, {
+                        headers: {
+                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                        }
+                    })
+                    .then(response => {
+                        console.log('Company Financials', response.data);
+                        res.status(200).json(response.data);
+                    })
+                    .catch(err => {
+                        console.log("Error getting company financials", err);
+                        res.status(400).json(err);
+                    });
+                }
+            }
         }
     },
 };

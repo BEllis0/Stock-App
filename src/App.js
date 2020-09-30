@@ -84,14 +84,15 @@ export default class App extends React.Component {
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
     this.removeStock = this.removeStock.bind(this);
 
+    this.getNews = this.getNews.bind(this);
+    this.getUserWatchlist = this.getUserWatchlist.bind(this);
+
     this.onDisplayMenu = this.onDisplayMenu.bind(this);
   };
-  
-  componentDidMount() {
-    // fetches NEWS API data on page load, taking 'stock' as initial enpoint
-    // when user searches for a stock, new endpoint is used
 
-    Axios.get(`/api/news/top-news/stocks`)
+  // get news based on a keyword
+  getNews(keyword) {
+    Axios.get(`/api/news/top-news/${keyword}`)
     .then(articles => {
 
         this.setState({
@@ -100,10 +101,10 @@ export default class App extends React.Component {
         });
     })
     .catch(err => console.log(err));
+  }
 
-    // pull the user's saved stocks from DB
-      if(this.state.loggedIn && this.state.userId) {
-        Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
+  getUserWatchlist() {
+    Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
         .then(stock => {
           console.log(stock)
           this.setState({
@@ -112,49 +113,17 @@ export default class App extends React.Component {
           }, () => console.log(this.state.watchlistDb))
         })
         .catch(err => console.log(err))
-      }
-
-      //earnings calendar 
-      const date = (dateObj) => {
-        let day = String(dateObj.getDate());
-        let month = String(dateObj.getMonth() + 1);
-        let year = String(dateObj.getFullYear());
+  }
   
-        if(month.length === 1){
-          month = `0${month}`;
-        }
-        if(day.length === 1) {
-          day = `0${day}`
-        }
-        
-        return `${year}${month}${day}`
-        
-      }
+  componentDidMount() {
+    // get news on 'stocks'
+    this.getNews('stocks');
+
+    // pull the user's saved stocks from DB
+    if(this.state.loggedIn && this.state.userId) {
+      this.getUserWatchlist();
+    }
   };
-
-  componentDidUpdate() {
-  
-    // let refresh;
-
-    // if(!this.state.flagUndefined) {
-    //   console.log('flag undefined false');
-    //   clearInterval(refresh)
-    // }
-
-    // else if(this.state.flagUndefined) {
-    //   refresh = setTimeout( function() {
-    //     this.onSearchSelect(this.state.stockNameDisplay, this.state.company)
-    //     },
-    //     70000
-    //   );
-    // }
-    
-  }
-
-  //not returning
-  componentWillUnmount() {
-    console.log('unmount')
-  }
 
   onDisplayMenu() {
     this.setState({ displayMenu: !this.state.displayMenu}, () => console.log(this.state.displayMenu));

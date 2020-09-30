@@ -32,7 +32,7 @@ app.use('/api/news', newsRouter);
 
 //serve static build files if in dev, just deploy backend in production
 // if (process.env.NODE_ENV !== 'production') {
-    app.use(express.static(path.join(__dirname, '../build')));
+app.use(express.static(path.join(__dirname, '../build')));
 // }
 
 //routes everything to html page, troubleshoots refreshing
