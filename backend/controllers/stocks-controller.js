@@ -90,7 +90,7 @@ module.exports = {
         finnhub: {
             stocks: {
                 timeSeries: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/candle?symbol=AAPL&resolution=W&from=1572651390&to=1572910590`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/candle?symbol=${req.params.symbol}&resolution=${req.params.interval}&from=${req.params.from}&to=${req.params.to}`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
@@ -105,7 +105,7 @@ module.exports = {
                     });
                 },
                 search: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/${req.params.symbol}?exchange=US`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/symbol?exchange=US`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
