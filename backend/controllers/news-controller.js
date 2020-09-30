@@ -21,7 +21,11 @@ module.exports = {
                         res.json(response.articles);
                     })
                     .catch(error => console.log(error));
+            },
+            sentiment: (req, res) => {
+                // TODO
+                // https://finnhub.io/docs/api#news-sentiment
             }
         }
-    }
+    },
 };
