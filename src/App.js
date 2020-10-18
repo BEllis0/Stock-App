@@ -14,6 +14,8 @@ import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
 
+import moment from 'moment';
+
 export default class App extends React.Component {
   
   constructor(props) {
@@ -41,6 +43,11 @@ export default class App extends React.Component {
       stockNameDisplay: '', // used for stock page display to avoid stock name changing onChange
       stockPrice: 0,
       stockCompany: '', //name of company
+      
+      //finnhub
+      candlestickData: [],
+      volumeData: [],
+
       stockTimeSeriesOneMinute: [], //api response for 1min
       stockTimeSeriesFiveMinute: [], //api response for 5min
       stockTimeSeriesThirtyMinute: [], //api response for 30min
@@ -277,10 +284,14 @@ export default class App extends React.Component {
     }
   };
 
-  async onSearchSelect(stock, company) {
+  // handles user selecting a stock ticker from the sidebar
+  async onSearchSelect(stock, company, timeline = '5') {
 
+    // =============
     //NEWS API
-    Axios.get(`/api/news/top-news/${company}`)
+    // =============
+
+    Axios.get(`http://localhost:5000/api/news/top-news/${company}`)
     .then(articles => {
 
         this.setState({
@@ -291,187 +302,34 @@ export default class App extends React.Component {
     })
     .catch(err => console.log(err));
 
+    // =============
     // STOCK API CONNECTION
+    // =============
 
-    //daily
-    await Axios.get(`/api/stocks/stock-timeseries/TIME_SERIES_DAILY/${stock}`)
-    .then(res => {
-
-      if(res.data.hasOwnProperty('Note')) {
-        this.setState({
-          flagUndefined: true,
-          timelineRef: '1D',
-        })
-      }
-      else if (!res.data.hasOwnProperty('Note')) {
-        this.setState({
-          timelineRef: '1D',
-          stockTimeSeriesDaily: [res.data]
-        })
+    // /stock-timeseries/:interval:from/:to/:symbol
+    await Axios.get('http://localhost:5000/api/stocks/timeseries', {
+      params: {
+        symbol: stock,
+        interval: timeline,
+        to: moment().unix(), // current time unix stamp
+        from: moment().subtract(2, 'days').unix() // 1 day
       }
     })
-    .catch(err => console.log(err));
-  
-
-    //5minute
-    await Axios.get(`/api/stocks/stock-timeseries-intra/5min/${stock}`)
-    .then(res => {
-      console.log(res);
-
-      //triggers error view on stock page; caused by api call limit
-      if(res.data.hasOwnProperty('Note')) {
-        this.setState({
-          timelineRef: '1D',
-          flagUndefined: true,
-        })
-      }
-      
-      //if no error
-      else if (!res.data.hasOwnProperty('Note')) {
-
-        //stock chart values for 1 business day; references the last recorded day
-        const chartValues = Object.keys(res.data['Time Series (5min)'])
-        .filter((date) => {
-          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-        })
-        .map(key => {
-          return res.data['Time Series (5min)'][key]['4. close'];
-        });
-
-        //stock chart labels; filtered for 1 business day
-        const chartLabels = Object.keys(res.data['Time Series (5min)'])
-        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-        //stock volume chart data
-        const chartVolumeData = Object.keys(res.data['Time Series (5min)'])
-        .filter((date) => {
-          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-        })
-        .map(key => {
-          return res.data['Time Series (5min)'][key]['5. volume'];
-        });
-
-        //stock volume chart labels
-        const chartVolumeLabels = Object.keys(res.data['Time Series (5min)'])
-        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-        const dayFilter = Object.keys(res.data['Time Series (5min)'])
-        .filter(day => day.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]))
+      .then(response => {
+        // response data - includes two formats: candlestick objects and arrays
+        let data = response.data;
         
-        const percentOld = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[dayFilter.length-1]]['1. open'].slice(0, -2);
-        const currentPrice = res.data['Time Series (5min)'][Object.keys(res.data['Time Series (5min)'])[0]]['4. close'].slice(0, -2);
-        const percentChange = Number((((currentPrice - percentOld) / percentOld) * 100).toFixed(2));
+        // candlestick objects
+        let candlestickData = data.candlestickObj;
 
         this.setState({
-          timelineRef: '1D',
-          stockPrice: currentPrice,
-          stockNameDisplay: stock,
-          percentChange: percentChange,
-          stockTimeSeriesFiveMinute: [res.data],
-          chartData: {
-            labels: [...chartLabels.reverse()],
-            datasets: [{
-              label: 'price',
-              data: chartValues.reverse(),
-              backgroundColor: '#5EEEFF'
-            }]
-          },
-          chartVolumeData: {
-            labels: [...chartVolumeLabels.reverse()],
-            datasets: [{
-              label: 'volume',
-              data: chartVolumeData.reverse(),
-              backgroundColor: '#8E3CF5'
-            }]
-          }
-        });
-      }
-    })
-    .catch(err => console.log(err));
-
-    // weekly
-    await Axios.get(`/api/stocks/stock-timeseries/TIME_SERIES_WEEKLY/${stock}`)
-    .then(res => {
-
-        if(res.data.hasOwnProperty('Note')) {
-          this.setState({
-            timelineRef: '1D',
-            flagUndefined: true,
-          })
-        }
-        else if (!res.data.hasOwnProperty('Note')) {
-          const weekHighArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-            return res.data['Weekly Time Series'][key]['2. high']
-          });
-  
-          const weekLowArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-            return res.data['Weekly Time Series'][key]['3. low']
-          });
-  
-          const avgVolArr = Object.keys(res.data['Weekly Time Series']).slice(0, 52).map(key => {
-            return res.data['Weekly Time Series'][key]['5. volume']
-          });
-  
-          const weekHigh = Math.max(...weekHighArr);
-          const weekLow = Math.min(...weekLowArr);
-  
-          const avgVol = avgVolArr.reduce((a, b) => {
-            return (a + b) / avgVolArr.length;
-          });
-  
-          this.setState({
-            timelineRef: '1D',
-            stockTimeSeriesWeekly: [res.data],
-            weekHigh: weekHigh,
-            weekLow: weekLow,
-            avgVol: Math.round(avgVol)
-          });
-        }
-    })
-    .catch(err => console.log(err));
-
-    //RSI
-    await Axios.get(`/api/stocks/stock-rsi/${stock}/5min/10`)
-    .then(res => {
-
-      if(res.data.hasOwnProperty('Note')) {
-        this.setState({
-          flagUndefined: true,
-          timelineRef: '1D',
+          candlestickData: candlestickData,
+          // volumeData: volumeData
         })
-      }
-      else if (!res.data.hasOwnProperty('Note')) {
-        const rsiChartValues = Object.keys(res.data['Technical Analysis: RSI'])
-        .filter((date) => {
-          return date.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]);
-        })
-        .map(key => {
-          return res.data['Technical Analysis: RSI'][key]['RSI'];
-        });
-
-        const rsiChartLabels = Object.keys(res.data['Technical Analysis: RSI'])
-        .filter(label => label.match(Object.keys(this.state.stockTimeSeriesDaily[0]['Time Series (Daily)'])[0]));
-
-        this.setState({
-          timelineRef: '1D',
-          flagUndefined: false,
-          rsiFiveMinute: [res.data],
-          rsiChartData: {
-            labels: [...rsiChartLabels.reverse()],
-            datasets: [{
-              label: 'RSI 10',
-              fill: false,
-              data: rsiChartValues.reverse(),
-              backgroundColor: '#5EEEFF',
-              pointHoverBackgroundColor: "#fff",
-              pointHoverBorderColor: "#000",
-              borderColor: "#bae755",
-            }]
-          },
-        })
-      }
-    })
-    .catch(err => console.log(err));
+      })
+      .catch(err => {
+        console.log('Error getting Finnhub data on frontend', err);
+      });
   };
 
   //used to change state of the timeline reference; calls the function below to run new api calls
@@ -1840,7 +1698,8 @@ export default class App extends React.Component {
           path={process.env.PUBLIC_URL + '/stocks'}
           exact
           render={(props) => 
-            <StockView 
+            <StockView
+              candlestickData={this.state.candlestickData}
               displayMenu={this.state.displayMenu}
               stockName={this.state.stockName}
               stockNameDisplay={this.state.stockNameDisplay} 
