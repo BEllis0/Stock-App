@@ -14,10 +14,11 @@ router.post('/new-stock/:id', stocksController.stocks.post.newStock); // add new
 // =================
 
 // Candle timeseries data
-router.get('/stock-timeseries/:interval:from/:to/:symbol', stocksController.stocks.finnhub.stocks.timeSeries);
+// :interval:from/:to/:symbol
+router.get('/timeseries', stocksController.stocks.finnhub.stocks.timeSeries);
 
 // Stock Quote
-router.get('/quote/:symbol', stocksController.stocks.finnhub.stocks.quote);
+router.get('/quote', stocksController.stocks.finnhub.stocks.quote);
 
 // realtime websocket
 // TBD
@@ -26,10 +27,10 @@ router.get('/quote/:symbol', stocksController.stocks.finnhub.stocks.quote);
 router.get('/stock-search', stocksController.stocks.finnhub.stocks.search);
 
 // Company profile
-router.get('/company-profile/:symbol', stocksController.stocks.finnhub.company.profile);
+router.get('/company-profile', stocksController.stocks.finnhub.company.profile);
 
 // Company Financials
-router.get('/company-profile/:symbol', stocksController.stocks.finnhub.company.financials);
+router.get('/company-financials', stocksController.stocks.finnhub.company.financials);
 
 // Indicators
 
