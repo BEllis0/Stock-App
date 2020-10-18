@@ -16,6 +16,9 @@ import Menu from './components/menu.component.jsx';
 
 import moment from 'moment';
 
+//realtime trade websocket
+window.socket = new WebSocket('wss://ws.finnhub.io?token=btl8tu748v6omckuoct0');
+
 export default class App extends React.Component {
   
   constructor(props) {
@@ -130,6 +133,19 @@ export default class App extends React.Component {
     if(this.state.loggedIn && this.state.userId) {
       this.getUserWatchlist();
     }
+
+    // =====================
+    // realtime trade socket
+    // =====================
+    
+    window.socket.addEventListener('open', function (event) {
+      window.socket.send(JSON.stringify({'type':'subscribe', 'symbol': 'AAPL'}));
+    });
+
+    // Listen for messages
+    window.socket.addEventListener('message', function (event) {
+      console.log('Message from server ', event.data);
+    });
   };
 
   onDisplayMenu() {
