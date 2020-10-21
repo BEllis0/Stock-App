@@ -47,9 +47,13 @@ export default class App extends React.Component {
       stockPrice: 0,
       stockCompany: '', //name of company
       
-      //finnhub
+      //finnhub candlestick data
       candlestickData: [],
       volumeData: [],
+
+      // finnhub company info
+      companyProfile: {},
+      companyFinancials: [],
 
       stockTimeSeriesOneMinute: [], //api response for 1min
       stockTimeSeriesFiveMinute: [], //api response for 5min
@@ -319,7 +323,7 @@ export default class App extends React.Component {
     .catch(err => console.log(err));
 
     // =============
-    // STOCK API CONNECTION
+    // STOCK CANDLESTICK DATA
     // =============
 
     // /stock-timeseries/:interval:from/:to/:symbol
@@ -331,21 +335,55 @@ export default class App extends React.Component {
         from: moment().subtract(2, 'days').unix() // 1 day
       }
     })
-      .then(response => {
-        // response data - includes two formats: candlestick objects and arrays
-        let data = response.data;
-        
-        // candlestick objects
-        let candlestickData = data.candlestickObj;
+    .then(response => {
+      // response data - includes two formats: candlestick objects and arrays
+      let data = response.data;
+      
+      // candlestick objects
+      let candlestickData = data.candlestickObj;
 
-        this.setState({
-          candlestickData: candlestickData,
-          // volumeData: volumeData
-        })
+      this.setState({
+        candlestickData: candlestickData,
+        // volumeData: volumeData
       })
-      .catch(err => {
-        console.log('Error getting Finnhub data on frontend', err);
-      });
+    })
+    .catch(err => {
+      console.log('Error getting Finnhub data on frontend', err);
+    });
+
+    // =============
+    // STOCK COMPANY PROFILE DATA
+    // =============
+
+    await Axios.get('http://localhost:5000/api/stocks/company-profile', {
+      params: {
+        symbol: stock
+      }
+    })
+    .then(response => {
+      let companyProfile = response.data;
+      this.setState({ companyProfile });
+    })
+    .catch(err => {
+      console.log('Error getting company profile on client', err);
+    });
+
+    // =============
+    // STOCK COMPANY FINANCIAL DATA
+    // =============
+
+    await Axios.get('http://localhost:5000/api/stocks/company-financials', {
+      params: {
+        symbol: stock
+      }
+    })
+    .then(response => {
+      let companyFinancials = response.data;
+      this.setState({ companyFinancials });
+    })
+    .catch(err => {
+      console.log('Error getting company profile on client', err);
+    });
   };
 
   //used to change state of the timeline reference; calls the function below to run new api calls
@@ -355,7 +393,6 @@ export default class App extends React.Component {
       timelineRef: timeline
     }, () => this.changeTimeline());
   };
-
 
 
   //handles new api calls for the timeline reference - 1h, 1d, 1w etc
@@ -1716,6 +1753,8 @@ export default class App extends React.Component {
           render={(props) => 
             <StockView
               candlestickData={this.state.candlestickData}
+              companyProfile={this.state.companyProfile}
+              companyFinancials={this.state.companyFinancials}
               displayMenu={this.state.displayMenu}
               stockName={this.state.stockName}
               stockNameDisplay={this.state.stockNameDisplay} 
