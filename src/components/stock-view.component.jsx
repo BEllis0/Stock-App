@@ -2,9 +2,11 @@ import React from 'react';
 import { Paper, Divider } from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { Line, Bar } from 'react-chartjs-2'
+import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
+import { TypeChooser } from "react-stockcharts/lib/helper";
 
 export default function StockView(props) {
-
+    console.log('stock view data: ', props.candlestickData)
     let refresh;
 
     //if api limit hit
@@ -38,8 +40,8 @@ export default function StockView(props) {
     }
 
     //wait for data to load
-    if (props.chartData.datasets === undefined || props.chartVolumeData.datasets === undefined || props.rsiChartData.datasets === undefined) {
-
+    // if (props.chartData.datasets === undefined || props.chartVolumeData.datasets === undefined || props.rsiChartData.datasets === undefined) {
+    if ( props.candlestickData.length === 0 || props.candlestickData === undefined) {
 
         return (
             <div className="stockPageLayout">
@@ -56,13 +58,9 @@ export default function StockView(props) {
             </div>
         )
     }
+    // }
 
-    else if (props.flagUndefined === false) {
-
-        // stop page from refreshing
-        // refresh = null;
-        // clearInterval(refresh);
-        // console.log(refresh);
+    else if (props.candlestickData.length > 0) {
 
         return (
             <div className="stockPageLayout">
@@ -102,7 +100,35 @@ export default function StockView(props) {
                     </div>
                     <Divider variant="fullWidth" />
 
+
+
+
+
+
+
+
+                    {/* Candlestick chart */}
+
+
                     <Paper className="chart">
+                        {/* <Stock_Candlestick candlestickData={props.candlestickData} /> */}
+                        <TypeChooser>
+				            {type => <Stock_Candlestick stockName={props.stockNameDisplay} type={type} data={props.candlestickData} />}
+                        </TypeChooser>
+                    </Paper>
+
+                    
+
+
+
+
+
+
+
+
+
+
+                    {/* <Paper className="chart">
                         <Line 
                         data={props.chartData}
                         options={{
@@ -120,9 +146,9 @@ export default function StockView(props) {
                               }
                         }}
                         />
-                    </Paper>
+                    </Paper> */}
                     
-                    <Paper className="volumeChart">
+                    {/* <Paper className="volumeChart">
                         <Bar 
                         data={props.chartVolumeData}
                         options={{
@@ -140,9 +166,9 @@ export default function StockView(props) {
                               }
                         }}
                         />
-                    </Paper>
+                    </Paper> */}
 
-                    <Paper className="indicators">
+                    {/* <Paper className="indicators">
                     <Line 
                         data={props.rsiChartData}
                         options={{
@@ -168,9 +194,9 @@ export default function StockView(props) {
                             }
                         }}
                         />
-                    </Paper>
+                    </Paper> */}
 
-                    <div className="details">
+                    {/* <div className="details">
                         <div className="detailRow">
                             <div className="detailColumn">
                                 <p>Open</p>
@@ -231,7 +257,8 @@ export default function StockView(props) {
                                 <p>{props.avgVol}</p>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
+                    
                 </div>
 
                 {props.newsItems.length >= 1 &&

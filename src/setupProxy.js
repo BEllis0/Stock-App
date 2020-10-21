@@ -1,6 +1,13 @@
 const proxy = require('http-proxy-middleware');
 
 module.exports = function(app) {
+
+  //FINNHUB
+  app.use(proxy( '/api/stocks/timeseries', {
+    target: 'http://localhost:5000',
+    changeOrigin: true,
+  })
+  );
   
   //USERS
   app.use(proxy( '/users/', {

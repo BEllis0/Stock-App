@@ -1,5 +1,6 @@
 let User = require('../models/user.model.js');
 const axios = require('axios');
+const moment = require('moment');
 require('dotenv').config();
 
 
@@ -90,14 +91,47 @@ module.exports = {
         finnhub: {
             stocks: {
                 timeSeries: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/candle?symbol=AAPL&resolution=W&from=1572651390&to=1572910590`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/candle?symbol=${req.query.symbol}&resolution=${req.query.interval}&from=${req.query.from}&to=${req.query.to}`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
                     })
                     .then(response => {
-                        console.log('Stock data', response.data);
-                        res.status(200).json(response.data);
+                        const data = response.data;
+
+                        let responseObject = {
+                            candlestickArr: {
+                                open: data.o,
+                                high: data.h,
+                                low: data.l,
+                                close: data.c,
+                                date: data.t,
+                                // volume: data.v
+                            }, // each data point (high, low, etc) will be in it's own array
+                            candlestickObj: [
+                                // each candlestick will be packaged in separate objects
+                            ],
+                            volume: {
+                                date: data.t,
+                                volume: data.v
+                            }
+                        };
+
+                        // iterate through each array (referencing timestamp array as index)
+                        for (let i = 0; i < data.t.length; i++) {
+                            // combine each array at current index into a candlestick object
+                            // convert UNIX date to date object
+                            responseObject.candlestickObj.push({
+                                open: data.o[i],
+                                high: data.h[i],
+                                low: data.l[i],
+                                close: data.c[i],
+                                volume: data.v[i],
+                                date: new Date(moment.unix(data.t[i])),
+                            });
+                        }
+
+                        res.status(200).json(responseObject);
                     })
                     .catch(err => {
                         console.log("Error getting Stock Data", err);
@@ -105,7 +139,7 @@ module.exports = {
                     });
                 },
                 search: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/${req.params.symbol}?exchange=US`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/symbol?exchange=US`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
@@ -120,7 +154,7 @@ module.exports = {
                     });
                 },
                 quote: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/quote?symbol=${req.params.symbol}`, {
+                    axios.get(`https://finnhub.io/api/v1/quote?symbol=${req.query.symbol}`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
@@ -137,7 +171,7 @@ module.exports = {
             },
             company: {
                 profile: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/profile2?symbol=${req.params.symbol}`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/profile2?symbol=${req.query.symbol}`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
@@ -152,7 +186,7 @@ module.exports = {
                     });
                 },
                 financials: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${req.params.symbol}&metric=all`, {
+                    axios.get(`https://finnhub.io/api/v1/stock/metric?symbol=${req.query.symbol}&metric=all`, {
                         headers: {
                             'X-Finnhub-Token': process.env.FINNHUB_API_KEY
                         }
