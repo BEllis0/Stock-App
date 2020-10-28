@@ -67,6 +67,10 @@ ul li {
   justify-content: space-between;
 }
 
+.block {
+  display: block;
+}
+
 /* Left sidebar, which contains nav and watchlists */
 .sidebarGrid {
   display: flex;
@@ -214,8 +218,8 @@ ul li {
   align-items: flex-end;
 }
 
-.stockPageStockName {
-  display: flex;
+.stockLogo {
+  width: 30px;
 }
 
 .chartArea {
@@ -270,8 +274,9 @@ ul li {
 
 .detailColumn {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   padding: 0px;
+  margin: 0px 20px;
 }
 
 .loadingStockChart {
