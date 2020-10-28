@@ -20,8 +20,9 @@ router.get('/timeseries', stocksController.stocks.finnhub.stocks.timeSeries);
 // Stock Quote
 router.get('/quote', stocksController.stocks.finnhub.stocks.quote);
 
-// realtime websocket
-// TBD
+// ===============
+// NOTE: realtime websocket is handled on client
+// ===============
 
 // Stock Symbol SEARCH
 router.get('/stock-search', stocksController.stocks.finnhub.stocks.search);
@@ -34,39 +35,9 @@ router.get('/company-financials', stocksController.stocks.finnhub.company.financ
 
 // Indicators
 
-//EMA TBD
-
-//SMA TBD
-
-// RSI TBD
-
-
-// =================
-// Alphavantage API
-// =================
-
-// (TIMESERIES: INTRADAY)
-router.get('/stock-timeseries-intra/:time/:stock', stocksController.stocks.alphavantage.stocks.intraday);
-
-//FOR GETTING STOCK API DATA (TIMESERIES: DAILY, WEEKLY, MONTHLY )
-router.get('/stock-timeseries/:time/:stock', stocksController.stocks.alphavantage.stocks.timeSeries);
-
-//CURRENT STOCK DATA
-router.get('/stock-current/:stock', stocksController.stocks.alphavantage.stocks.current);
-
-// --- INDICATORS
-
-// RSI (Relative Strength Index)
-router.get('/stock-rsi/:stock/:interval/:timeperiod', stocksController.stocks.alphavantage.indicators.rsi);
-
-// SMA (Simple Moving Average)
-router.get('/stock-sma/:stock/:interval/:time-period', stocksController.stocks.alphavantage.indicators.sma);
-
-// EMA (Exponential Moving Average)
-router.get('/stock-ema/:stock/:interval/:time-period', stocksController.stocks.alphavantage.indicators.ema);
-
-// STOCK SEARCH
-router.get('/stock-search/:keywords', stocksController.stocks.alphavantage.stocks.search);
+// ================
+// NOTE: RSI and EMA are calculating in client charting libary (react stock charts)
+// ================
 
 // export
 module.exports = router;
