@@ -26,6 +26,7 @@ export default class App extends React.Component {
 
     this.state = {
       displayMenu: undefined,
+      colorDisplay: 'light',
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
       ],
@@ -74,6 +75,7 @@ export default class App extends React.Component {
     this.getUserWatchlist = this.getUserWatchlist.bind(this);
 
     this.onDisplayMenu = this.onDisplayMenu.bind(this);
+    this.changeColorDisplay = this.changeColorDisplay.bind(this);
   };
 
   // get news based on a keyword
@@ -113,6 +115,14 @@ export default class App extends React.Component {
 
   onDisplayMenu() {
     this.setState({ displayMenu: !this.state.displayMenu}, () => console.log(this.state.displayMenu));
+  }
+
+  changeColorDisplay() {
+    let color = this.state.colorDisplay === 'light' ? 'dark' : 'light';
+
+    this.setState({
+      colorDisplay: color
+    }, () => console.log(this.state.colorDisplay));
   }
 
   login(e) {
@@ -440,7 +450,7 @@ export default class App extends React.Component {
   
   return (
     <Router basename={process.env.PUBLIC_URL + '/'}>
-    <div className="app">
+    <div className="app" style={{color: this.state.colorDisplay === 'dark' ? 'white' : ''}}>
       <Grid className="sidebarGrid" item sm={4}>
         <Navbar 
           onChangeStock={this.onChangeStock}
@@ -450,7 +460,7 @@ export default class App extends React.Component {
           username={this.state.username}
           onDisplayMenu={this.onDisplayMenu}
           displayMenu={this.state.displayMenu}
-
+          colorDisplay={this.state.colorDisplay}
           />
         <Sidebar 
           searchItems={this.state.searchItems}
@@ -467,13 +477,19 @@ export default class App extends React.Component {
           />
       </Grid>
 
-      <Grid className="mainViewGrid" item sm={8}>
+      <Grid 
+        className="mainViewGrid" 
+        style={{backgroundColor : this.state.colorDisplay === 'light' ? '#f0f0f0' : '#303030'}}
+        item 
+        sm={8}
+        >
         {this.state.displayMenu && 
         <Menu 
           loggedIn={this.state.loggedIn}
           onDisplayMenu={this.onDisplayMenu}
           email={this.state.email}
           username={this.state.username}
+          changeColorDisplay={this.changeColorDisplay}
         />
         }
         
@@ -492,22 +508,11 @@ export default class App extends React.Component {
               stockNameDisplay={this.state.stockNameDisplay} 
               stockPrice={this.state.stockPrice}
               company={this.state.stockCompany}
-              stockTimeSeriesFiveMinute={this.state.stockTimeSeriesFiveMinute}
-              stockTimeSeriesDaily={this.state.stockTimeSeriesDaily}
-              stockTimeSeriesWeekly={this.state.stockTimeSeriesWeekly}
-              percentChange={this.state.percentChange}
-              weekHigh={this.state.weekHigh}
-              weekLow={this.state.weekLow}
-              avgVol={this.state.avgVol}
               onSearchSelect={this.onSearchSelect}
               newsItems={this.state.newsItems}
-              chartData={this.state.chartData}
-              chartVolumeData={this.state.chartVolumeData}
-              rsiChartData={this.state.rsiChartData}
               onSelectTimeline={this.onSelectTimeline}
               timelineRef={this.state.timelineRef}
-              flagUndefined={this.state.flagUndefined}
-              refresh={this.refresh}
+              colorDisplay={this.state.colorDisplay}
             /> } 
           />
         <Route 

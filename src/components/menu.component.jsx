@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Toolbar, AppBar, Divider, TextField } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
+import DisplayButton from './Buttons/DisplayButton/DisplayButton.jsx';
 
 const Menu = (props) => {
 
@@ -64,7 +65,10 @@ const Menu = (props) => {
                 <h3>Display</h3>
                 <Divider />
                 
-            </div>
+                {/* Color Mode */}
+                <DisplayButton changeColorDisplay={props.changeColorDisplay} />
+
+            </div>  
         </div>
         
     )
