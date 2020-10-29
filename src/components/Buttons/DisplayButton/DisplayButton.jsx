@@ -3,7 +3,7 @@ import Switch from '@material-ui/core/Switch';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-export default function DisplayButton() {
+export default function DisplayButton(props) {
     const [state, setState] = React.useState({
       checkedA: true,
       checkedB: true,
@@ -11,6 +11,7 @@ export default function DisplayButton() {
   
     const handleChange = (event) => {
       setState({ ...state, [event.target.name]: event.target.checked });
+      props.changeColorDisplay()
     };
   
     return (

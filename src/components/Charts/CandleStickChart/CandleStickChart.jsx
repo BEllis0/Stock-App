@@ -45,22 +45,20 @@ import {
 class CandleStickChart extends React.Component {
 	render() {
 
-		// candlestick styling
-		const candlesStyle = {
-			wickStroke: "#000000",
-			fill: function fill(d) {
-			  return d.close > d.open ? "rgba(196, 205, 211, 0.8)" : "rgba(22, 22, 22, 0.8)";
-			},
-			stroke: "#000000",
-			// candleStrokeWidth: 0.5,
-			// widthRatio: 0.8,
-			opacity: 1,
-		}
-
 		// read in props
-		const { type, width, data:initialData, ratio, stockName } = this.props;	
+		const { type, width, data:initialData, ratio, stockName, colorDisplay } = this.props;	
 		
 		const showGrid = true;
+
+		var candlesStyle;
+		// candlestick styling
+		if (colorDisplay === 'dark') {
+			candlesStyle = {
+				stroke: d => d.close > d.open ? "#6BA583" : "#DB0000",
+				wickStroke: d => d.close > d.open ? "#6BA583" : "#DB0000",
+				fill: d => d.close > d.open ? "#6BA583" : "#DB0000"
+			}
+		}
 
 		// config for EMA
 		const ema20 = ema()
@@ -164,7 +162,8 @@ class CandleStickChart extends React.Component {
 					<XAxis axisAt="bottom" orient="bottom" ticks={3}/>
 					<YAxis axisAt="left" orient="left" ticks={5} />
 					<CandlestickSeries
-					 {...candlesStyle} 
+					{...candlesStyle}
+					
 					//  width={0.8}
 					/>
 					<MouseCoordinateX

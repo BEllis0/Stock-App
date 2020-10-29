@@ -66,7 +66,7 @@ const Menu = (props) => {
                 <Divider />
                 
                 {/* Color Mode */}
-                <DisplayButton />
+                <DisplayButton changeColorDisplay={props.changeColorDisplay} />
 
             </div>  
         </div>

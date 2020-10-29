@@ -19,6 +19,7 @@ export default function StockView(props) {
     let {
         candlestickData,
         stockNameDisplay,
+        colorDisplay,
         company,
         timelineRef,
         newsItems,
@@ -91,7 +92,7 @@ export default function StockView(props) {
                     </div>
                 
                     <div className="inline">
-                        <h2>{props.stockPrice}</h2>
+                        <h2>{candlestickData[candlestickData.length - 1].close}</h2>
 
                         {props.percentChange > 0 ? (
                             <h4 className="green-text">+{props.percentChange}%</h4>
@@ -125,7 +126,12 @@ export default function StockView(props) {
 
                     <div class="chart">
                         <TypeChooser>
-				            {type => <Stock_Candlestick stockName={stockNameDisplay} type={type} data={candlestickData} />}
+                            {type => <Stock_Candlestick 
+                                stockName={stockNameDisplay}
+                                type={type}
+                                data={candlestickData}
+                                colorDisplay={colorDisplay}
+                            />}
                         </TypeChooser>
                     </div>
            
@@ -145,14 +151,12 @@ export default function StockView(props) {
                                 <p>Low</p>
                                 
                             </div>
-                        </div>
-                        
-                        <div className="detailRow">
                             <div className="detailColumn">
                                 <p>Vol</p>
                                 
                             </div>
                         </div>
+                        
 
                         {companyFinancials.metric &&
                             <div className="detailRow">
@@ -170,6 +174,16 @@ export default function StockView(props) {
                                 </div>
                             </div>
                         }
+
+                        <div className="detailRow">
+                        
+                            <div className="detailColumn">
+                                <p>Industry</p>
+                                <p>{companyProfile.finnhubIndustry}</p>
+                            </div>
+
+                        </div>
+                        
                     </div>
 
                     <div>
