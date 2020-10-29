@@ -1,5 +1,6 @@
 
 /* full app view */
+
 .app {
   display: flex;
   flex-direction: row;
@@ -32,6 +33,15 @@ a {
 .red-text {
   color: red;
 }
+
+.displayDark {
+  background: #303030;
+}
+
+.displayLight {
+  background: #f0f0f0;
+}
+
 
 ul {
   list-style-type: none;
