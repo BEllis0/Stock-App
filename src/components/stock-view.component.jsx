@@ -1,13 +1,20 @@
 import React from 'react';
-import { Paper, Divider } from '@material-ui/core';
+import { Divider } from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
-import { Line, Bar } from 'react-chartjs-2'
-import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
 import { TypeChooser } from "react-stockcharts/lib/helper";
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
+import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
+import NewsList from './Lists/NewsList.jsx';
 
 export default function StockView(props) {
     
-    let refresh;
+    function changeBackground(e) {
+        e.target.style.background = 'red';
+      }
 
     let {
         candlestickData,
@@ -100,7 +107,7 @@ export default function StockView(props) {
 
                 <div className="chartArea">
                     <div className="chartControls">
-                        <p className={timelineRef === '1H' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1H')}>1H</p>
+                        <p className={timelineRef === '1H' ? 'boldText' : 'timelineSelector'} onMouseOver={changeBackground} onClick={() => props.onSelectTimeline('1H')}>1H</p>
                         <p className={timelineRef === '1D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1D')}>1D</p>
                         <p className={timelineRef === '10D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('10D')}>10D</p>
                         <p className={timelineRef === '1M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1M')}>1M</p>
@@ -164,31 +171,38 @@ export default function StockView(props) {
                             </div>
                         }
                     </div>
+
+                    <div>
+                    {companyFinancials.metric &&
+                        <Accordion>
+                            <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                            >
+                            <p className="">More Financial Information</p>
+                            </AccordionSummary>
+
+                            <AccordionDetails>
+                            <ul>
+                                {Object.keys(companyFinancials.metric).map(key => {
+                                    return (
+                                    <li>{key}: {companyFinancials.metric[key]}</li>
+                                    )
+                                })}
+                            </ul>
+                            </AccordionDetails>
+                        </Accordion>
+                    }
+                    </div>
                     
                 </div>
 
+                {/* News List Display */}
+
                 {newsItems.length >= 1 &&
-                <ul className="newsList">
-                
-                
-                {props.newsItems[0].map(article => {
-                    if (company !== undefined) {
-                return (
-                    <div className="newsArticle" key={newsItems[0].indexOf(article)}>
-                    <a href={article.url} target="_blank" rel="noopener noreferrer">
-                    <img className="newsImg" src={article.urlToImage} alt={article.title} />
-                    <p className="articleSourceName">{article.source.name}</p>
-                    <h4 className="articleTitle">{article.title}</h4>
-                    </a>
-                    {/* <p className="articleDesc">{article.description}</p> */}
-                    <p className="articleDate">{article.publishedAt.slice(0,10)}</p>
-                    </div>
-                )
+                    <NewsList newsItems={props.newsItems} />
                 }
-                })}
-                
-            </ul>
-            }
             </div>
         );
     }
