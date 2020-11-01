@@ -6,9 +6,14 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 
 const Sidebar = (props) => {
 
+    const sidebarStyles = {
+        backgroundColor: props.colorDisplay === 'dark' ? '#f0f0f0' : '',
+        height: window.screen.height
+    };
+
     if (props.stockName !== "" && props.stockName.length > 1 && props.searchItems !== undefined) {
         return (
-            <div className="sidebar">
+            <div className="sidebar" style={sidebarStyles}>
             <ul className="searchItemList">
             
             {props.searchItems.map(stock => {
@@ -39,8 +44,10 @@ const Sidebar = (props) => {
     }
 
     else {
+
+
         return (
-            <div className="sidebar">
+            <div className="sidebar" style={sidebarStyles}>
             <Toolbar disableGutters={true} className="sidebarNewsButton">
             <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
             </Toolbar>
