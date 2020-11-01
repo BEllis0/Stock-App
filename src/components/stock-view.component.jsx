@@ -9,6 +9,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
 import NewsList from './Lists/NewsList.jsx';
+import CompanyFinancialsList from './Lists/CompanyFinancialsList.jsx';
 
 export default function StockView(props) {
     
@@ -19,8 +20,8 @@ export default function StockView(props) {
     let {
         candlestickData,
         stockNameDisplay,
+        stockPriceRealtime,
         colorDisplay,
-        company,
         timelineRef,
         newsItems,
         companyProfile, 
@@ -92,7 +93,7 @@ export default function StockView(props) {
                     </div>
                 
                     <div className="inline">
-                        <h2>{candlestickData[candlestickData.length - 1].close}</h2>
+                        <h2>{stockPriceRealtime !== null ? stockPriceRealtime : candlestickData[candlestickData.length - 1].close}</h2>
 
                         {props.percentChange > 0 ? (
                             <h4 className="green-text">+{props.percentChange}%</h4>
@@ -137,27 +138,29 @@ export default function StockView(props) {
            
 
                         <div className="details">
+                        {candlestickData &&
                         <div className="detailRow">
-    
+                        
                             <div className="detailColumn">
                                 <p>Open</p>
-                                
+                                <p>{candlestickData[candlestickData.length - 1].open}</p>
                             </div>
                             <div className="detailColumn">
                                 <p>High</p>
-                                
+                                {candlestickData[candlestickData.length - 1].high}
                             </div>
                             <div className="detailColumn">
                                 <p>Low</p>
-                                
+                                {candlestickData[candlestickData.length - 1].low}
                             </div>
                             <div className="detailColumn">
                                 <p>Vol</p>
-                                
+                                {candlestickData[candlestickData.length - 1].volume}
                             </div>
+                            
                         </div>
                         
-
+                        }
                         {companyFinancials.metric &&
                             <div className="detailRow">
                                 <div className="detailColumn">
@@ -198,13 +201,7 @@ export default function StockView(props) {
                             </AccordionSummary>
 
                             <AccordionDetails>
-                            <ul>
-                                {Object.keys(companyFinancials.metric).map(key => {
-                                    return (
-                                    <li>{key}: {companyFinancials.metric[key]}</li>
-                                    )
-                                })}
-                            </ul>
+                                <CompanyFinancialsList companyFinancials={companyFinancials} />
                             </AccordionDetails>
                         </Accordion>
                     }
@@ -215,7 +212,10 @@ export default function StockView(props) {
                 {/* News List Display */}
 
                 {newsItems.length >= 1 &&
-                    <NewsList newsItems={props.newsItems} />
+                    <NewsList 
+                        newsItems={newsItems}
+                        colorDisplay={colorDisplay}
+                    />
                 }
             </div>
         );
