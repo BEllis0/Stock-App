@@ -15,12 +15,18 @@ let cache = {
 const requireRefresh = (params) => {
     let currentTime = moment().unix(); // get current time in unix
     let refreshTime;
+    try {
     if (params.hasOwnProperty('interval')) {
         refreshTime = cache[params.symbol][params.interval]['refreshDateUnix'];
+    } else if (params.hasOwnProperty('stockSearch')) {
+        refreshTime = cache['stockSearch']['refreshDateUnix'];
     } else {
         refreshTime = cache[params.symbol][params.property]['refreshDateUnix'];
     }
     return currentTime > refreshTime ? true : false;
+    } catch (err) {
+        console.log('Error in requireRefresh function');
+    }
 };
 
 module.exports = {
@@ -220,6 +226,16 @@ module.exports = {
                             res.status(400).json(err);
                         });
                     }
+                }
+            }
+        },
+        // alphavantage used for symbol search only
+        alphavantage: {
+            stocks: {
+                search: (req, res) => {
+                    axios.get(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${req.params.keywords}&apikey=${process.env.STOCK_API_KEY}`)
+                        .then(response => res.json(response.data))
+                        .catch(err => res.status(400).json("Error" + err));
                 }
             }
         }

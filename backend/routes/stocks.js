@@ -8,6 +8,13 @@ const stocksController = require('../controllers/stocks-controller.js');
 router.get('/saved-stocks/:id', stocksController.stocks.get.stockById); // get watchlist by user id
 router.post('/new-stock/:id', stocksController.stocks.post.newStock); // add new stock; currently replaces the entire watchlist with req
 
+// =================
+// --- ALPHAVANTAGE
+// =================
+
+// STOCK SYMBOL SEARCH (best match)
+router.get('/stock-search/:keywords', stocksController.stocks.alphavantage.stocks.search);
+
 
 // =================
 // Finnhub API
