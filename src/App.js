@@ -54,8 +54,9 @@ export default class App extends React.Component {
       stockPrice: 0,
       stockCompany: '', //name of company
       
-      //finnhub candlestick data
+      //finnhub data
       candlestickData: [],
+      stockQuote: {},
 
       // finnhub company info
       companyProfile: {},
@@ -336,6 +337,20 @@ export default class App extends React.Component {
     });
 
     // =============
+    // STOCK QUOTE
+    // =============
+
+    await getQuoteData(stock)
+    .then(response => {
+      // response data
+      let stockQuote = response.data;
+      this.setState({ stockQuote });
+    })
+    .catch(err => {
+      console.log('Error getting Finnhub data on frontend: stock quote', err);
+    });
+
+    // =============
     // STOCK COMPANY PROFILE DATA
     // =============
 
@@ -450,6 +465,7 @@ export default class App extends React.Component {
           render={(props) => 
             <StockView
               candlestickData={this.state.candlestickData}
+              stockQuote={this.state.stockQuote}
               companyProfile={this.state.companyProfile}
               companyFinancials={this.state.companyFinancials}
               displayMenu={this.state.displayMenu}
