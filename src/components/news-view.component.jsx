@@ -7,7 +7,10 @@ export default function NewsView(props) {
     // If api is pulling in news
     if (props.newsItems.length >= 1) {
         return (
-            <NewsList newsItems={props.newsItems} />
+            <NewsList 
+                newsItems={props.newsItems}
+                colorDisplay={props.colorDisplay}
+            />
         )
     }
 
