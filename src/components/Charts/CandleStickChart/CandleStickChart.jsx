@@ -48,15 +48,31 @@ class CandleStickChart extends React.Component {
 		// read in props
 		const { type, width, data:initialData, ratio, stockName, colorDisplay } = this.props;	
 		
+		const height = 700;
+		const margin = { left: 50, right: 50, top: 10, bottom: 30 };
+
+		const gridHeight = height - margin.top - margin.bottom;
+		const gridWidth = width - margin.left - margin.right;
+
 		const showGrid = true;
+		const yGrid = showGrid ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.2 } : {};
+		const xGrid = showGrid ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 } : {};
 
 		var candlesStyle;
-		// candlestick styling
+		var tickStyle;
+
+		// dark theme styling for candlesticks and chart text
 		if (colorDisplay === 'dark') {
+			
 			candlesStyle = {
 				stroke: d => d.close > d.open ? "#6BA583" : "#DB0000",
 				wickStroke: d => d.close > d.open ? "#6BA583" : "#DB0000",
 				fill: d => d.close > d.open ? "#6BA583" : "#DB0000"
+			};
+
+			tickStyle = {
+				stroke:"#FFFFFF",
+				tickStroke:"#FFFFFF"
 			}
 		}
 
@@ -140,11 +156,11 @@ class CandleStickChart extends React.Component {
 		];
 		
 		return (
-			<ChartCanvas 
-				height={600}
+			<ChartCanvas
+				height={height}
 				ratio={ratio}
 				width={width}
-				margin={{ left: 50, right: 50, top: 10, bottom: 30 }}
+				margin={margin}
 				type={type}
 				seriesName={stockName}
 				data={data}
@@ -153,18 +169,32 @@ class CandleStickChart extends React.Component {
 				xScale={xScale}
 				xExtents={xExtents}
 			>
+				<CrossHairCursor stroke="#FFFFFF" />
+
 				{/* CANDLESTICK CHART */}
 
 				<Chart id={1} height={300}
-				// yExtents={d => [d.high, d.low]}
 					yExtents={[d => [d.high, d.low], ema26.accessor(), ema12.accessor()]}
+					padding={{ top: 60, bottom: 20 }}
 				>
-					<XAxis axisAt="bottom" orient="bottom" ticks={3}/>
-					<YAxis axisAt="left" orient="left" ticks={5} />
+					<XAxis 
+						axisAt="bottom" 
+						orient="bottom"
+						ticks={3}
+						outerTickSize={0}
+						{...tickStyle}
+						opacity={0.5}	
+					/>
+					<YAxis 
+						axisAt="right"
+						orient="right" 
+						ticks={5}
+						{...yGrid} 
+						inverted={true}
+						{...tickStyle}
+					/>
 					<CandlestickSeries
-					{...candlesStyle}
-					
-					//  width={0.8}
+						{...candlesStyle}
 					/>
 					<MouseCoordinateX
 						at="bottom"
@@ -186,10 +216,14 @@ class CandleStickChart extends React.Component {
 					<EdgeIndicator itemType="last" orient="right" edgeAt="right"
 						yAccessor={d => d.close} fill={d => d.close > d.open ? "#6BA583" : "#FF0000"}/>
 
-					<OHLCTooltip origin={[-39, -5]}/>
+					<OHLCTooltip
+						origin={[-39, 0]}
+						{...tickStyle}
+					 />
 					<MovingAverageTooltip
 						onClick={e => console.log(e)}
-						origin={[-38, 15]}
+						{...tickStyle}
+						origin={[-38, 10]}
 						options={[
 							{
 								yAccessor: ema26.accessor(),
@@ -215,8 +249,13 @@ class CandleStickChart extends React.Component {
 					height={150} 
 					origin={(w, h) => [0, h - 300]}
 				>
-					<YAxis axisAt="left" orient="left" ticks={5} tickFormat={format(".2s")}
-						tickStroke="#FFFFFF" />
+					<YAxis 
+						axisAt="left" 
+						orient="left" 
+						ticks={5} 
+						tickFormat={format(".2s")}
+						{...tickStyle} 
+					/>
 					<BarSeries
 						yAccessor={d => d.volume}
 						fill={d => d.close > d.open ? "#6BA583" : "#DB0000"} />
@@ -230,19 +269,25 @@ class CandleStickChart extends React.Component {
 					origin={(w, h) => [0, h - 150]}
 				>
 					<XAxis axisAt="bottom" orient="bottom" showTicks={false} outerTickSize={0} />
-					<YAxis axisAt="right"
+					<YAxis 
+						{...tickStyle}
+						axisAt="right"
 						orient="right"
-						tickValues={[30, 50, 70]}/>
+						tickValues={[30, 50, 70]}
+					/>
 					<MouseCoordinateY
 						at="right"
 						orient="right"
-						displayFormat={format(".2f")} />
+						displayFormat={format(".2f")} 
+					/>
 
 					<RSISeries yAccessor={d => d.rsi} />
 
 					<RSITooltip origin={[-38, 15]}
 						yAccessor={d => d.rsi}
-						options={rsiCalculator.options()} />
+						options={rsiCalculator.options()}
+						{...tickStyle}
+						 />
 				</Chart>
 			</ChartCanvas>
 		);

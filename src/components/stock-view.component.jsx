@@ -6,9 +6,12 @@ import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import round from '../utils/roundDecimals.js';
+import formatCurrency from '../utils/formatCurrency.js';
 
 import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
 import NewsList from './Lists/NewsList.jsx';
+import CompanyFinancialsList from './Lists/CompanyFinancialsList.jsx';
 
 export default function StockView(props) {
     
@@ -18,18 +21,32 @@ export default function StockView(props) {
 
     let {
         candlestickData,
+        stockQuote,
         stockNameDisplay,
+        stockPriceRealtime,
         colorDisplay,
-        company,
         timelineRef,
         newsItems,
         companyProfile, 
         companyFinancials,
     } = props;
 
-    console.log('company profile', companyProfile);
+    // generate percent change
+    let getPercentChange = () => {
+        if (stockQuote) {
+            // try to get realtime price, fallback on current
+            let currentValue = stockPriceRealtime || stockQuote.c;
+            let openPrice = stockQuote.o;
+            let percentChange = ((currentValue - openPrice) / openPrice) * 100;
+            return percentChange;
+        }
+    }
+
+    let percentChange = getPercentChange();
+
+    // console.log('company profile', companyProfile);
     console.log('company financials', companyFinancials)
-    console.log('stock view data: ', candlestickData)
+    // console.log('stock view data: ', candlestickData)
 
     //if api limit hit
     if (props.flagUndefined) {
@@ -92,12 +109,12 @@ export default function StockView(props) {
                     </div>
                 
                     <div className="inline">
-                        <h2>{candlestickData[candlestickData.length - 1].close}</h2>
+                        <h2>{stockPriceRealtime !== null ? formatCurrency(stockPriceRealtime) : formatCurrency(candlestickData[candlestickData.length - 1].close)}</h2>
 
-                        {props.percentChange > 0 ? (
-                            <h4 className="green-text">+{props.percentChange}%</h4>
+                        {percentChange > 0 ? (
+                            <h4 className="green-text">+{round(percentChange)}%</h4>
                         ) : (
-                            <h4 className="red-text">{props.percentChange}%</h4>
+                            <h4 className="red-text">{round(percentChange)}%</h4>
                         )}
                     
                     </div>
@@ -124,7 +141,7 @@ export default function StockView(props) {
 
                     {/* Candlestick chart */}
 
-                    <div class="chart">
+                    <div className="chart">
                         <TypeChooser>
                             {type => <Stock_Candlestick 
                                 stockName={stockNameDisplay}
@@ -137,40 +154,42 @@ export default function StockView(props) {
            
 
                         <div className="details">
+                        {candlestickData &&
                         <div className="detailRow">
-    
+                        
                             <div className="detailColumn">
-                                <p>Open</p>
-                                
+                                <p className="rm-margin-all">Open</p>
+                                <p className="rm-margin-all">{formatCurrency(stockQuote.o)}</p>
                             </div>
                             <div className="detailColumn">
                                 <p>High</p>
-                                
+                                <p>{formatCurrency(stockQuote.h)}</p>
                             </div>
                             <div className="detailColumn">
-                                <p>Low</p>
-                                
+                                <p className="rm-margin-all">Low</p>
+                                <p className="rm-margin-all">{formatCurrency(stockQuote.l)}</p>
                             </div>
-                            <div className="detailColumn">
+                            {/* <div className="detailColumn">
                                 <p>Vol</p>
-                                
-                            </div>
+                                <p>{round(candlestickData[candlestickData.length - 1].volume)}</p>
+                            </div> */}
+                            
                         </div>
                         
-
+                        }
                         {companyFinancials.metric &&
                             <div className="detailRow">
                                 <div className="detailColumn">
-                                    <p>52W H</p>
-                                    <p>{companyFinancials.metric['52WeekHigh']}</p>
+                                    <p className="rm-margin-all">52W H</p>
+                                    <p className="rm-margin-all">{formatCurrency(companyFinancials.metric['52WeekHigh'])}</p>
                                 </div>
                                 <div className="detailColumn">
                                     <p>52W L</p>
-                                    <p>{companyFinancials.metric['52WeekLow']}</p>
+                                    <p>{formatCurrency(companyFinancials.metric['52WeekLow'])}</p>
                                 </div>
                                 <div className="detailColumn">
-                                    <p>Avg Vol (10 Day)</p>
-                                    <p>{companyFinancials.metric['10DayAverageTradingVolume']}</p>
+                                    <p className="rm-margin-all">Avg Vol (10 Day)</p>
+                                    <p className="rm-margin-all">{round(companyFinancials.metric['10DayAverageTradingVolume'])}</p>
                                 </div>
                             </div>
                         }
@@ -178,17 +197,37 @@ export default function StockView(props) {
                         <div className="detailRow">
                         
                             <div className="detailColumn">
-                                <p>Industry</p>
-                                <p>{companyProfile.finnhubIndustry}</p>
+                                <p className="rm-margin-all">Industry</p>
+                                <p className="rm-margin-all">{companyProfile.finnhubIndustry}</p>
                             </div>
 
+                            <div className="detailColumn">
+                                <p>IPO Date</p>
+                                <p>{companyProfile.ipo}</p>
+                            </div>
+
+                            <div className="detailColumn">
+                                <p className="rm-margin-all">Market Cap</p>
+                                <p className="rm-margin-all">${companyProfile.marketCapitalization} B</p>
+                            </div>
+
+                            <div className="detailColumn">
+                                <p>Shares Outstanding</p>
+                                <p>{round(companyProfile.shareOutstanding)} Million</p>
+                            </div>
+
+                            <div className="detailColumn">
+                                <a className="rm-margin-all" href={companyProfile.weburl} target="_blank">
+                                    <p>Link to Website</p>
+                                </a>
+                            </div>
                         </div>
                         
                     </div>
 
                     <div>
                     {companyFinancials.metric &&
-                        <Accordion>
+                        <Accordion className="companyFinancialsModule">
                             <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -198,13 +237,7 @@ export default function StockView(props) {
                             </AccordionSummary>
 
                             <AccordionDetails>
-                            <ul>
-                                {Object.keys(companyFinancials.metric).map(key => {
-                                    return (
-                                    <li>{key}: {companyFinancials.metric[key]}</li>
-                                    )
-                                })}
-                            </ul>
+                                <CompanyFinancialsList companyFinancials={companyFinancials} />
                             </AccordionDetails>
                         </Accordion>
                     }
@@ -215,7 +248,10 @@ export default function StockView(props) {
                 {/* News List Display */}
 
                 {newsItems.length >= 1 &&
-                    <NewsList newsItems={props.newsItems} />
+                    <NewsList 
+                        newsItems={newsItems}
+                        colorDisplay={colorDisplay}
+                    />
                 }
             </div>
         );
