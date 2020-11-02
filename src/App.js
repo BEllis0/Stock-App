@@ -1,11 +1,21 @@
 import React from 'react';
+
+// styling and css libraries
 import './App.css';
 import { BrowserRouter as Router, Route, useHistory, Redirect } from "react-router-dom";
 import { Grid } from '@material-ui/core';
+
+// api helpers and utility functions
 import Axios from 'axios';
+import { getCandlestickData, getQuoteData, symbolSearch } from './api/stocks.js';
+import { setCurrentPriceWebSocket, removePriceWebSocket } from './utils/web_sockets.js';
+import { getCompanyProfile, getCompanyFinancials } from './api/companyData.js';
+import { getUserWatchlist, login, addStockToWatchlist } from './api/watchlist.js';
+import { newsSearch } from './api/news.js';
 
 import { throttle, debounce } from 'lodash';
 
+// components
 import Navbar from './components/navbar.component.jsx';
 import Sidebar from './components/sidebar.component.jsx';
 import NewsView from './components/news-view.component.jsx';
@@ -14,13 +24,7 @@ import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
 
-import moment from 'moment';
-
-//realtime trade websocket
-window.socket = new WebSocket('wss://ws.finnhub.io?token=btl8tu748v6omckuoct0');
-
 export default class App extends React.Component {
-  
   constructor(props) {
     super(props);
 
@@ -40,11 +44,13 @@ export default class App extends React.Component {
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
+      stockSelectHistory: [],
       earningsCalendar: [],
       watchlist: [],
       watchlistDb: [],
       stockName: '', // user input
       stockNameDisplay: '', // used for stock page display to avoid stock name changing onChange
+      stockPriceRealtime: null,
       stockPrice: 0,
       stockCompany: '', //name of company
       
@@ -62,59 +68,65 @@ export default class App extends React.Component {
     this.getDbStocks = this.getDbStocks.bind(this);
 
     this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
-    this.setCurrentPriceWebSocket = this.setCurrentPriceWebSocket.bind(this);
 
     this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
+    this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
     this.onAddWatchlist = this.onAddWatchlist.bind(this);
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
     this.removeStock = this.removeStock.bind(this);
 
-    this.getNews = this.getNews.bind(this);
-    this.getUserWatchlist = this.getUserWatchlist.bind(this);
-
     this.onDisplayMenu = this.onDisplayMenu.bind(this);
     this.changeColorDisplay = this.changeColorDisplay.bind(this);
   };
-
-  // get news based on a keyword
-  getNews(keyword) {
-    Axios.get(`/api/news/top-news/${keyword}`)
-    .then(articles => {
+  
+  componentDidMount() {
+    // get news on 'stocks'
+    newsSearch('stocks')
+      .then(articles => {
 
         this.setState({
             newsItems: 
             [articles.data]     
         });
-    })
-    .catch(err => console.log(err));
-  }
-
-  getUserWatchlist() {
-    Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
-        .then(stock => {
-          console.log(stock)
-          this.setState({
-            watchlistDb: stock.data,
-            watchlist: stock.data
-          }, () => console.log(this.state.watchlistDb))
-        })
-        .catch(err => console.log(err))
-  }
-  
-  componentDidMount() {
-    // get news on 'stocks'
-    this.getNews('stocks');
+      })
+      .catch(err => console.log(err));
 
     // pull the user's saved stocks from DB
     if(this.state.loggedIn && this.state.userId) {
-      this.getUserWatchlist();
+      getUserWatchlist(this.state.userId)
+      .then(stock => {
+        this.setState({
+          watchlistDb: stock.data,
+          watchlist: stock.data
+        }, () => console.log(this.state.watchlistDb))
+      })
+      .catch(err => console.log(err));
     }
+
+    // Listen for realtime stock messages
+    window.socket.addEventListener('message', debounce((event) => {
+      console.log('Message from server ', JSON.parse(event.data));
+      let responseData = JSON.parse(event.data);
+      if (responseData.hasOwnProperty('data')) {
+        // set realtime stock price
+        this.setState({
+          stockPriceRealtime: responseData.data[0].p
+        });
+
+      } else {
+        console.log('No realtime stock data flowing');
+        // if no data, set realtime price to null
+        this.setState({
+          stockPriceRealtime: null
+        });
+      }
+    }, 1000));
   };
 
   onDisplayMenu() {
-    this.setState({ displayMenu: !this.state.displayMenu}, () => console.log(this.state.displayMenu));
+    this.setState({ displayMenu: !this.state.displayMenu});
   }
 
   changeColorDisplay() {
@@ -261,72 +273,56 @@ export default class App extends React.Component {
     event.persist();
 
     if (event.target && event.target.value.length > 0) {
-    Axios.get(`https://watchlist-stock-app.herokuapp.com/stock-search/${event.target.value}`)
-    .then(res => {
-        console.log(res);
-        this.setState({
-            searchItems: res.data.bestMatches,
-            stockName: event.target.value,
-        });
-    })
-    .catch(err => console.log(err));
+      // get best fit search results
+      symbolSearch(event.target.value)
+      .then(res => {
+          console.log(res);
+          this.setState({
+              searchItems: res.data.bestMatches,
+              stockName: event.target.value,
+          });
+      })
+      .catch(err => console.log(err));
     }
   };
 
-  // =====================
-  // realtime trade socket
-  // =====================
-  
-  setCurrentPriceWebSocket(stockName) {
-      
-    window.socket.addEventListener('open', function (event) {
-      console.log(`Tracking current price for ${stockName}`);
-      window.socket.send(JSON.stringify({'type':'subscribe', 'symbol': `${stockName}`}));
-    });
+  updateStockSelectHistory(stockName) {
+    this.setState(state => {
+      let stockSelectHistory = state.stockSelectHistory.concat(stockName);
 
-    // Listen for messages
-    window.socket.addEventListener('message', function (event) {
-      console.log('Message from server ', event.data);
+      return {
+        stockSelectHistory
+      };
     });
   }
 
   // handles user selecting a stock ticker from the sidebar
-  async onSearchSelect(stock, company, timeline = '5') {
+  async onSearchSelect(stock, company, timeline = '10D') {
 
     // =============
-    //NEWS API
+    // Update stock select history
     // =============
 
-    Axios.get(`http://localhost:5000/api/news/top-news/${company}`)
-    .then(articles => {
+    await this.updateStockSelectHistory(stock);
 
-        this.setState({
-          timelineRef: '1D',
-          newsItems: [articles.data],
-          stockCompany: company
-      });
-    })
-    .catch(err => console.log(err));
 
     // ========================
-    // current price web socket
+    // handle realtime stock websocket
     // ========================
 
-    this.setCurrentPriceWebSocket(stock);
+    await setCurrentPriceWebSocket(stock);
+
+    // remove websocket for previous stock ( if found )
+    if (this.state.stockSelectHistory.length > 1) {
+      let history = this.state.stockSelectHistory;
+      await removePriceWebSocket(history[history.length - 2 ]);
+    }
 
     // =============
     // STOCK CANDLESTICK DATA
     // =============
 
-    // stock-timeseries/:interval:from/:to/:symbol
-    await Axios.get('http://localhost:5000/api/stocks/timeseries', {
-      params: {
-        symbol: stock,
-        interval: timeline,
-        to: moment().unix(), // current time unix stamp
-        from: moment().subtract(2, 'days').unix() // 1 day
-      }
-    })
+    getCandlestickData(stock, timeline)
     .then(response => {
       // response data - includes two formats: candlestick objects and arrays
       let data = response.data;
@@ -343,11 +339,7 @@ export default class App extends React.Component {
     // STOCK COMPANY PROFILE DATA
     // =============
 
-    await Axios.get('http://localhost:5000/api/stocks/company-profile', {
-      params: {
-        symbol: stock
-      }
-    })
+    await getCompanyProfile(stock)
     .then(response => {
       let companyProfile = response.data;
       this.setState({ companyProfile });
@@ -360,11 +352,7 @@ export default class App extends React.Component {
     // STOCK COMPANY FINANCIAL DATA
     // =============
 
-    await Axios.get('http://localhost:5000/api/stocks/company-financials', {
-      params: {
-        symbol: stock
-      }
-    })
+    await getCompanyFinancials(stock)
     .then(response => {
       let companyFinancials = response.data;
       this.setState({ companyFinancials });
@@ -372,68 +360,28 @@ export default class App extends React.Component {
     .catch(err => {
       console.log('Error getting company profile on client', err);
     });
+
+
+    // =============
+    //NEWS API
+    // =============
+
+    newsSearch(company)
+    .then(articles => {
+
+        this.setState({
+          timelineRef: '1D',
+          newsItems: [articles.data],
+          stockCompany: company
+      });
+    })
+    .catch(err => console.log(err));
   };
 
   //handles new api calls for the timeline reference - 1h, 1d, 1w etc
   onSelectTimeline(timeline) {
-    
-    // hold values for API request at end of function
-    let fromDate;
-    let dataInterval;
-
-    // change specifics of data request based on timeline chosen
-    switch(timeline) {
-      case "1H" :
-        dataInterval = '1';
-        fromDate = moment().subtract(1, 'days').unix();
-        break;
-      case "1D" :
-        dataInterval = '5';
-        fromDate = moment().subtract(2, 'days').unix();
-        break;
-      case "10D" :
-        dataInterval = '15';
-        fromDate = moment().subtract(10, 'days').unix();
-        break;
-      case "1M" :
-        dataInterval = '30';
-        fromDate = moment().subtract(1, 'months').unix();
-        break;
-      case "3M" :
-        dataInterval = '30';
-        fromDate = moment().subtract(3, 'months').unix();
-        break;
-      case "6M" :
-        dataInterval = 'D';
-        fromDate = moment().subtract(6, 'months').unix();
-        break;
-      case "1Y" :
-        dataInterval = 'D';
-        fromDate = moment().subtract(1, 'years').unix();
-        break;
-      case "3Y" :
-        dataInterval = 'W';
-        fromDate = moment().subtract(3, 'years').unix();
-        break;
-      case "5Y" :
-        dataInterval = 'W';
-        fromDate = moment().subtract(5, 'years').unix();
-        break;
-      case "ALL" :
-        dataInterval = 'W';
-        fromDate = moment().subtract(20, 'years').unix();
-        break;
-    }
-
     // stock-timeseries/:interval:from/:to/:symbol
-    Axios.get('http://localhost:5000/api/stocks/timeseries', {
-      params: {
-        symbol: this.state.stockName,
-        interval: dataInterval,
-        to: moment().unix(),  
-        from: fromDate // defined above
-      }
-    })
+    getCandlestickData(this.state.stockName, timeline)
     .then(response => {
       // response data - includes two formats: candlestick objects and arrays
       let data = response.data;
@@ -474,6 +422,7 @@ export default class App extends React.Component {
           loggedIn={this.state.loggedIn}
           displayMenu={this.state.displayMenu}
           onDisplayMenu={this.onDisplayMenu}
+          colorDisplay={this.state.colorDisplay}
           />
       </Grid>
 
@@ -507,6 +456,7 @@ export default class App extends React.Component {
               stockName={this.state.stockName}
               stockNameDisplay={this.state.stockNameDisplay} 
               stockPrice={this.state.stockPrice}
+              stockPriceRealtime={this.state.stockPriceRealtime}
               company={this.state.stockCompany}
               onSearchSelect={this.onSearchSelect}
               newsItems={this.state.newsItems}
@@ -524,6 +474,7 @@ export default class App extends React.Component {
               displayMenu={this.state.displayMenu} 
               earningsCalendar={this.state.earningsCalendar}
               onSearchSelect={this.onSearchSelect}
+              colorDisplay={this.state.colorDisplay}
             /> } 
           /> 
         <Route 
