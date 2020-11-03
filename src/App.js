@@ -11,9 +11,11 @@ import { getCandlestickData, getQuoteData, symbolSearch } from './api/stocks.js'
 import { setCurrentPriceWebSocket, removePriceWebSocket } from './utils/web_sockets.js';
 import { getCompanyProfile, getCompanyFinancials } from './api/companyData.js';
 import { getUserWatchlist, login, addStockToWatchlist } from './api/watchlist.js';
+import { getIpoCalendar } from './api/ipoCalendar.js';
 import { newsSearch } from './api/news.js';
 
 import { throttle, debounce } from 'lodash';
+import moment from 'moment';
 
 // components
 import Navbar from './components/navbar.component.jsx';
@@ -23,6 +25,7 @@ import StockView from './components/stock-view.component.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
+import IpoCalendarView from './components/Views/IpoCalendarView.jsx';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -53,6 +56,11 @@ export default class App extends React.Component {
       stockPriceRealtime: null,
       stockPrice: 0,
       stockCompany: '', //name of company
+
+      //IPO calendar
+      ipoCalendarItems: [],
+      ipoCalendarFromDate: moment().format('YYYY-MM-DD'),
+      ipoCalendarToDate: moment().format('YYYY-MM-DD'),
       
       //finnhub data
       candlestickData: [],
@@ -67,6 +75,10 @@ export default class App extends React.Component {
     this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
     this.login = this.login.bind(this);
     this.getDbStocks = this.getDbStocks.bind(this);
+
+    // Ipo calendar functions
+    this.setIpoDate = this.setIpoDate.bind(this);
+    this.submitIpoDates = this.submitIpoDates.bind(this);
 
     this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
 
@@ -136,6 +148,33 @@ export default class App extends React.Component {
     this.setState({
       colorDisplay: color
     }, () => console.log(this.state.colorDisplay));
+  }
+
+  submitIpoDates() {
+    getIpoCalendar(this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
+      .then(response => {
+        let ipoCalendarItems = response.data;
+        this.setState({ ipoCalendarItems });
+      })
+      .catch(err => {
+        console.log('Error getting IPO calendar data', err);
+      });
+  }
+
+  setIpoDate(obj) {
+
+    // let dateObj = new Date(obj.date);
+    let convertedDate = moment(obj.date).format('YYYY-MM-DD');
+
+    if (obj.for === 'From') {
+      this.setState({
+        ipoCalendarFromDate: convertedDate
+      });
+    } else if (obj.for === 'To') {
+      this.setState({
+        ipoCalendarToDate: convertedDate
+      });
+    }
   }
 
   login(e) {
@@ -459,58 +498,82 @@ export default class App extends React.Component {
         
         {!this.state.displayMenu &&
         <div>
-        <Route 
-          path={process.env.PUBLIC_URL + '/stocks'}
-          exact
-          render={(props) => 
-            <StockView
-              candlestickData={this.state.candlestickData}
-              stockQuote={this.state.stockQuote}
-              companyProfile={this.state.companyProfile}
-              companyFinancials={this.state.companyFinancials}
+
+          {/* STOCK VIEW */}
+
+          <Route 
+            path={process.env.PUBLIC_URL + '/stocks'}
+            exact
+            render={(props) => 
+              <StockView
+                candlestickData={this.state.candlestickData}
+                stockQuote={this.state.stockQuote}
+                companyProfile={this.state.companyProfile}
+                companyFinancials={this.state.companyFinancials}
+                displayMenu={this.state.displayMenu}
+                stockName={this.state.stockName}
+                stockNameDisplay={this.state.stockNameDisplay} 
+                stockPrice={this.state.stockPrice}
+                stockPriceRealtime={this.state.stockPriceRealtime}
+                company={this.state.stockCompany}
+                onSearchSelect={this.onSearchSelect}
+                newsItems={this.state.newsItems}
+                onSelectTimeline={this.onSelectTimeline}
+                timelineRef={this.state.timelineRef}
+                colorDisplay={this.state.colorDisplay}
+              /> } 
+            />
+
+          {/* HOME PAGE */}
+
+          <Route 
+            path={process.env.PUBLIC_URL + '/'} 
+            exact
+            render={(props) => 
+              <NewsView 
+                newsItems={this.state.newsItems} 
+                displayMenu={this.state.displayMenu} 
+                earningsCalendar={this.state.earningsCalendar}
+                onSearchSelect={this.onSearchSelect}
+                colorDisplay={this.state.colorDisplay}
+              /> } 
+            /> 
+
+            {/* CREATE USER PAGE */}
+
+            <Route 
+            path={process.env.PUBLIC_URL + '/create-user'} 
+            exact
+            render={(props) => 
+              <CreateUser 
+                displayMenu={this.state.displayMenu} 
+              /> } 
+            />
+
+            {/* SIGN IN PAGE */}
+
+            <Route 
+            path={process.env.PUBLIC_URL + '/sign-in'} 
+            exact
+            render={(props) => <UserSignIn
               displayMenu={this.state.displayMenu}
-              stockName={this.state.stockName}
-              stockNameDisplay={this.state.stockNameDisplay} 
-              stockPrice={this.state.stockPrice}
-              stockPriceRealtime={this.state.stockPriceRealtime}
-              company={this.state.stockCompany}
-              onSearchSelect={this.onSearchSelect}
-              newsItems={this.state.newsItems}
-              onSelectTimeline={this.onSelectTimeline}
-              timelineRef={this.state.timelineRef}
-              colorDisplay={this.state.colorDisplay}
-            /> } 
-          />
-        <Route 
-          path={process.env.PUBLIC_URL + '/'} 
-          exact
-          render={(props) => 
-            <NewsView 
-              newsItems={this.state.newsItems} 
-              displayMenu={this.state.displayMenu} 
-              earningsCalendar={this.state.earningsCalendar}
-              onSearchSelect={this.onSearchSelect}
-              colorDisplay={this.state.colorDisplay}
-            /> } 
-          /> 
-        <Route 
-          path={process.env.PUBLIC_URL + '/create-user'} 
-          exact
-          render={(props) => 
-            <CreateUser 
-              displayMenu={this.state.displayMenu} 
-            /> } 
-          />
-        <Route 
-          path={process.env.PUBLIC_URL + '/sign-in'} 
-          exact
-          render={(props) => <UserSignIn
-            displayMenu={this.state.displayMenu}
-            onChangeSignInEmail={this.onChangeSignInEmail} 
-            onChangeSignInPassword={this.onChangeSignInPassword}
-            login={this.login}
-            /> } 
-          />
+              onChangeSignInEmail={this.onChangeSignInEmail} 
+              onChangeSignInPassword={this.onChangeSignInPassword}
+              login={this.login}
+              /> } 
+            />
+
+            {/* IPO CALENDAR */}
+
+            <Route
+              path={process.env.PUBLIC_URL + '/ipo-calendar'}
+              exact
+              render={(props) => <IpoCalendarView
+                setIpoDate={this.setIpoDate}
+                submitIpoDates={this.submitIpoDates}
+                ipoCalendarItems={this.state.ipoCalendarItems}
+              /> }
+            />
           </div>
         }
         
