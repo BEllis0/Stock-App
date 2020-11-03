@@ -130,7 +130,6 @@ module.exports = {
                         }
                     })
                     .then(response => {
-                        console.log('Stock Search', response.data);
                         res.status(200).json(response.data);
                     })
                     .catch(err => {
@@ -139,19 +138,35 @@ module.exports = {
                     });
                 },
                 quote: (req, res) => {
-                    axios.get(`https://finnhub.io/api/v1/quote?symbol=${req.query.symbol}`, {
-                        headers: {
-                            'X-Finnhub-Token': process.env.FINNHUB_API_KEY
-                        }
-                    })
-                    .then(response => {
-                        console.log('Stock Quote', response.data);
-                        res.status(200).json(response.data);
-                    })
-                    .catch(err => {
-                        console.log("Error getting stock quote", err);
-                        res.status(400).json(err);
-                    });
+                    if (cache.hasOwnProperty(req.query.symbol) && cache[req.query.symbol]['quote'] !== undefined && requireRefresh({symbol:req.query.symbol, property: 'quote'}) === false) {
+                        let cacheResponseObject = cache[req.query.symbol]['quote']['data'];
+                        console.log('serving cached resource', cache[req.query.symbol][req.query.interval])
+                        res.status(200).json(cacheResponseObject);
+                    } else {
+                        axios.get(`https://finnhub.io/api/v1/quote?symbol=${req.query.symbol}`, {
+                            headers: {
+                                'X-Finnhub-Token': process.env.FINNHUB_API_KEY
+                            }
+                        })
+                        .then(response => {
+                            // ==========================
+                            // save the data in the cache
+                            // ==========================
+
+                            cache[req.query.symbol] = cache[req.query.symbol] || {}; // instantiate object
+                            
+                            // create interval property and add data and refresh date
+                            cache[req.query.symbol]['quote'] = {
+                                data: response.data,
+                                refreshDateUnix: moment().add(1, 'minutes').unix()
+                            };
+                            res.status(200).json(response.data);
+                        })
+                        .catch(err => {
+                            console.log("Error getting stock quote", err);
+                            res.status(400).json(err);
+                        });
+                    }
                 }
             },
             company: {

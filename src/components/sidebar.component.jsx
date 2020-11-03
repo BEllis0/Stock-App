@@ -49,7 +49,8 @@ const Sidebar = (props) => {
         return (
             <div className="sidebar" style={sidebarStyles}>
             <Toolbar disableGutters={true} className="sidebarNewsButton">
-            <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
+                <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
+                <Link to="/ipo-calendar" className="nav-link"><h3>IPO Calendar</h3></Link>
             </Toolbar>
     
             <Divider variant="middle" />

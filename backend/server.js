@@ -14,6 +14,7 @@ const usersRouter = require('./routes/users');
 const stockRouter = require('./routes/stocks');
 const loginRouter = require('./routes/login');
 const newsRouter = require('./routes/news');
+const ipoRouter = require('./routes/ipo_cal');
 
 //app and port
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/stocks', stockRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/news', newsRouter);
+app.use('/api/ipo', ipoRouter);
 
 //serve static build files if in dev, just deploy backend in production
 // if (process.env.NODE_ENV !== 'production') {
