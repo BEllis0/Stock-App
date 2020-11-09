@@ -15,9 +15,21 @@ import CompanyFinancialsList from './Lists/CompanyFinancialsList.jsx';
 
 export default function StockView(props) {
     
-    function changeBackground(e) {
-        e.target.style.background = 'red';
-      }
+    function changeBackgroundEnter(e) {
+        e.target.style.background = '#e3e3e3';
+        e.target.style.borderRadius = '8px';
+    };
+
+    function changeBackgroundLeave(e) {
+        e.target.style.background = 'none';
+    };
+
+    // function timelineStyles(e) {
+    let timelineStyles = {
+            fontWeight: 700,
+            // color: e.target.innerText === timelineRef ? 'red' : '#FFFFFF'
+    }
+    // };
 
     let {
         candlestickData,
@@ -125,16 +137,71 @@ export default function StockView(props) {
 
                 <div className="chartArea">
                     <div className="chartControls">
-                        <p className={timelineRef === '1H' ? 'boldText' : 'timelineSelector'} onMouseOver={changeBackground} onClick={() => props.onSelectTimeline('1H')}>1H</p>
-                        <p className={timelineRef === '1D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1D')}>1D</p>
-                        <p className={timelineRef === '10D' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('10D')}>10D</p>
-                        <p className={timelineRef === '1M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1M')}>1M</p>
-                        <p className={timelineRef === '3M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3M')}>3M</p>
-                        <p className={timelineRef === '6M' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('6M')}>6M</p>
-                        <p className={timelineRef === '1Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('1Y')}>1Y</p>
-                        <p className={timelineRef === '3Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('3Y')}>3Y</p>
-                        <p className={timelineRef === '5Y' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('5Y')}>5Y</p>
-                        <p className={timelineRef === 'ALL' ? 'boldText' : 'timelineSelector'} onClick={() => props.onSelectTimeline('ALL')}>ALL</p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === '1H' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('1H')}>
+                                1H
+                        </p>
+                        <p 
+                            style={timelineStyles}
+                            className={timelineRef === '1D' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('1D')}>
+                                1D
+                            </p>
+                        <p 
+                            style={timelineStyles}
+                            className={timelineRef === '10D' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('10D')}>
+                                10D
+                            </p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === '1M' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('1M')}>
+                                1M
+                        </p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === '6M' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('6M')}>
+                                6M
+                        </p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === '1Y' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('1Y')}>
+                                1Y
+                        </p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === '5Y' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('5Y')}>
+                                5Y
+                        </p>
+                        <p
+                            style={timelineStyles}
+                            className={timelineRef === 'ALL' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            onMouseEnter={changeBackgroundEnter} 
+                            onMouseLeave={changeBackgroundLeave} 
+                            onClick={() => props.onSelectTimeline('ALL')
+                            }>
+                            ALL
+                        </p>
                     </div>
 
                     <Divider variant="fullWidth" />
