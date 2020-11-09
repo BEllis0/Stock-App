@@ -54,6 +54,11 @@ ul li {
   padding-bottom: 15px;
 }
 
+.pd-5-15 {
+  padding: 5px 15px;
+  /* border-radius: 8px; */
+}
+
 .margin-top {
   margin-top: 10px;
 }
