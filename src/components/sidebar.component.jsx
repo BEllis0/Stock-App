@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Toolbar, Divider } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
+
+import StockSearchList from './Lists/StockSearchList.jsx';
 
 const Sidebar = (props) => {
 
@@ -14,32 +16,13 @@ const Sidebar = (props) => {
     if (props.stockName !== "" && props.stockName.length > 1 && props.searchItems !== undefined) {
         return (
             <div className="sidebar" style={sidebarStyles}>
-            <ul className="searchItemList">
-            
-            {props.searchItems.map(stock => {
-                return (
-                    <div className="searchItem" key={props.searchItems.indexOf(stock)}>
-                    <div className="flex-row">
-                        <div className="top-padding">
-                            <Link
-                            to="/stocks"
-                            onClick={(event) => {props.onSearchSelect(stock['1. symbol'], stock['2. name'])}} 
-                            className="stockSearchSymbol">
-                            {stock['1. symbol']}</Link>
-                            <p className="stockSearchCompanyName">{stock['2. name']}</p>
-                        </div>
-                        
-                        <Link to="/sign-in" className={(props.loggedIn ? "disabledButton" : "addStockRedirect")}>
-                            <AddCircleIcon onClick={(event) => { event.persist(); props.onAddWatchlist(stock['1. symbol']);}} />
-                        </Link>
-                
-                    </div>
-                    <Divider variant="middle" />
-                    </div>
-                )
-            })}
-        </ul>
-        </div>
+                <StockSearchList
+                    searchItems={props.searchItems}
+                    onSearchSelect={props.onSearchSelect}
+                    loggedIn={props.loggedIn}
+                    onAddWatchlist={props.onSearchSelect}
+                />
+            </div>
         )
     }
 
@@ -50,6 +33,8 @@ const Sidebar = (props) => {
             <div className="sidebar" style={sidebarStyles}>
             <Toolbar disableGutters={true} className="sidebarNewsButton">
                 <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
+                <Link to="/stock-search" className="nav-link"><h3>Stock Search</h3></Link>
+                <Divider variant="middle" />
                 <Link to="/ipo-calendar" className="nav-link"><h3>IPO Calendar</h3></Link>
             </Toolbar>
     

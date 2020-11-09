@@ -22,6 +22,7 @@ import Navbar from './components/navbar.component.jsx';
 import Sidebar from './components/sidebar.component.jsx';
 import NewsView from './components/news-view.component.jsx';
 import StockView from './components/stock-view.component.jsx';
+import StockSearchView from './components/Views/StockSearchView.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
@@ -80,9 +81,10 @@ export default class App extends React.Component {
     this.setIpoDate = this.setIpoDate.bind(this);
     this.submitIpoDates = this.submitIpoDates.bind(this);
 
-    this.onChangeStock = throttle(this.onChangeStock.bind(this), 400);
+    this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
+    this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
-    this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
+    // this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
     this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
@@ -309,21 +311,16 @@ export default class App extends React.Component {
   };
 
   // handles user typing in stock name, running stock api search and displaying
-  onChangeStock(event) {
-    event.persist();
-
-    if (event.target && event.target.value.length > 0) {
+  onStockSearch(searchTerm) {
       // get best fit search results
-      symbolSearch(event.target.value)
+      symbolSearch(searchTerm)
       .then(res => {
-          console.log(res);
           this.setState({
               searchItems: res.data.bestMatches,
-              stockName: event.target.value,
+              stockName: searchTerm,
           });
       })
-      .catch(err => console.log(err));
-    }
+      .catch(err => console.log('Error finding stock in search', err));
   };
 
   updateStockSelectHistory(stockName) {
@@ -337,7 +334,7 @@ export default class App extends React.Component {
   }
 
   // handles user selecting a stock ticker from the sidebar
-  async onSearchSelect(stock, company, timeline = '10D') {
+  async onStockSearchSelect(stock, company, timeline = '10D') {
 
     // =============
     // Update stock select history
@@ -455,7 +452,7 @@ export default class App extends React.Component {
     <div className="app" style={{color: this.state.colorDisplay === 'dark' ? 'white' : ''}}>
       <Grid className="sidebarGrid" item sm={4}>
         <Navbar 
-          onChangeStock={this.onChangeStock}
+          // onStockSearchSelect={this.onStockSearchSelect}
           onStockSubmit={this.onStockSubmit}
           searchItems={this.state.searchItems}
           loggedIn={this.state.loggedIn}
@@ -467,7 +464,7 @@ export default class App extends React.Component {
         <Sidebar 
           searchItems={this.state.searchItems}
           stockName={this.state.stockName}
-          onSearchSelect={this.onSearchSelect}
+          onStockSearchSelect={this.onStockSearchSelect}
           watchlist={this.state.watchlist}
           watchlistDb={this.state.watchlistDb}
           onAddWatchlist={this.onAddWatchlist}
@@ -499,10 +496,21 @@ export default class App extends React.Component {
         {!this.state.displayMenu &&
         <div>
 
+          <Route 
+            path={process.env.PUBLIC_URL + '/stock-search'}
+            exact
+            render={(props) => 
+              <StockSearchView
+                searchItems={this.state.searchItems}
+                onStockSearch={this.onStockSearch}
+                onStockSearchSelect={this.onStockSearchSelect}
+              /> }
+          />
+
           {/* STOCK VIEW */}
 
           <Route 
-            path={process.env.PUBLIC_URL + '/stocks'}
+            path={process.env.PUBLIC_URL + '/stocks/*'}
             exact
             render={(props) => 
               <StockView
@@ -516,7 +524,7 @@ export default class App extends React.Component {
                 stockPrice={this.state.stockPrice}
                 stockPriceRealtime={this.state.stockPriceRealtime}
                 company={this.state.stockCompany}
-                onSearchSelect={this.onSearchSelect}
+                onStockSearchSelect={this.onStockSearchSelect}
                 newsItems={this.state.newsItems}
                 onSelectTimeline={this.onSelectTimeline}
                 timelineRef={this.state.timelineRef}
@@ -534,7 +542,7 @@ export default class App extends React.Component {
                 newsItems={this.state.newsItems} 
                 displayMenu={this.state.displayMenu} 
                 earningsCalendar={this.state.earningsCalendar}
-                onSearchSelect={this.onSearchSelect}
+                onStockSearchSelect={this.onStockSearchSelect}
                 colorDisplay={this.state.colorDisplay}
               /> } 
             /> 
