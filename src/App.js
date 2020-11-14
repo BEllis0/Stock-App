@@ -452,7 +452,7 @@ export default class App extends React.Component {
   return (
     <Router basename={process.env.PUBLIC_URL + '/'}>
     <div className="app" style={{color: this.state.colorDisplay === 'dark' ? 'white' : ''}}>
-      <Grid className="sidebarGrid" item sm={4}>
+      <Grid className="sidebarGrid" item sm={3}>
         <Navbar 
           // onStockSearchSelect={this.onStockSearchSelect}
           onStockSubmit={this.onStockSubmit}
@@ -483,7 +483,7 @@ export default class App extends React.Component {
         className="mainViewGrid" 
         style={{backgroundColor : this.state.colorDisplay === 'light' ? '#f0f0f0' : '#303030'}}
         item 
-        sm={8}
+        sm={9}
         >
         {this.state.displayMenu && 
         <Menu 
