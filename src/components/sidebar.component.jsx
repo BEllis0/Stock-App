@@ -13,10 +13,6 @@ const Sidebar = (props) => {
         height: window.screen.height
     };
 
-    const toggleMenu = () => {
-        
-    }
-
     return (
         <div
             className="sidebar" 
