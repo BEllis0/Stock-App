@@ -22,6 +22,7 @@ import Navbar from './components/navbar.component.jsx';
 import Sidebar from './components/sidebar.component.jsx';
 import NewsView from './components/news-view.component.jsx';
 import StockView from './components/stock-view.component.jsx';
+import WatchlistView from './components/Views/WatchlistView.jsx';
 import StockSearchView from './components/Views/StockSearchView.jsx';
 import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
@@ -81,6 +82,7 @@ export default class App extends React.Component {
     this.setIpoDate = this.setIpoDate.bind(this);
     this.submitIpoDates = this.submitIpoDates.bind(this);
 
+    // stock search and select
     this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
@@ -187,7 +189,7 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`api/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`${window.environment}/api/login/${this.state.signInEmail}`, loginCreds)
     .then(res => {
       
       if(res) {
@@ -507,7 +509,7 @@ export default class App extends React.Component {
               /> }
           />
 
-          {/* STOCK VIEW */}
+          {/* STOCK VIEW */}  
 
           <Route 
             path={process.env.PUBLIC_URL + '/stocks/*'}
@@ -569,6 +571,20 @@ export default class App extends React.Component {
               onChangeSignInPassword={this.onChangeSignInPassword}
               login={this.login}
               /> } 
+            />
+
+            {/* WATCHLIST */}
+
+            <Route
+              path={process.env.PUBLIC_URL + '/watchlist'}
+              exact
+              render={(props) => <WatchlistView 
+                watchlistDb={this.state.watchlistDb}
+                onStockSearchSelect={this.onStockSearchSelect}
+                removeStock={this.removeStock}
+                loggedIn={this.state.loggedIn}
+                colorDisplay={this.state.colorDisplay}
+              />}
             />
 
             {/* IPO CALENDAR */}
