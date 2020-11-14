@@ -17,6 +17,7 @@ const WatchlistView = props => {
     if (watchlistDb.length > 0) {
         return (
             <div>
+                <h1>Watchlist</h1>
                 <WatchlistList
                     watchlistDb={watchlistDb}
                     onStockSearchSelect={onStockSearchSelect}
@@ -31,6 +32,7 @@ const WatchlistView = props => {
     else if (loggedIn && !watchlistDb.length) {
         return (
             <div>
+                <h1>Watchlist</h1>
                 <p>Watchlist empty. <Link to="/stock-search">Search</Link> for stocks to add.</p>
             </div>
         )
@@ -41,6 +43,7 @@ const WatchlistView = props => {
     else {
         return (
             <div>
+                <h1>Watchlist</h1>
                 <p><Link to="/sign-in">Sign in</Link> to view your watchlist.</p>
             </div>
         )
