@@ -13,14 +13,26 @@ const Sidebar = (props) => {
         height: window.screen.height
     };
 
+    const toggleMenu = () => {
+        
+    }
+
     return (
-        <div className="sidebar" style={sidebarStyles}>
+        <div
+            className="sidebar" 
+            style={sidebarStyles} 
+            onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}>
             
             {/* News (Home Page) */}
             <Toolbar className="sidebarNewsButton">
                 <div className="flex">
                     <AnnouncementIcon />
-                    <Link to="/" onClick={(props.displayMenu && props.onDisplayMenu )} className="nav-link"><h3>Stock News</h3></Link>
+                    <Link
+                        to="/" 
+                        onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
+                        className="nav-link">
+                        <h3>Stock News</h3>
+                    </Link>
                 </div>
             </Toolbar>
 
@@ -30,7 +42,12 @@ const Sidebar = (props) => {
             <Toolbar className="addWatchlist">
                 <div className="flex">
                     <SearchIcon />
-                    <Link to="/stock-search" className="nav-link"><h3>Stock Search</h3></Link>
+                    <Link
+                        to="/stock-search"
+                        onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
+                        className="nav-link">
+                        <h3>Stock Search</h3>
+                    </Link>
                 </div>
             </Toolbar>
 
@@ -40,7 +57,12 @@ const Sidebar = (props) => {
             <Toolbar className="addWatchlist">
                 <div className="flex">
                     <DateRangeIcon />
-                    <Link to="/ipo-calendar" className="nav-link"><h3>IPO Calendar</h3></Link>
+                    <Link
+                        to="/ipo-calendar"
+                        onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
+                        className="nav-link">
+                        <h3>IPO Calendar</h3>
+                    </Link>
                 </div>
             </Toolbar>
 
@@ -50,7 +72,12 @@ const Sidebar = (props) => {
             <Toolbar className="addWatchlist">
                 <div className="flex">
                     <AddToQueueIcon />
-                    <Link to="/watchlist" className="nav-link"><h3>Watchlist</h3></Link>
+                    <Link
+                        to="/watchlist"
+                        onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
+                        className="nav-link">
+                        <h3>Watchlist</h3>
+                    </Link>
                 </div>
             </Toolbar>
             
