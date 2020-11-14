@@ -34,7 +34,7 @@ export default class App extends React.Component {
     super(props);
 
     this.state = {
-      displayMenu: undefined,
+      displayMenu: false,
       colorDisplay: 'light',
       newsItems: [
         // structure {key: url, author: '', content: '', description: '', publishedAt: '', source: '', title: '', url: '', image: ''}
