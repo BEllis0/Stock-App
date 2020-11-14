@@ -50,21 +50,6 @@ export default function Navbar(props) {
                     </Link>
                     </div>
                 </Toolbar>
-                <form className="stock-input-form">
-                {/* <TextField 
-                    id="standard-search" 
-                    label="Search for stocks" 
-                    type="search" 
-                    onChange={props.onChangeStock}
-                    onClick={(props.displayMenu && props.onDisplayMenu )}
-                    /> */}
-                </form>
-
-                {/* conditional to handle search API limit reached */}
-                
-                {/* {props.searchItems === undefined &&
-                    <div className="searchApiLimit">Too many search entries, try again in 1 minute.</div>
-                } */}
             </AppBar>
             </MuiThemeProvider>
         );
