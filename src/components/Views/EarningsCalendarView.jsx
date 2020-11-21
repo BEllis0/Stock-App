@@ -1,34 +1,34 @@
 import React from 'react';
 import DatePicker from '../Forms/DatePicker/DatePicker.jsx';
 import { Button } from '@material-ui/core';
-import IpoCalendarList from '../Lists/IpoCalendarList.jsx';
+import EarningsCalendarList from '../Lists/EarningsCalendarList.jsx';
 
-const IpoCalendarView = props => {
+const EarningsCalendarView = props => {
     
     let {
         submitDates,
         setDate,
-        ipoCalendarItems
+        earningsCalendarItems
     } = props;
 
     return (
         <div className="ipoCalendarView">
-            <h1>IPO Calendar</h1>
-            <p>Search for historical and future IPO dates.</p>
+            <h1>Earnings Calendar</h1>
+            <p>Search for historical and future earnings call dates.</p>
             <div className="flex">
-                <DatePicker 
-                    calendarType={"ipo calendar"}
+                <DatePicker
+                    calendarType={"earnings calendar"}
                     setDate={setDate} 
                     label={"From"}
                 />
                 <DatePicker
-                    calendarType={"ipo calendar"}
-                    setDate={setDate}
+                    calendarType={"earnings calendar"}
+                    setDate={setDate} 
                     label={"To"}
                     className="margin-right"
                 />
                 <Button
-                    onClick={() => submitDates('ipo calendar')}
+                    onClick={() => submitDates('earnings calendar')}
                     type="submit"
                     label="Search"
                     id="ipo-search-btn"
@@ -37,13 +37,13 @@ const IpoCalendarView = props => {
                 >Search</Button>
             </div>
 
-            {ipoCalendarItems !== undefined &&
-                <IpoCalendarList
-                    ipoCalendarData={ipoCalendarItems}
+            {earningsCalendarItems !== undefined &&
+                <EarningsCalendarList
+                    earningsCalendarData={earningsCalendarItems}
                 />
             }
         </div>
     )
 };
 
-export default IpoCalendarView;
+export default EarningsCalendarView;

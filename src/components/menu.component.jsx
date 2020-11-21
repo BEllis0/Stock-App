@@ -6,11 +6,29 @@ import DisplayButton from './Buttons/DisplayButton/DisplayButton.jsx';
 const Menu = (props) => {
 
     return (
-
-        
-
         <div className="MenuLayout">
             <h1>Menu</h1>
+            
+            {/* Navigation */}
+            <div>
+                <h3>Navigation</h3>
+                <Divider />
+                <div className="flex">
+                    <ul>
+                        <li><Link to="/sign-in" onClick={props.onDisplayMenu}>Sign In</Link></li>
+                        <li><Link to="/create-user" onClick={props.onDisplayMenu}>Create User</Link></li>
+                        <li><Link to="/watchlist" onClick={props.onDisplayMenu}>Personal Watchlist</Link></li>
+                    </ul>
+                    <ul>
+                        <li><Link to="/" onClick={props.onDisplayMenu}>Stock News</Link></li>
+                        <li><Link to="/stock-search" onClick={props.onDisplayMenu}>Stock Search</Link></li>
+                        <li><Link to="/ipo-calendar" onClick={props.onDisplayMenu}>IPO Calendar</Link></li>
+                    </ul>
+                    
+                </div>
+            </div>
+
+            {/* Account Settings */}
             <div className="accountSettings" >
                 <h3>Account Settings</h3>
                 <Divider />
@@ -45,6 +63,7 @@ const Menu = (props) => {
             
             </div>
 
+            {/* Watchlist Settings */}
             <div className="watchlistSettings">
                 <h3>Watchlist</h3>
                 <Divider />
@@ -61,6 +80,7 @@ const Menu = (props) => {
 
             </div>
 
+            {/* Display Settings */}
             <div className="displaySettings">
                 <h3>Display</h3>
                 <Divider />

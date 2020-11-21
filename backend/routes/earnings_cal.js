@@ -3,6 +3,6 @@ const earningsController = require('../controllers/earnings_cal-controller.js');
 
 // --- EARNINGS CALL CALENDAR
 
-app.get('/earnings-calendar/:from/:to', earningsController.earnings_cal);
+router.get('/earnings-calendar', earningsController.earnings_cal);
 
 module.exports = router;

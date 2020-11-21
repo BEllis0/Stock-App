@@ -11,6 +11,7 @@ module.exports = {
 
             //check if email address exists
             if(!user) {
+                console.log('User not found')
                 return res.status(400).json({emailnotfound: "Email not found"});
             }
 
@@ -33,6 +34,7 @@ module.exports = {
                             expiresIn: 31556926 // 1 year in seconds
                         },
                         (err, token) => {
+                            console.log('Successfully logged in')
                             res.json({
                                 success: true,
                                 userId: user[0].id,
@@ -43,14 +45,21 @@ module.exports = {
                     );
                 }
                 else {
+                    console.log('Password Incorrect');
                     return res
                     .status(400)
                     .json({ passwordincorrect: "Password incorrect" });
                 }
             })
-            .catch(err => res.status(400).json("Error" + err));
+            .catch(err => {
+                console.log('Error logging in: ', err);
+                res.status(400).json("Error" + err)
+            });
             }
         })
-        .catch(err => res.status(400).json("Error: " + err));
+        .catch(err => {
+            console.log('Error logging in: ', err);
+            res.status(400).json("Error: " + err)
+        });
     }
 };

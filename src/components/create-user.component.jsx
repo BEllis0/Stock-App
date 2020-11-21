@@ -125,7 +125,7 @@ export default class CreateUser extends React.Component {
 
             console.log(newUser);
 
-            axios.post('/api/users/newuser', newUser)
+            axios.post(`${window.environment}/api/users/newuser`, newUser)
             .then(res => console.log(res))
             .catch(err => console.log(err));
 
@@ -135,7 +135,7 @@ export default class CreateUser extends React.Component {
                 password: '',
             });
 
-            window.location = '/news';
+            window.location = '/';
         }
 
         render() {
