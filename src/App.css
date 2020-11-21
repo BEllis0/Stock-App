@@ -144,6 +144,10 @@ ul li {
   border-left: 3px solid #f0f0f0;
 }
 
+.createUserView, .signInView, .watchlistView, .stockSearchView, .mainViewGrid {
+  min-height: 100vh !important;
+}
+
 .sidebarNewsButton {
   display: flex;
   flex-direction: column;
@@ -371,6 +375,10 @@ ul li {
     height: auto;
   }
 
+  h1 {
+    font-size: 26px;
+  }
+
   .navbar {
     height: 70px;
   }
@@ -407,5 +415,6 @@ ul li {
   .detailRow {
     border-left: none;
     border-bottom: 1px solid gray;
+    padding: 10px 0px;
   }
 }
