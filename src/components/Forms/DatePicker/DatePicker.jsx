@@ -13,18 +13,20 @@ const DatePicker = props => {
 
     let {
         label,
-        setIpoDate
+        setDate,
+        calendarType
     } = props;
 
     const [selectedDate, setSelectedDate] = React.useState(new Date(moment()));
 
     const handleDateChange = (date) => {
-        
+        console.log('date seelected', date)
         setSelectedDate(date);
         
         // send data back
-        setIpoDate({
-            for: label,
+        setDate({
+            calendarType: calendarType,
+            action: label,
             date: date
         });
     };
