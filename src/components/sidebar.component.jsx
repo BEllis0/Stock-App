@@ -64,6 +64,21 @@ const Sidebar = (props) => {
 
             <Divider variant="middle" />
 
+            {/* Earnings Calendar */}
+            <Toolbar className="addWatchlist">
+                <div className="flex">
+                    <DateRangeIcon />
+                    <Link
+                        to="/earnings-calendar"
+                        onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
+                        className="nav-link">
+                        <h3>Earnings Calendar</h3>
+                    </Link>
+                </div>
+            </Toolbar>
+
+            <Divider variant="middle" />
+
             {/* Watchlist */}
             <Toolbar className="addWatchlist">
                 <div className="flex">
