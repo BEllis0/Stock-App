@@ -6,8 +6,8 @@ import IpoCalendarList from '../Lists/IpoCalendarList.jsx';
 const IpoCalendarView = props => {
     
     let {
-        submitIpoDates,
-        setIpoDate,
+        submitDates,
+        setDate,
         ipoCalendarItems
     } = props;
 
@@ -17,16 +17,18 @@ const IpoCalendarView = props => {
             <p>Search for historical and future IPO dates.</p>
             <div className="flex">
                 <DatePicker 
-                    setIpoDate={setIpoDate} 
+                    calendarType={"ipo calendar"}
+                    setDate={setDate} 
                     label={"From"}
                 />
                 <DatePicker
-                    setIpoDate={setIpoDate} 
+                    calendarType={"ipo calendar"}
+                    setDate={setDate}
                     label={"To"}
                     className="margin-right"
                 />
                 <Button
-                    onClick={submitIpoDates}
+                    onClick={() => submitDates('ipo calendar')}
                     type="submit"
                     label="Search"
                     id="ipo-search-btn"
