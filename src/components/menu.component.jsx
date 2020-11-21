@@ -23,6 +23,7 @@ const Menu = (props) => {
                         <li><Link to="/" onClick={props.onDisplayMenu}>Stock News</Link></li>
                         <li><Link to="/stock-search" onClick={props.onDisplayMenu}>Stock Search</Link></li>
                         <li><Link to="/ipo-calendar" onClick={props.onDisplayMenu}>IPO Calendar</Link></li>
+                        <li><Link to="/earnings-calendar" onClick={props.onDisplayMenu}>Earnings Calendar</Link></li>
                     </ul>
                     
                 </div>
