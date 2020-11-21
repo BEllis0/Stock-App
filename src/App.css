@@ -172,6 +172,8 @@ ul li {
 
 .nav-link, .menu-icon {
   padding: 7px;
+  color: #FFF;
+  padding-bottom: 2px;
 }
 
 .navbar .search-button, div .createUserButton, #addWatchlistButton {
@@ -363,18 +365,19 @@ ul li {
   padding: 20px 0px;
 }
 
-@media (max-width: 597px) {
+@media (max-width: 500px) {
   .app {
     flex-direction: column;
     height: auto;
   }
 
   .navbar {
-    height: 150px;
+    height: 70px;
   }
 
   .sidebar {
-    height: 200px;
+    /* height: 200px; */
+    display: none !important;
   }
 
   .stockPageStockName {
