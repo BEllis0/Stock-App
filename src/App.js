@@ -12,6 +12,7 @@ import { setCurrentPriceWebSocket, removePriceWebSocket } from './utils/web_sock
 import { getCompanyProfile, getCompanyFinancials } from './api/companyData.js';
 import { getUserWatchlist, login, addStockToWatchlist } from './api/watchlist.js';
 import { getIpoCalendar } from './api/ipoCalendar.js';
+import { getEarningsCalendar } from './api/earningsCalendar.js';
 import { newsSearch } from './api/news.js';
 
 import { throttle, debounce } from 'lodash';
@@ -28,6 +29,7 @@ import CreateUser from './components/create-user.component.jsx';
 import UserSignIn from './components/sign-in.component.jsx';
 import Menu from './components/menu.component.jsx';
 import IpoCalendarView from './components/Views/IpoCalendarView.jsx';
+import EarningsCalendarView from './components/Views/EarningsCalendarView.jsx';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -50,7 +52,6 @@ export default class App extends React.Component {
           //structure {1. symbol: '', 2. name: ''}
       ],
       stockSelectHistory: [],
-      earningsCalendar: [],
       watchlist: [],
       watchlistDb: [],
       stockName: '', // user input
@@ -61,8 +62,14 @@ export default class App extends React.Component {
 
       //IPO calendar
       ipoCalendarItems: [],
+
+      //Earnings calendar
+      earningsCalendarItems: [],
+
       ipoCalendarFromDate: moment().format('YYYY-MM-DD'),
       ipoCalendarToDate: moment().format('YYYY-MM-DD'),
+      earningsCalendarFromDate: moment().format('YYYY-MM-DD'),
+      earningsCalendarToDate: moment().format('YYYY-MM-DD'),
       
       //finnhub data
       candlestickData: [],
@@ -79,8 +86,8 @@ export default class App extends React.Component {
     this.getDbStocks = this.getDbStocks.bind(this);
 
     // Ipo calendar functions
-    this.setIpoDate = this.setIpoDate.bind(this);
-    this.submitIpoDates = this.submitIpoDates.bind(this);
+    this.setDate = this.setDate.bind(this);
+    this.submitDates = this.submitDates.bind(this);
 
     // stock search and select
     this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
@@ -154,30 +161,58 @@ export default class App extends React.Component {
     }, () => console.log(this.state.colorDisplay));
   }
 
-  submitIpoDates() {
-    getIpoCalendar(this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
-      .then(response => {
-        let ipoCalendarItems = response.data;
-        this.setState({ ipoCalendarItems });
-      })
-      .catch(err => {
-        console.log('Error getting IPO calendar data', err);
-      });
+  submitDates(calendarType) {
+    try {
+      if (calendarType === 'ipo calendar') {
+        console.log('ipo calendar func', this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
+        getIpoCalendar(this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
+          .then(response => {
+            let ipoCalendarItems = response.data;
+            console.log(ipoCalendarItems)
+            this.setState({ ipoCalendarItems });
+          })
+          .catch(err => {
+            console.log('Error getting IPO calendar data', err);
+          });
+      } else if (calendarType === 'earnings calendar') {
+        getEarningsCalendar(this.state.earningsCalendarFromDate, this.state.earningsCalendarToDate)
+          .then(response => {
+            let earningsCalendarItems = response.data;
+            this.setState({ earningsCalendarItems });
+          })
+          .catch(err => {
+            console.log('Error getting earnings calendar data: ', err);
+          });
+      }
+    } catch(err) {
+      console.log(`Error submitting dates for ${calendarType}: `, err)
+    }
   }
 
-  setIpoDate(obj) {
-
-    // let dateObj = new Date(obj.date);
+  setDate(obj) {
+    // format date object
     let convertedDate = moment(obj.date).format('YYYY-MM-DD');
 
-    if (obj.for === 'From') {
-      this.setState({
-        ipoCalendarFromDate: convertedDate
-      });
-    } else if (obj.for === 'To') {
-      this.setState({
-        ipoCalendarToDate: convertedDate
-      });
+    if (obj.calendarType === 'ipo calendar') {
+      if (obj.action === 'From') {
+        this.setState({
+          ipoCalendarFromDate: convertedDate
+        });
+      } else if (obj.action === 'To') {
+        this.setState({
+          ipoCalendarToDate: convertedDate
+        });
+      }
+    } else if (obj.calendarType === 'earnings calendar') {
+      if (obj.action === 'From') {
+        this.setState({
+          earningsCalendarFromDate: convertedDate
+        });
+      } else if (obj.action === 'To') {
+        this.setState({
+          earningsCalendarToDate: convertedDate
+        });
+      }
     }
   }
 
@@ -593,11 +628,24 @@ export default class App extends React.Component {
               path={process.env.PUBLIC_URL + '/ipo-calendar'}
               exact
               render={(props) => <IpoCalendarView
-                setIpoDate={this.setIpoDate}
-                submitIpoDates={this.submitIpoDates}
+                setDate={this.setDate}
+                submitDates={this.submitDates}
                 ipoCalendarItems={this.state.ipoCalendarItems}
               /> }
             />
+
+              {/* EARNINGS CALENDAR */}
+
+            <Route
+              path={process.env.PUBLIC_URL + '/earnings-calendar'}
+              exact
+              render={(props) => <EarningsCalendarView
+                setDate={this.setDate}
+                submitDates={this.submitDates}
+                earningsCalendarItems={this.state.earningsCalendarItems}
+              /> }
+            />
+
           </div>
         }
         
