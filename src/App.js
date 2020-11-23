@@ -527,6 +527,7 @@ export default class App extends React.Component {
           email={this.state.email}
           username={this.state.username}
           changeColorDisplay={this.changeColorDisplay}
+          colorDisplay={this.state.colorDisplay}
         />
         }
         
@@ -541,6 +542,7 @@ export default class App extends React.Component {
                 searchItems={this.state.searchItems}
                 onStockSearch={this.onStockSearch}
                 onStockSearchSelect={this.onStockSearchSelect}
+                colorDisplay={this.state.colorDisplay}
               /> }
           />
 
