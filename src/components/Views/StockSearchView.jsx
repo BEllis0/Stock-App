@@ -5,10 +5,11 @@ import StockSearchList from '../Lists/StockSearchList.jsx';
 const StockSearchView = props => {
     console.log('stock search view props', props)
     return (
-        <div>
+        <div className="stockSearchView">
             <h1>Search..</h1>
             <StockSearchBar
                 onStockSearch={props.onStockSearch}
+                colorDisplay={props.colorDisplay}
             />
             {props.searchItems.length &&
                 <StockSearchList 
