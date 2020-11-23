@@ -5,8 +5,22 @@ const StockSearchBar = props => {
     
     let [searchTerm, setSearchTerm] = useState('');
 
+    let {
+        colorDisplay
+    } = props;
+
+    let style = {
+        input: {
+            color: colorDisplay === 'dark' ? 'white !important' : '',
+            borderBottom: colorDisplay === 'dark' ? 'white !important' : ''
+          },
+          label: {
+            color: colorDisplay === 'dark' ? 'white !important' : ''
+          }
+    }
+
     return (
-        <form 
+        <form
             onSubmit={(e) => {e.preventDefault()}}
         >
             <TextField 

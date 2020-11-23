@@ -19,15 +19,15 @@ import { throttle, debounce } from 'lodash';
 import moment from 'moment';
 
 // components
-import Navbar from './components/navbar.component.jsx';
-import Sidebar from './components/sidebar.component.jsx';
-import NewsView from './components/news-view.component.jsx';
-import StockView from './components/stock-view.component.jsx';
+import Navbar from './components/Sidebar/navbar.component.jsx';
+import Sidebar from './components/Sidebar/sidebar.component.jsx';
+import NewsView from './components/Views/news-view.component.jsx';
+import StockView from './components/Views/stock-view.component.jsx';
 import WatchlistView from './components/Views/WatchlistView.jsx';
 import StockSearchView from './components/Views/StockSearchView.jsx';
-import CreateUser from './components/create-user.component.jsx';
-import UserSignIn from './components/sign-in.component.jsx';
-import Menu from './components/menu.component.jsx';
+import CreateUser from './components/Views/create-user.component.jsx';
+import UserSignIn from './components/Views/sign-in.component.jsx';
+import Menu from './components/Views/menu.component.jsx';
 import IpoCalendarView from './components/Views/IpoCalendarView.jsx';
 import EarningsCalendarView from './components/Views/EarningsCalendarView.jsx';
 
