@@ -286,6 +286,8 @@ ul li {
   align-content: space-around;
   align-items: flex-end;
   justify-content: space-around;
+  min-width: 320px;
+  overflow: scroll;
 }
 
 .chart {
@@ -400,6 +402,15 @@ ul li {
     margin-left: 2px;
   }
 
+  .flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .flex-row {
+    width: 100% !important;
+  }
+
   .chart, .indicators, .volumeChart {
     padding: 1px;
   }
@@ -412,9 +423,29 @@ ul li {
     flex-direction: column;
   }
 
+  ul {
+    padding: 0 5px;
+  }
+
+  .menuLink {
+    margin: 10px 0px;
+  }
+
   .detailRow {
     border-left: none;
     border-bottom: 1px solid gray;
     padding: 10px 0px;
   }
+
+  .stockSearchInput {
+    font-size: 30px !important;
+  }
+
+  .chartControls {
+    justify-content: start;
+  }
+
+  /* .MuiDataGrid-root, .MuiDataGrid-cell {
+    color: white !important;
+  } */
 }

@@ -6,7 +6,7 @@ const StockSearchView = props => {
     console.log('stock search view props', props)
     return (
         <div className="stockSearchView">
-            <h1>Search..</h1>
+            <h1>Stock Search</h1>
             <StockSearchBar
                 onStockSearch={props.onStockSearch}
                 colorDisplay={props.colorDisplay}
