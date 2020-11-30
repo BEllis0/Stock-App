@@ -35,7 +35,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state = JSON.parse(localStorage['state']) || {
       displayMenu: false,
       colorDisplay: 'light',
       newsItems: [
@@ -148,6 +148,14 @@ export default class App extends React.Component {
       }
     }, 1000));
   };
+
+  componentDidUpdate() {
+
+
+    console.log('state: ', JSON.stringify(this.state))
+    localStorage.setItem('state', JSON.stringify(this.state));
+
+  }
 
   onDisplayMenu() {
     this.setState({ displayMenu: !this.state.displayMenu});
