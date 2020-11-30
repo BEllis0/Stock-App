@@ -1,5 +1,6 @@
 import React from 'react';
 import { Divider } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { TypeChooser } from "react-stockcharts/lib/helper";
 import Accordion from '@material-ui/core/Accordion';
@@ -54,11 +55,8 @@ export default function StockView(props) {
         }
     }
 
+    // percentage change calculated
     let percentChange = getPercentChange();
-
-    // console.log('company profile', companyProfile);
-    console.log('company financials', companyFinancials)
-    // console.log('stock view data: ', candlestickData)
 
     //if api limit hit
     if (props.flagUndefined) {
@@ -89,7 +87,8 @@ export default function StockView(props) {
             <div className="stockPageLayout">
                 <div className="loadingStockChart">
                     <Skeleton variant="rect" className="loadingStockPrice"/>
-                    <h3>Rendering data...</h3>
+                    <h3>Rendering stock charts</h3>
+                    <p>If page doesn't load in 5 seconds, <Link to="/stock-search">try again</Link>.</p>
                     <Skeleton variant="rect" className="loadingChart"/>
                     <Skeleton variant="rect" className="loadingChart"/>
                     <Skeleton variant="rect" className="loadingChart"/>
