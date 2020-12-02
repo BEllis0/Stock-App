@@ -150,11 +150,8 @@ export default class App extends React.Component {
   };
 
   componentDidUpdate() {
-
-
-    console.log('state: ', JSON.stringify(this.state))
+    // set state to localstorage
     localStorage.setItem('state', JSON.stringify(this.state));
-
   }
 
   onDisplayMenu() {
@@ -232,7 +229,7 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`${window.environment}/api/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`${window.environment}/api/login/login`, loginCreds)
     .then(res => {
       
       if(res) {
@@ -304,32 +301,6 @@ export default class App extends React.Component {
     }, () => this.watchlistUpdateDb());
   }
 
-  // adds stockname to the internal watchlist to track changes
-  onAddWatchlist(stock) {
-    // allow only if user is logged in
-    if(this.state.loggedIn) {
-
-      let newStock = stock;
-      if (this.state.watchlist.length === 0) {
-        this.setState({
-          watchlist: [newStock]
-        }, () => this.watchlistUpdateDb())
-      }
-
-      //after first click, check if stock already exists, create new array and setstate
-      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
-
-        let state = this.state.watchlist;
-        let newArr = state.concat(newStock)
-
-        this.setState({
-          watchlist: newArr
-        }, () => this.watchlistUpdateDb())
-      }
-    }
-    //redirect to sign in page if not logged in; handled on Link on sign in component
-  };
-
   // takes internal watchlist and posts to DB
   watchlistUpdateDb() {
     const watchlist = {
@@ -344,7 +315,7 @@ export default class App extends React.Component {
       //retrieves new watchlist
       Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
       .then(stock => {
-        console.log(stock);
+        console.log('retrieving stocks: ', stock.data);
 
         this.setState({
           watchlistDb: stock.data
@@ -355,8 +326,40 @@ export default class App extends React.Component {
     .catch(err => console.log(err))
   };
 
+  // adds stockname to the internal watchlist to track changes
+  onAddWatchlist(stock) {
+    // allow only if user is logged in
+    if(this.state.loggedIn) {
+      console.log('stock to add: ', stock)
+
+      let newStock = stock;
+      // if first stock added
+      if (this.state.watchlist.length === 0) {
+        this.setState({
+          watchlist: [newStock]
+        }, () => this.watchlistUpdateDb())
+      }
+
+      // If at least 1 stock and check if stock already exists, create new array and setstate
+      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
+
+        let state = this.state.watchlist;
+        let newArr = state.concat(newStock)
+
+        this.setState({
+          watchlist: newArr
+        }, () => this.watchlistUpdateDb())
+      }
+    }
+    //redirect to sign in page if not logged in; handled on Link on sign in component
+  };
+
   // handles user typing in stock name, running stock api search and displaying
   onStockSearch(searchTerm) {
+
+      // GTM  custom event to track search terms
+      window.dataLayer.push({'event': 'searchTermEvent'});
+      
       // get best fit search results
       symbolSearch(searchTerm)
       .then(res => {
@@ -380,6 +383,8 @@ export default class App extends React.Component {
 
   // handles user selecting a stock ticker from the sidebar
   async onStockSearchSelect(stock, company, timeline = '10D') {
+
+    window.ga('send', 'pageview', `/stocks/?stock=${stock}`);
 
     // =============
     // Update stock select history
@@ -509,12 +514,6 @@ export default class App extends React.Component {
         <Sidebar 
           searchItems={this.state.searchItems}
           stockName={this.state.stockName}
-          onStockSearchSelect={this.onStockSearchSelect}
-          watchlist={this.state.watchlist}
-          watchlistDb={this.state.watchlistDb}
-          onAddWatchlist={this.onAddWatchlist}
-          watchlistUpdateDb={this.watchlistUpdateDb}
-          removeStock={this.removeStock}
           loggedIn={this.state.loggedIn}
           displayMenu={this.state.displayMenu}
           onDisplayMenu={this.onDisplayMenu}
@@ -551,6 +550,13 @@ export default class App extends React.Component {
                 onStockSearch={this.onStockSearch}
                 onStockSearchSelect={this.onStockSearchSelect}
                 colorDisplay={this.state.colorDisplay}
+                onStockSearchSelect={this.onStockSearchSelect}
+                watchlist={this.state.watchlist}
+                watchlistDb={this.state.watchlistDb}
+                onAddWatchlist={this.onAddWatchlist}
+                watchlistUpdateDb={this.watchlistUpdateDb}
+                removeStock={this.removeStock}
+                loggedIn={this.state.loggedIn}
               /> }
           />
 
