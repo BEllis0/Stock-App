@@ -371,7 +371,17 @@ ul li {
   padding: 20px 0px;
 }
 
-@media (max-width: 500px) {
+#standard-search-label {
+  margin-top: -20px;
+}
+
+/* ================= */
+/* ================= */
+/* MOBILE VIEW */
+/* ================= */
+/* ================= */
+
+@media (max-width: 767px) {
   .app {
     flex-direction: column;
     height: auto;
@@ -392,6 +402,10 @@ ul li {
 
   .stockPageStockName {
     display: inline;
+  }
+
+  #standard-search-label {
+    margin-top: -15px;
   }
 
   .mainViewGrid {
