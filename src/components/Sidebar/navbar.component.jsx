@@ -27,28 +27,37 @@ export default function Navbar(props) {
         return (
             <MuiThemeProvider theme={theme}>
             <AppBar className="navbar" position="sticky" color={props.colorDisplay === 'light' ? 'primary' : 'secondary'}>
-                <Toolbar className="nav-menu" >
-                    <div>
-                    <MenuIcon className="menu-icon" onClick={props.onDisplayMenu} />
+                <Toolbar className="nav-menu">
+                  <MenuIcon className="menu-icon" onClick={props.onDisplayMenu} />
+                  
+                  {/* SIGN IN IF NOT LOGGED IN */}
+                  {!props.loggedin &&
+                    <div className="flex-col">
+                      <Link
+                          to="/sign-in" 
+                          onClick={(props.displayMenu && props.onDisplayMenu )} 
+                          className="nav-link">Sign In
+                      </Link>
+                      <Link
+                      to="/create-user"
+                      onClick={(props.displayMenu && props.onDisplayMenu )}
+                      className="nav-link">Create User
+                      </Link>
                     </div>
-                    {props.loggedIn &&
-                    <div>
-                        <p>Hello, {props.username}</p>
-                    </div>
-                    }
-                    <div>
+                  }
+
+                  {/* SIGN OUT IF LOGGED IN */}
+                  {props.loggedin &&
                     <Link
-                        to="/sign-in" 
-                        onClick={(props.displayMenu && props.onDisplayMenu )} 
-                        className="nav-link">Sign In
+                      to="/" 
+                      onClick={(e) => {
+                        props.logout();
+                        // props.displayMenu;
+                        // props.onDisplayMenu;
+                      }} 
+                      className="nav-link">Logout
                     </Link>
-                    <Divider orientation="vertical" />
-                    <Link
-                        to="/create-user"
-                        onClick={(props.displayMenu && props.onDisplayMenu )}
-                        className="nav-link">Create User
-                    </Link>
-                    </div>
+                  }
                 </Toolbar>
             </AppBar>
             </MuiThemeProvider>
