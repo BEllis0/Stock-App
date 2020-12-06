@@ -425,6 +425,11 @@ ul li {
     width: 100% !important;
   }
 
+  .flex-col {
+    display: flex;
+    flex-direction: column;
+  }
+
   .chart, .indicators, .volumeChart {
     padding: 1px;
   }
@@ -457,6 +462,11 @@ ul li {
 
   .chartControls {
     justify-content: start;
+  }
+
+  .signInForm, .createAccountForm {
+    display: flex;
+    flex-direction: column;
   }
 
   /* .MuiDataGrid-root, .MuiDataGrid-cell {
