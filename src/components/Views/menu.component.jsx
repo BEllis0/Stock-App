@@ -110,9 +110,9 @@ const Menu = (props) => {
             <div className="displaySettings">
                 <h3>Display</h3>
                 <Divider />
-                
+                <p>Dark mode coming soon.</p>
                 {/* Color Mode */}
-                <DisplayButton changeColorDisplay={changeColorDisplay} />
+                {/* <DisplayButton changeColorDisplay={changeColorDisplay} /> */}
 
             </div>  
         </div>
