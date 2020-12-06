@@ -4,6 +4,17 @@ import { Link, useHistory } from 'react-router-dom';
 
 export default function UserSignIn(props) {
 
+    // redirect user to home page after success login
+    const redirect = () => {
+        setTimeout(() => {
+            if (props.loggedIn) {
+                // redirect if user is logged in properly
+                // useHistory().go(urlPath);
+                window.location.href = '/';
+            }
+        }, 3000);
+    }
+
     return (
         <div className="signInView">
             <h1>Sign In</h1>
@@ -40,7 +51,12 @@ export default function UserSignIn(props) {
                 variant="contained" 
                 color="primary" 
                 size="large"
-                onClick={props.login}
+                onClick={(e) => {
+                    // e.preventDefault();
+                    props.login(e);
+                    // if user logs in properly, redirect
+                    redirect();
+                }}
                 >Sign In
             </Button>
                 
