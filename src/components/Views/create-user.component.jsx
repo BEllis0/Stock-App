@@ -184,7 +184,14 @@ export default class CreateUser extends React.Component {
                     required
                 />
 
-                <Button disabled={this.state.error} className="createUserButton" type="submit" variant="contained" color="secondary" size="large">Create</Button>
+                <Button
+                    disabled={this.state.error}
+                    className="createUserButton"
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    size="large">Create
+                </Button>
                     
                 </form>
                 <h4>Password must include:</h4>

@@ -38,7 +38,7 @@ export default function UserSignIn(props) {
                 className="createUserButton" 
                 type="submit" 
                 variant="contained" 
-                color="secondary" 
+                color="primary" 
                 size="large"
                 onClick={props.login}
                 >Sign In
