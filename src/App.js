@@ -93,7 +93,6 @@ export default class App extends React.Component {
     this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
-    // this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
     this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
@@ -384,6 +383,10 @@ export default class App extends React.Component {
   // handles user selecting a stock ticker from the sidebar
   async onStockSearchSelect(stock, company, timeline = '10D') {
 
+    // ==============
+    // GA search param
+    // ==============
+
     window.ga('send', 'pageview', `/stocks/?stock=${stock}`);
 
     // =============
@@ -477,6 +480,11 @@ export default class App extends React.Component {
       });
     })
     .catch(err => console.log(err));
+
+    // Remove search list items
+    this.setState({
+      searchItems: []
+    });
   };
 
   //handles new api calls for the timeline reference - 1h, 1d, 1w etc
