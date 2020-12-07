@@ -24,43 +24,43 @@ const theme = createMuiTheme({
 
 export default function Navbar(props) {
     
-        return (
-            <MuiThemeProvider theme={theme}>
-            <AppBar className="navbar" position="sticky" color={props.colorDisplay === 'light' ? 'primary' : 'secondary'}>
-                <Toolbar className="nav-menu">
-                  <MenuIcon className="menu-icon" onClick={props.onDisplayMenu} />
-                  
-                  {/* SIGN IN IF NOT LOGGED IN */}
-                  {!props.loggedin &&
-                    <div className="flex-col">
-                      <Link
-                          to="/sign-in" 
-                          onClick={(props.displayMenu && props.onDisplayMenu )} 
-                          className="nav-link">Sign In
-                      </Link>
-                      <Link
-                      to="/create-user"
-                      onClick={(props.displayMenu && props.onDisplayMenu )}
-                      className="nav-link">Create User
-                      </Link>
-                    </div>
-                  }
+  return (
+      <MuiThemeProvider theme={theme}>
+        <AppBar className="navbar" position="sticky" color={props.colorDisplay === 'light' ? 'primary' : 'secondary'}>
+            <Toolbar className="nav-menu">
+              <MenuIcon className="menu-icon" onClick={props.onDisplayMenu} />
+              
+              {/* SIGN IN IF NOT LOGGED IN */}
+              {!props.loggedIn &&
+                <div className="flex-col">
+                  <Link
+                      to="/sign-in" 
+                      onClick={(props.displayMenu && props.onDisplayMenu )} 
+                      className="nav-link">Sign In
+                  </Link>
+                  <Link
+                  to="/create-user"
+                  onClick={(props.displayMenu && props.onDisplayMenu )}
+                  className="nav-link">Create User
+                  </Link>
+                </div>
+              }
 
-                  {/* SIGN OUT IF LOGGED IN */}
-                  {props.loggedin &&
-                    <Link
-                      to="/" 
-                      onClick={(e) => {
-                        props.logout();
-                        // props.displayMenu;
-                        // props.onDisplayMenu;
-                      }} 
-                      className="nav-link">Logout
-                    </Link>
-                  }
-                </Toolbar>
-            </AppBar>
-            </MuiThemeProvider>
-        );
+              {/* SIGN OUT IF LOGGED IN */}
+              {props.loggedIn &&
+                <Link
+                  to="/" 
+                  onClick={(e) => {
+                    props.logout();
+                    // props.displayMenu;
+                    // props.onDisplayMenu;
+                  }} 
+                  className="nav-link">Logout
+                </Link>
+              }
+            </Toolbar>
+        </AppBar>
+      </MuiThemeProvider>
+  );
 
 };
