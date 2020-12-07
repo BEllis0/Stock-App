@@ -11,6 +11,11 @@ const fetchNews = (searchTerm, pageNum) =>
       pageSize: 12,
     });
 
+let newsCache = {
+    generalStockNews: [], // news shared on the '/' page
+    // Includes stock-specifc searches and data
+};
+
 module.exports = {
     news: {
         get: {
@@ -18,7 +23,7 @@ module.exports = {
                 const topic = req.params.search;
                 fetchNews(topic, 1)
                     .then(response => {
-                        res.json(response.articles);
+                        res.status(200).json(response.articles);
                     })
                     .catch(error => console.log(error));
             },
