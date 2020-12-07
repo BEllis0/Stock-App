@@ -19,23 +19,24 @@ import { throttle, debounce } from 'lodash';
 import moment from 'moment';
 
 // components
-import Navbar from './components/navbar.component.jsx';
-import Sidebar from './components/sidebar.component.jsx';
-import NewsView from './components/news-view.component.jsx';
-import StockView from './components/stock-view.component.jsx';
+import Navbar from './components/Sidebar/navbar.component.jsx';
+import Sidebar from './components/Sidebar/sidebar.component.jsx';
+import NewsView from './components/Views/news-view.component.jsx';
+import StockView from './components/Views/stock-view.component.jsx';
 import WatchlistView from './components/Views/WatchlistView.jsx';
 import StockSearchView from './components/Views/StockSearchView.jsx';
-import CreateUser from './components/create-user.component.jsx';
-import UserSignIn from './components/sign-in.component.jsx';
-import Menu from './components/menu.component.jsx';
+import CreateUser from './components/Views/create-user.component.jsx';
+import UserSignIn from './components/Views/sign-in.component.jsx';
+import Menu from './components/Views/menu.component.jsx';
 import IpoCalendarView from './components/Views/IpoCalendarView.jsx';
 import EarningsCalendarView from './components/Views/EarningsCalendarView.jsx';
+import SnackBar from './components/Misc/SnackBar/SnackBar.jsx'
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    this.state =  localStorage['state'] ? JSON.parse(localStorage['state']) : {
       displayMenu: false,
       colorDisplay: 'light',
       newsItems: [
@@ -43,6 +44,9 @@ export default class App extends React.Component {
       ],
       loggedIn: false,
       loginError: false,
+      displaySnackBar: false,
+      snackBarMessage: '',
+
       email: '', // set after login
       userId: 0, // set after login
       username: '', // set after login
@@ -83,6 +87,7 @@ export default class App extends React.Component {
     this.onChangeSignInEmail = this.onChangeSignInEmail.bind(this);
     this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
     this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
     this.getDbStocks = this.getDbStocks.bind(this);
 
     // Ipo calendar functions
@@ -93,7 +98,6 @@ export default class App extends React.Component {
     this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
-    // this.onSearchSelect = debounce(this.onSearchSelect.bind(this), 200);
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
     this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
@@ -101,11 +105,13 @@ export default class App extends React.Component {
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
     this.removeStock = this.removeStock.bind(this);
 
+    this.removeSnackBar = this.removeSnackBar.bind(this);
     this.onDisplayMenu = this.onDisplayMenu.bind(this);
     this.changeColorDisplay = this.changeColorDisplay.bind(this);
   };
   
   componentDidMount() {
+    
     // get news on 'stocks'
     newsSearch('stocks')
       .then(articles => {
@@ -148,6 +154,11 @@ export default class App extends React.Component {
       }
     }, 1000));
   };
+
+  componentDidUpdate() {
+    // set state to local storage
+    window.localStorage.setItem('state', JSON.stringify(this.state));
+  }
 
   onDisplayMenu() {
     this.setState({ displayMenu: !this.state.displayMenu});
@@ -216,6 +227,12 @@ export default class App extends React.Component {
     }
   }
 
+  removeSnackBar() {
+    this.setState({
+      displaySnackBar: false
+    });
+  }
+
   login(e) {
     e.preventDefault();
     //data to pass to signin route
@@ -224,11 +241,8 @@ export default class App extends React.Component {
       password: this.state.signInPassword
     };
 
-    Axios.post(`${window.environment}/api/login/${this.state.signInEmail}`, loginCreds)
+    Axios.post(`${window.environment}/api/login/login`, loginCreds)
     .then(res => {
-      
-      if(res) {
-        console.log(res);
 
         this.setState({
           loggedIn: true,
@@ -238,21 +252,37 @@ export default class App extends React.Component {
           loginError: false,
           signInEmail: '',
           signInPassword: '',
+          displaySnackBar: true,
+          snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
         }, () => this.getDbStocks());
 
-        useHistory().go('/');
-      }
-
-      else {
-        this.setState({
-          loginError: true,
-        }, () => console.log(this.state.loginError));
-      }
-
-      
+        // redirect user to home
+        window.location.href = '/';
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log('LOGIN ERROR: ', err);
+      this.setState({
+          loginError: true,
+          displaySnackBar: true,
+          snackBarMessage: 'Error Logging in. Please try again.'
+      });
+    });
   };
+
+  async logout() {
+    // remove session and state data
+    await window.localStorage.removeItem('state');
+
+    // reload page
+    await document.location.reload();
+    
+    // display snackbar to show logout message
+    await this.setState({
+      loggedIn: false,
+      displaySnackBar: true,
+      snackBarMessage: 'Successfully logged out.',
+    }, () => console.log(this.state));
+  }
 
   getDbStocks() {
     // if user is logged in, get their watchlist
@@ -275,7 +305,7 @@ export default class App extends React.Component {
 
     this.setState({
       signInEmail: event.target.value
-    }, () => console.log(this.state.signInEmail));
+    });
   };
 
   onChangeSignInPassword(event) {
@@ -283,7 +313,7 @@ export default class App extends React.Component {
 
     this.setState({
       signInPassword: event.target.value
-    }, () => console.log(this.state.signInPassword));
+    });
   };
 
   removeStock(stock) {
@@ -295,32 +325,6 @@ export default class App extends React.Component {
       watchlist: filteredStocks
     }, () => this.watchlistUpdateDb());
   }
-
-  // adds stockname to the internal watchlist to track changes
-  onAddWatchlist(stock) {
-    // allow only if user is logged in
-    if(this.state.loggedIn) {
-
-      let newStock = stock;
-      if (this.state.watchlist.length === 0) {
-        this.setState({
-          watchlist: [newStock]
-        }, () => this.watchlistUpdateDb())
-      }
-
-      //after first click, check if stock already exists, create new array and setstate
-      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
-
-        let state = this.state.watchlist;
-        let newArr = state.concat(newStock)
-
-        this.setState({
-          watchlist: newArr
-        }, () => this.watchlistUpdateDb())
-      }
-    }
-    //redirect to sign in page if not logged in; handled on Link on sign in component
-  };
 
   // takes internal watchlist and posts to DB
   watchlistUpdateDb() {
@@ -336,7 +340,7 @@ export default class App extends React.Component {
       //retrieves new watchlist
       Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
       .then(stock => {
-        console.log(stock);
+        console.log('retrieving stocks: ', stock.data);
 
         this.setState({
           watchlistDb: stock.data
@@ -347,8 +351,40 @@ export default class App extends React.Component {
     .catch(err => console.log(err))
   };
 
+  // adds stockname to the internal watchlist to track changes
+  onAddWatchlist(stock) {
+    // allow only if user is logged in
+    if(this.state.loggedIn) {
+      console.log('stock to add: ', stock)
+
+      let newStock = stock;
+      // if first stock added
+      if (this.state.watchlist.length === 0) {
+        this.setState({
+          watchlist: [newStock]
+        }, () => this.watchlistUpdateDb())
+      }
+
+      // If at least 1 stock and check if stock already exists, create new array and setstate
+      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
+
+        let state = this.state.watchlist;
+        let newArr = state.concat(newStock)
+
+        this.setState({
+          watchlist: newArr
+        }, () => this.watchlistUpdateDb())
+      }
+    }
+    //redirect to sign in page if not logged in; handled on Link on sign in component
+  };
+
   // handles user typing in stock name, running stock api search and displaying
   onStockSearch(searchTerm) {
+
+      // GTM  custom event to track search terms
+      window.dataLayer.push({'event': 'searchTermEvent'});
+      
       // get best fit search results
       symbolSearch(searchTerm)
       .then(res => {
@@ -372,6 +408,12 @@ export default class App extends React.Component {
 
   // handles user selecting a stock ticker from the sidebar
   async onStockSearchSelect(stock, company, timeline = '10D') {
+
+    // ==============
+    // GA search param
+    // ==============
+
+    window.ga('send', 'pageview', `/stocks/?stock=${stock}`);
 
     // =============
     // Update stock select history
@@ -464,6 +506,11 @@ export default class App extends React.Component {
       });
     })
     .catch(err => console.log(err));
+
+    // Remove search list items
+    this.setState({
+      searchItems: []
+    });
   };
 
   //handles new api calls for the timeline reference - 1h, 1d, 1w etc
@@ -493,6 +540,7 @@ export default class App extends React.Component {
           onStockSubmit={this.onStockSubmit}
           searchItems={this.state.searchItems}
           loggedIn={this.state.loggedIn}
+          logout={this.logout}
           username={this.state.username}
           onDisplayMenu={this.onDisplayMenu}
           displayMenu={this.state.displayMenu}
@@ -501,12 +549,6 @@ export default class App extends React.Component {
         <Sidebar 
           searchItems={this.state.searchItems}
           stockName={this.state.stockName}
-          onStockSearchSelect={this.onStockSearchSelect}
-          watchlist={this.state.watchlist}
-          watchlistDb={this.state.watchlistDb}
-          onAddWatchlist={this.onAddWatchlist}
-          watchlistUpdateDb={this.watchlistUpdateDb}
-          removeStock={this.removeStock}
           loggedIn={this.state.loggedIn}
           displayMenu={this.state.displayMenu}
           onDisplayMenu={this.onDisplayMenu}
@@ -520,6 +562,15 @@ export default class App extends React.Component {
         item 
         sm={9}
         >
+        
+        {/* SNACKBAR COMPONENT */}
+        <SnackBar
+          snackBarMessage={this.state.snackBarMessage}
+          displaySnackBar={this.state.displaySnackBar}
+          removeSnackBar={this.removeSnackBar}
+          loginError={this.state.loginError}
+        />
+
         {this.state.displayMenu && 
         <Menu 
           loggedIn={this.state.loggedIn}
@@ -527,6 +578,7 @@ export default class App extends React.Component {
           email={this.state.email}
           username={this.state.username}
           changeColorDisplay={this.changeColorDisplay}
+          colorDisplay={this.state.colorDisplay}
         />
         }
         
@@ -541,6 +593,14 @@ export default class App extends React.Component {
                 searchItems={this.state.searchItems}
                 onStockSearch={this.onStockSearch}
                 onStockSearchSelect={this.onStockSearchSelect}
+                colorDisplay={this.state.colorDisplay}
+                onStockSearchSelect={this.onStockSearchSelect}
+                watchlist={this.state.watchlist}
+                watchlistDb={this.state.watchlistDb}
+                onAddWatchlist={this.onAddWatchlist}
+                watchlistUpdateDb={this.watchlistUpdateDb}
+                removeStock={this.removeStock}
+                loggedIn={this.state.loggedIn}
               /> }
           />
 
@@ -605,6 +665,11 @@ export default class App extends React.Component {
               onChangeSignInEmail={this.onChangeSignInEmail} 
               onChangeSignInPassword={this.onChangeSignInPassword}
               login={this.login}
+              loggedIn={this.state.loggedIn}
+              loginError={this.state.loginError}
+              displaySnackBar={this.state.displaySnackBar}
+              snackBarMessage={this.state.snackBarMessage}
+              removeSnackBar={this.removeSnackBar}
               /> } 
             />
 

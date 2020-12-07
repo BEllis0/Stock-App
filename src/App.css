@@ -144,6 +144,10 @@ ul li {
   border-left: 3px solid #f0f0f0;
 }
 
+.createUserView, .signInView, .watchlistView, .stockSearchView, .mainViewGrid {
+  min-height: 100vh !important;
+}
+
 .sidebarNewsButton {
   display: flex;
   flex-direction: column;
@@ -172,6 +176,8 @@ ul li {
 
 .nav-link, .menu-icon {
   padding: 7px;
+  color: #FFF;
+  padding-bottom: 2px;
 }
 
 .navbar .search-button, div .createUserButton, #addWatchlistButton {
@@ -280,6 +286,8 @@ ul li {
   align-content: space-around;
   align-items: flex-end;
   justify-content: space-around;
+  min-width: 320px;
+  overflow: scroll;
 }
 
 .chart {
@@ -363,22 +371,41 @@ ul li {
   padding: 20px 0px;
 }
 
-@media (max-width: 597px) {
+#standard-search-label {
+  margin-top: -20px;
+}
+
+/* ================= */
+/* ================= */
+/* MOBILE VIEW */
+/* ================= */
+/* ================= */
+
+@media (max-width: 767px) {
   .app {
     flex-direction: column;
     height: auto;
   }
 
+  h1 {
+    font-size: 26px;
+  }
+
   .navbar {
-    height: 150px;
+    height: 70px;
   }
 
   .sidebar {
-    height: 200px;
+    /* height: 200px; */
+    display: none !important;
   }
 
   .stockPageStockName {
     display: inline;
+  }
+
+  #standard-search-label {
+    margin-top: -15px;
   }
 
   .mainViewGrid {
@@ -387,6 +414,20 @@ ul li {
 
   .margin-left {
     margin-left: 2px;
+  }
+
+  .flex {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .flex-row {
+    width: 100% !important;
+  }
+
+  .flex-col {
+    display: flex;
+    flex-direction: column;
   }
 
   .chart, .indicators, .volumeChart {
@@ -401,8 +442,34 @@ ul li {
     flex-direction: column;
   }
 
+  ul {
+    padding: 0 5px;
+  }
+
+  .menuLink {
+    margin: 10px 0px;
+  }
+
   .detailRow {
     border-left: none;
     border-bottom: 1px solid gray;
+    padding: 10px 0px;
   }
+
+  .stockSearchInput {
+    font-size: 30px !important;
+  }
+
+  .chartControls {
+    justify-content: start;
+  }
+
+  .signInForm, .createAccountForm {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* .MuiDataGrid-root, .MuiDataGrid-cell {
+    color: white !important;
+  } */
 }

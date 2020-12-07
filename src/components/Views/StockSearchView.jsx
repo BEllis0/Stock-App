@@ -3,20 +3,26 @@ import StockSearchBar from '../Forms/StockSearchBar/StockSearchBar.jsx';
 import StockSearchList from '../Lists/StockSearchList.jsx';
 
 const StockSearchView = props => {
-    console.log('stock search view props', props)
     return (
-        <div>
-            <h1>Search..</h1>
+        <div className="stockSearchView">
+            <h1>Stock Search</h1>
             <StockSearchBar
                 onStockSearch={props.onStockSearch}
+                colorDisplay={props.colorDisplay}
             />
-            {props.searchItems.length &&
+            {props.searchItems.length > 0 &&
                 <StockSearchList 
                     searchItems={props.searchItems}
                     onStockSearchSelect={props.onStockSearchSelect}
+                    watchlist={props.watchlist}
+                    watchlistDb={props.watchlistDb}
+                    onAddWatchlist={props.onAddWatchlist}
+                    watchlistUpdateDb={props.watchlistUpdateDb}
+                    removeStock={props.removeStock}
+                    loggedIn={props.loggedIn}
                 />
             }
-            {props.searchItems.length ===0 &&
+            {!props.searchItems.length &&
                 <p>No search results to display.</p>
             }
         </div>

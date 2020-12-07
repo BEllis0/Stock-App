@@ -1,17 +1,18 @@
 import React from 'react';
 import { Divider } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 import Skeleton from '@material-ui/lab/Skeleton';
 import { TypeChooser } from "react-stockcharts/lib/helper";
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import round from '../utils/roundDecimals.js';
-import formatCurrency from '../utils/formatCurrency.js';
+import round from '../../utils/roundDecimals.js';
+import formatCurrency from '../../utils/formatCurrency.js';
 
-import Stock_Candlestick from '../components/Charts/CandleStickChart/CandleStickChart.jsx';
-import NewsList from './Lists/NewsList.jsx';
-import CompanyFinancialsList from './Lists/CompanyFinancialsList.jsx';
+import Stock_Candlestick from '../Charts/CandleStickChart/CandleStickChart.jsx';
+import NewsList from '../Lists/NewsList.jsx';
+import CompanyFinancialsList from '../Lists/CompanyFinancialsList.jsx';
 
 export default function StockView(props) {
     
@@ -54,11 +55,8 @@ export default function StockView(props) {
         }
     }
 
+    // percentage change calculated
     let percentChange = getPercentChange();
-
-    // console.log('company profile', companyProfile);
-    console.log('company financials', companyFinancials)
-    // console.log('stock view data: ', candlestickData)
 
     //if api limit hit
     if (props.flagUndefined) {
@@ -89,7 +87,8 @@ export default function StockView(props) {
             <div className="stockPageLayout">
                 <div className="loadingStockChart">
                     <Skeleton variant="rect" className="loadingStockPrice"/>
-                    <h3>Rendering data...</h3>
+                    <h3>Rendering stock charts</h3>
+                    <p>If page doesn't load in 5 seconds, <Link to="/stock-search">try again</Link>.</p>
                     <Skeleton variant="rect" className="loadingChart"/>
                     <Skeleton variant="rect" className="loadingChart"/>
                     <Skeleton variant="rect" className="loadingChart"/>

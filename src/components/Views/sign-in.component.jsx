@@ -1,23 +1,21 @@
 import React from 'react';
 import { Paper, TextField, Button } from '@material-ui/core';
 import { Link, useHistory } from 'react-router-dom';
+import SnackBar from '../Misc/SnackBar/SnackBar.jsx';
 
 export default function UserSignIn(props) {
-
-    if(props.displayMenu) {
-        return (
-            <p>asdf</p>
-        )
-    }
-
-    else {
-        return (
-            <div>
-                <h1>Sign In</h1>
-                <Paper className="signInFormContainer">
-                
+    
+    return (
+        <div className="signInView">
+            
+            <h1>Sign In</h1>
+            
+            <Paper className="signInFormContainer">
+            
                 <p>Sign in to your account</p>
+                
                 <br />
+
                 <form className="signInForm">
                 
                 <TextField //username or email
@@ -45,17 +43,21 @@ export default function UserSignIn(props) {
                     className="createUserButton" 
                     type="submit" 
                     variant="contained" 
-                    color="secondary" 
+                    color="primary" 
                     size="large"
-                    onClick={props.login}
+                    onClick={(e) => {
+                        // e.preventDefault();
+                        props.login(e);
+                    }}
                     >Sign In
                 </Button>
                     
                 </form>
+
                 <br />
+                
                 <h4>Need to set up an account? <Link to="/create-user">Click here to create a free account.</Link></h4>
-                </Paper>
-            </div>
-        );
-    }
+            </Paper>
+        </div>
+    );
 };

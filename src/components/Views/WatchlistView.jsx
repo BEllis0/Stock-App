@@ -16,7 +16,7 @@ const WatchlistView = props => {
 
     if (watchlistDb.length > 0) {
         return (
-            <div>
+            <div className="watchlistView">
                 <h1>Watchlist</h1>
                 <WatchlistList
                     watchlistDb={watchlistDb}

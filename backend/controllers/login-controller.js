@@ -5,8 +5,10 @@ require('dotenv').config();
 
 module.exports = {
     login: (req, res) => {
+
+        console.log(req.body)
         //find user by email 
-        User.find({ email: req.params.email })
+        User.find({ email: req.body.email })
         .then(user => {
 
             //check if email address exists

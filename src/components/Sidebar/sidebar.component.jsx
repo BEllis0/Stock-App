@@ -26,7 +26,7 @@ const Sidebar = (props) => {
                     <Link
                         to="/" 
                         onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
-                        className="nav-link">
+                        className="sidebarLink">
                         <h3>Stock News</h3>
                     </Link>
                 </div>
@@ -41,7 +41,7 @@ const Sidebar = (props) => {
                     <Link
                         to="/stock-search"
                         onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
-                        className="nav-link">
+                        className="sidebarLink">
                         <h3>Stock Search</h3>
                     </Link>
                 </div>
@@ -56,7 +56,7 @@ const Sidebar = (props) => {
                     <Link
                         to="/ipo-calendar"
                         onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
-                        className="nav-link">
+                        className="sidebarLink">
                         <h3>IPO Calendar</h3>
                     </Link>
                 </div>
@@ -71,7 +71,7 @@ const Sidebar = (props) => {
                     <Link
                         to="/earnings-calendar"
                         onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
-                        className="nav-link">
+                        className="sidebarLink">
                         <h3>Earnings Calendar</h3>
                     </Link>
                 </div>
@@ -86,7 +86,7 @@ const Sidebar = (props) => {
                     <Link
                         to="/watchlist"
                         onClick={(props.displayMenu ? props.onDisplayMenu : undefined )}
-                        className="nav-link">
+                        className="sidebarLink">
                         <h3>Watchlist</h3>
                     </Link>
                 </div>

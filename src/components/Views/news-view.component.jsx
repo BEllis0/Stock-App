@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from '@material-ui/lab/Skeleton';
-import NewsList from './Lists/NewsList.jsx';
+import NewsList from '../Lists/NewsList.jsx';
 
 export default function NewsView(props) {
 
