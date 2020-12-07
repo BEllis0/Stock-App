@@ -30,12 +30,13 @@ import UserSignIn from './components/Views/sign-in.component.jsx';
 import Menu from './components/Views/menu.component.jsx';
 import IpoCalendarView from './components/Views/IpoCalendarView.jsx';
 import EarningsCalendarView from './components/Views/EarningsCalendarView.jsx';
+import SnackBar from './components/Misc/SnackBar/SnackBar.jsx'
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = JSON.parse(localStorage['state']) || {
+    this.state =  localStorage['state'] ? JSON.parse(localStorage['state']) : {
       displayMenu: false,
       colorDisplay: 'light',
       newsItems: [
@@ -43,6 +44,9 @@ export default class App extends React.Component {
       ],
       loggedIn: false,
       loginError: false,
+      displaySnackBar: false,
+      snackBarMessage: '',
+
       email: '', // set after login
       userId: 0, // set after login
       username: '', // set after login
@@ -83,6 +87,7 @@ export default class App extends React.Component {
     this.onChangeSignInEmail = this.onChangeSignInEmail.bind(this);
     this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
     this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
     this.getDbStocks = this.getDbStocks.bind(this);
 
     // Ipo calendar functions
@@ -100,11 +105,13 @@ export default class App extends React.Component {
     this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
     this.removeStock = this.removeStock.bind(this);
 
+    this.removeSnackBar = this.removeSnackBar.bind(this);
     this.onDisplayMenu = this.onDisplayMenu.bind(this);
     this.changeColorDisplay = this.changeColorDisplay.bind(this);
   };
   
   componentDidMount() {
+    
     // get news on 'stocks'
     newsSearch('stocks')
       .then(articles => {
@@ -149,8 +156,8 @@ export default class App extends React.Component {
   };
 
   componentDidUpdate() {
-    // set state to localstorage
-    localStorage.setItem('state', JSON.stringify(this.state));
+    // set state to local storage
+    window.localStorage.setItem('state', JSON.stringify(this.state));
   }
 
   onDisplayMenu() {
@@ -220,6 +227,12 @@ export default class App extends React.Component {
     }
   }
 
+  removeSnackBar() {
+    this.setState({
+      displaySnackBar: false
+    });
+  }
+
   login(e) {
     e.preventDefault();
     //data to pass to signin route
@@ -230,9 +243,6 @@ export default class App extends React.Component {
 
     Axios.post(`${window.environment}/api/login/login`, loginCreds)
     .then(res => {
-      
-      if(res) {
-        console.log(res);
 
         this.setState({
           loggedIn: true,
@@ -242,21 +252,37 @@ export default class App extends React.Component {
           loginError: false,
           signInEmail: '',
           signInPassword: '',
+          displaySnackBar: true,
+          snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
         }, () => this.getDbStocks());
 
-        useHistory().go('/');
-      }
-
-      else {
-        this.setState({
-          loginError: true,
-        }, () => console.log(this.state.loginError));
-      }
-
-      
+        // redirect user to home
+        window.location.href = '/';
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      console.log('LOGIN ERROR: ', err);
+      this.setState({
+          loginError: true,
+          displaySnackBar: true,
+          snackBarMessage: 'Error Logging in. Please try again.'
+      });
+    });
   };
+
+  async logout() {
+    // remove session and state data
+    await window.localStorage.removeItem('state');
+
+    // reload page
+    await document.location.reload();
+    
+    // display snackbar to show logout message
+    await this.setState({
+      loggedIn: false,
+      displaySnackBar: true,
+      snackBarMessage: 'Successfully logged out.',
+    }, () => console.log(this.state));
+  }
 
   getDbStocks() {
     // if user is logged in, get their watchlist
@@ -279,7 +305,7 @@ export default class App extends React.Component {
 
     this.setState({
       signInEmail: event.target.value
-    }, () => console.log(this.state.signInEmail));
+    });
   };
 
   onChangeSignInPassword(event) {
@@ -287,7 +313,7 @@ export default class App extends React.Component {
 
     this.setState({
       signInPassword: event.target.value
-    }, () => console.log(this.state.signInPassword));
+    });
   };
 
   removeStock(stock) {
@@ -514,6 +540,7 @@ export default class App extends React.Component {
           onStockSubmit={this.onStockSubmit}
           searchItems={this.state.searchItems}
           loggedIn={this.state.loggedIn}
+          logout={this.logout}
           username={this.state.username}
           onDisplayMenu={this.onDisplayMenu}
           displayMenu={this.state.displayMenu}
@@ -535,6 +562,15 @@ export default class App extends React.Component {
         item 
         sm={9}
         >
+        
+        {/* SNACKBAR COMPONENT */}
+        <SnackBar
+          snackBarMessage={this.state.snackBarMessage}
+          displaySnackBar={this.state.displaySnackBar}
+          removeSnackBar={this.removeSnackBar}
+          loginError={this.state.loginError}
+        />
+
         {this.state.displayMenu && 
         <Menu 
           loggedIn={this.state.loggedIn}
@@ -629,6 +665,11 @@ export default class App extends React.Component {
               onChangeSignInEmail={this.onChangeSignInEmail} 
               onChangeSignInPassword={this.onChangeSignInPassword}
               login={this.login}
+              loggedIn={this.state.loggedIn}
+              loginError={this.state.loginError}
+              displaySnackBar={this.state.displaySnackBar}
+              snackBarMessage={this.state.snackBarMessage}
+              removeSnackBar={this.removeSnackBar}
               /> } 
             />
 
