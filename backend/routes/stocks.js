@@ -6,7 +6,8 @@ const stocksController = require('../controllers/stocks-controller.js');
 // =================
 
 router.get('/saved-stocks', stocksController.stocks.get.stockById); // get watchlist by user id
-router.post('/new-stock', stocksController.stocks.post.newStock); // add new stock; currently replaces the entire watchlist with req
+router.post('/new-stock', stocksController.stocks.post.newStock); // add new stock
+router.delete('/remove-stock', stocksController.stocks.delete.removeStock); // remove stock
 
 // =================
 // --- ALPHAVANTAGE
