@@ -41,7 +41,8 @@ module.exports = {
                                 success: true,
                                 userId: user[0].id,
                                 username: user[0].username,
-                                token: token
+                                token: token,
+                                watchlist: user[0].watchlist
                             });
                         }
                     );

@@ -33,22 +33,63 @@ module.exports = {
     stocks: {
         get: {
             stockById: (req, res) => {
-                User.findById(req.params.id)
+                User.findById(req.query.userID)
                     .then(user => res.json(user.watchlist))
                     .catch(err => res.status(400).json("Error: " + err));
             },
         },
         post: {
             newStock: (req, res) => {
-                User.findById(req.query.userID)
-                    .then(user => {
-                        user.watchlist = req.body.watchlist;
-
-                        user.save()
-                            .then(() => res.json(`stock added: ${user.watchlist}`))
-                            .catch(err => res.status(400).json('Error: ' + err));
-                    })
-                    .catch(err => res.status(400).json("Error: " + err));
+                User.findByIdAndUpdate(
+                    req.query.userID,
+                    {
+                        // push new stock to watchlist array
+                        $push: {
+                            'watchlist': req.body.watchlist                        
+                        }
+                    },
+                    {
+                        safe: true,
+                        new: true,
+                        upsert: true
+                    },
+                    (err, result) => {
+                        if (err) {
+                            console.log('Error adding to watchlist:', err)
+                            res.status(400).json({ "Error": err });
+                        } else {
+                            console.log('Added stock to watchlist', result)
+                            res.status(200).json(result);
+                        }
+                    }
+                )
+            }
+        },
+        delete: {
+            removeStock: (req, res) => {
+                console.log(req.body)
+                User.findByIdAndUpdate(
+                    req.params.userID,
+                    {
+                        $pull: {
+                            'watchlist': req.body.stock
+                        }
+                    },
+                    {
+                        safe: true,
+                        new: false,
+                        upsert: true
+                    },
+                    (err, result) => {
+                        if (err) {
+                            console.log('Error removing stock from watchlist:', err)
+                            res.status(400).json({ "Error": err });
+                        } else {
+                            console.log('Removed stock to watchlist', result)
+                            res.status(200).json(result);
+                        }
+                    }
+                )
             }
         },
         finnhub: {

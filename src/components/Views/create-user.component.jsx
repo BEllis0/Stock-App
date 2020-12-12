@@ -135,7 +135,7 @@ export default class CreateUser extends React.Component {
                 password: '',
             });
 
-            window.location = '/';
+            window.location = '/sign-in';
         }
 
         render() {

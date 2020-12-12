@@ -55,6 +55,12 @@ export default function UserSignIn(props) {
                         // e.preventDefault();
                         props.login(e, signInEmail, signInPassword)
                             .then(response => {
+
+                                // clear fields
+                                onChangeSignInEmail('');
+                                onChangeSignInPassword('');
+
+                                // redirect
                                 history.push("/");
                             })
                             .catch(err => {

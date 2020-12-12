@@ -85,7 +85,6 @@ export default class App extends React.Component {
 
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
-    this.getDbStocks = this.getDbStocks.bind(this);
 
     // Ipo calendar functions
     this.setDate = this.setDate.bind(this);
@@ -123,12 +122,18 @@ export default class App extends React.Component {
     if(this.state.loggedIn && this.state.userId) {
       getUserWatchlist(this.state.userId)
       .then(stock => {
-        // this.setState({  
-        //   watchlistDb: stock.data,
-        //   watchlist: stock.data
-        // }, () => console.log(this.state.watchlistDb))
+        this.setState({  
+          watchlist: stock.data
+        });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log('Error retrieving watchlist on mount', err);
+
+        this.setState({
+          snackBarMessage: 'Error retrieving watchlist.',
+          displaySnackBar: true
+        });
+      });
     }
 
     // Listen for realtime stock messages
@@ -251,6 +256,7 @@ export default class App extends React.Component {
             username: res.data.username,
             userId: res.data.userId,
             token: res.data.token,
+            watchlist: res.data.watchlist,
             loginError: false,
             displaySnackBar: true,
             snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
@@ -283,26 +289,13 @@ export default class App extends React.Component {
     // display snackbar to show logout message
     await this.setState({
       loggedIn: false,
+      username: '',
+      userId: 0,
+      token: '',
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
     });
   }
-
-  getDbStocks() {
-    // if user is logged in, get their watchlist
-    if(this.state.loggedIn && this.state.userId !== 0) {
-      Axios.get(`${window.environment}/api/stocks/saved-stocks/${this.state.userId}`)
-      .then(stock => {
-        console.log('retrieved stocks from db: ', stock);
-
-        // this.setState({
-        //   watchlistDb: stock.data,
-        //   watchlist: stock.data
-        // });
-      })
-      .catch(err => console.log(err));
-    }
-  };
 
   removeStock(stock) {
     let filteredStocks = this.state.watchlist.filter(stockName => {
@@ -315,20 +308,46 @@ export default class App extends React.Component {
   }
 
   async onAddStockToWatchlist(stock, company) {
-    console.log(stock, company);
     if (this.state.loggedIn) {
-      console.log(stock, company)
+      
+      // Exit function if watchlist already includes stock
+      if (this.state.watchlist.includes(stock)) {
+        console.log('Watchlist already includes stock ticker')
+        return;
+      }
+
+      let stockObj = {
+        ticker: stock,
+        company: company
+      };
+
       // determine the new watchlist
-      let newWatchlist = this.state.watchlist.length ? this.state.watchlist.concat(stock) : [stock];
-      console.log('New watchlist: ', newWatchlist)
+      // let newWatchlist = this.state.watchlist.length ? this.state.watchlist.concat(stockObj) : [stockObj];
 
       // helper function to add stock to watchlist
-      await addStockToWatchlist(this.state.userId, newWatchlist)
+      await addStockToWatchlist(this.state.userId, stockObj)
         .then(response => {
           console.log('added stock to watchlist');
+          this.setState({
+            displaySnackBar: true,
+            snackBarMessage: `${stock} added to watchlist.`
+          });
         })
         .catch(err => {
           console.log('Error adding stock to watchlist', err);
+        });
+
+      await getUserWatchlist(this.state.userId)
+        .then(watchlist => {
+          console.log(watchlist)
+          this.setState({ watchlist });
+        })
+        .catch(err => {
+          console.log('Error retrieving watchlist: ', err);
+          this.setState({
+            displaySnackBar: true,
+            snackBarMessage: 'Error retrieving watchlist.'
+          });
         });
     }
 
@@ -556,7 +575,6 @@ export default class App extends React.Component {
                 onStockSearchSelect={this.onStockSearchSelect}
                 watchlist={this.state.watchlist}
                 watchlistDb={this.state.watchlistDb}
-                onAddWatchlist={this.onAddWatchlist}
                 onAddStockToWatchlist={this.onAddStockToWatchlist}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}
