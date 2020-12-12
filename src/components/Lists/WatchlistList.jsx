@@ -4,22 +4,29 @@ import { Divider } from '@material-ui/core';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 
 const WatchlistList = props => {
+
+    let {
+        watchlistDb,
+        onStockSearchSelect,
+        removeStock
+    } = props;
+
     return (
         <div>
-            {props.watchlistDb.length > 0 &&
+            {watchlistDb.length > 0 &&
                 <div className="watchlistSection">
                 
-                {props.watchlistDb.map(watchlist => {
+                {watchlistDb.map(watchlist => {
                     return (
-                        <div className="watchlistItem" key={props.watchlistDb.indexOf(watchlist)}>
+                        <div className="watchlistItem" key={watchlistDb.indexOf(watchlist)}>
                             <div className="flex-row">
                             <Link 
                                 className="watchlistItemName"
                                 to="/stocks"
-                                onClick={() => props.onStockSearchSelect(watchlist, watchlist)}>
+                                onClick={(e) => onStockSearchSelect(watchlist, watchlist)}>
                                 {watchlist}
                             </Link>
-                            <RemoveCircleOutlineIcon onClick={() => props.removeStock(watchlist)}  /> 
+                            <RemoveCircleOutlineIcon onClick={(e) => removeStock(watchlist)}  /> 
                             </div>
                             <Divider variant="middle" />
                         </div>
