@@ -29,7 +29,7 @@ const UserSchema = new Schema({
         minlength: 7,
     },
     watchlist: [{
-        type: String,
+        type: Array,
         required: false,
         trim: true,
         default: [],
