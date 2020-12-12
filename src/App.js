@@ -2,7 +2,7 @@ import React from 'react';
 
 // styling and css libraries
 import './App.css';
-import { BrowserRouter as Router, Route, useHistory, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 
 // api helpers and utility functions
@@ -50,8 +50,7 @@ export default class App extends React.Component {
       email: '', // set after login
       userId: 0, // set after login
       username: '', // set after login
-      SignInEmail: '',
-      SignInPassword: '',
+
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
@@ -84,8 +83,6 @@ export default class App extends React.Component {
       companyFinancials: [],
     }
 
-    this.onChangeSignInEmail = this.onChangeSignInEmail.bind(this);
-    this.onChangeSignInPassword = this.onChangeSignInPassword.bind(this);
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
     this.getDbStocks = this.getDbStocks.bind(this);
@@ -101,8 +98,7 @@ export default class App extends React.Component {
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
     this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
-    this.onAddWatchlist = this.onAddWatchlist.bind(this);
-    this.watchlistUpdateDb = this.watchlistUpdateDb.bind(this);
+    this.onAddStockToWatchlist = this.onAddStockToWatchlist.bind(this);
     this.removeStock = this.removeStock.bind(this);
 
     this.removeSnackBar = this.removeSnackBar.bind(this);
@@ -127,10 +123,10 @@ export default class App extends React.Component {
     if(this.state.loggedIn && this.state.userId) {
       getUserWatchlist(this.state.userId)
       .then(stock => {
-        this.setState({
-          watchlistDb: stock.data,
-          watchlist: stock.data
-        }, () => console.log(this.state.watchlistDb))
+        // this.setState({  
+        //   watchlistDb: stock.data,
+        //   watchlist: stock.data
+        // }, () => console.log(this.state.watchlistDb))
       })
       .catch(err => console.log(err));
     }
@@ -233,38 +229,46 @@ export default class App extends React.Component {
     });
   }
 
-  login(e) {
+  // login process
+  login(e, email, password) {
+    
     e.preventDefault();
-    //data to pass to signin route
-    const loginCreds = {
-      email: this.state.signInEmail,
-      password: this.state.signInPassword
-    };
+    
+    // return promise to allow for chaining after login success
+    return new Promise((resolve, reject) => {
+      //data to pass to signin route
+      const loginCreds = {
+        email: email,
+        password: password
+      };
+  
+      login(loginCreds)
+      .then(res => {
+  
+        // set state and then resolve promise
+          this.setState({
+            loggedIn: true,
+            username: res.data.username,
+            userId: res.data.userId,
+            token: res.data.token,
+            loginError: false,
+            displaySnackBar: true,
+            snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
+          }, resolve());
+  
+          // ===============================
+          // redirect user to home handled in signin component
+          // ===============================
+      })
+      .catch(err => {
+        console.log('LOGIN ERROR: ', err);
 
-    Axios.post(`${window.environment}/api/login/login`, loginCreds)
-    .then(res => {
-
+        // set state and then reject promise
         this.setState({
-          loggedIn: true,
-          username: res.data.username,
-          userId: res.data.userId,
-          token: res.data.token,
-          loginError: false,
-          signInEmail: '',
-          signInPassword: '',
-          displaySnackBar: true,
-          snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
-        }, () => this.getDbStocks());
-
-        // redirect user to home
-        window.location.href = '/';
-    })
-    .catch(err => {
-      console.log('LOGIN ERROR: ', err);
-      this.setState({
-          loginError: true,
-          displaySnackBar: true,
-          snackBarMessage: 'Error Logging in. Please try again.'
+            loginError: true,
+            displaySnackBar: true,
+            snackBarMessage: 'Error Logging in. Please try again.'
+        }, reject());
       });
     });
   };
@@ -281,39 +285,23 @@ export default class App extends React.Component {
       loggedIn: false,
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
-    }, () => console.log(this.state));
+    });
   }
 
   getDbStocks() {
     // if user is logged in, get their watchlist
     if(this.state.loggedIn && this.state.userId !== 0) {
-      Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
+      Axios.get(`${window.environment}/api/stocks/saved-stocks/${this.state.userId}`)
       .then(stock => {
-        console.log(stock);
+        console.log('retrieved stocks from db: ', stock);
 
-        this.setState({
-          watchlistDb: stock.data,
-          watchlist: stock.data
-        });
+        // this.setState({
+        //   watchlistDb: stock.data,
+        //   watchlist: stock.data
+        // });
       })
       .catch(err => console.log(err));
     }
-  };
-
-  onChangeSignInEmail(event) {
-    event.persist();
-
-    this.setState({
-      signInEmail: event.target.value
-    });
-  };
-
-  onChangeSignInPassword(event) {
-    event.persist();
-
-    this.setState({
-      signInPassword: event.target.value
-    });
   };
 
   removeStock(stock) {
@@ -321,63 +309,34 @@ export default class App extends React.Component {
       return stockName !== stock
     });
 
-    this.setState({
-      watchlist: filteredStocks
-    }, () => this.watchlistUpdateDb());
+    // this.setState({
+    //   watchlist: filteredStocks
+    // });
   }
 
-  // takes internal watchlist and posts to DB
-  watchlistUpdateDb() {
-    const watchlist = {
-      watchlist: this.state.watchlist
-    };
+  async onAddStockToWatchlist(stock, company) {
+    console.log(stock, company);
+    if (this.state.loggedIn) {
+      console.log(stock, company)
+      // determine the new watchlist
+      let newWatchlist = this.state.watchlist.length ? this.state.watchlist.concat(stock) : [stock];
+      console.log('New watchlist: ', newWatchlist)
 
-    //adds the new watchlist to db
-    Axios.post(`/api/stocks/new-stock/${this.state.userId}`, watchlist)
-    .then(res => console.log(res))
-    .then(() => {
-
-      //retrieves new watchlist
-      Axios.get(`/api/stocks/saved-stocks/${this.state.userId}`)
-      .then(stock => {
-        console.log('retrieving stocks: ', stock.data);
-
-        this.setState({
-          watchlistDb: stock.data
-        }, () => console.log(this.state.watchlistDb))
-      })
-      .catch(err => console.log(err))
-    })
-    .catch(err => console.log(err))
-  };
-
-  // adds stockname to the internal watchlist to track changes
-  onAddWatchlist(stock) {
-    // allow only if user is logged in
-    if(this.state.loggedIn) {
-      console.log('stock to add: ', stock)
-
-      let newStock = stock;
-      // if first stock added
-      if (this.state.watchlist.length === 0) {
-        this.setState({
-          watchlist: [newStock]
-        }, () => this.watchlistUpdateDb())
-      }
-
-      // If at least 1 stock and check if stock already exists, create new array and setstate
-      if (this.state.watchlist.length > 0 && !this.state.watchlist.includes(newStock)) {
-
-        let state = this.state.watchlist;
-        let newArr = state.concat(newStock)
-
-        this.setState({
-          watchlist: newArr
-        }, () => this.watchlistUpdateDb())
-      }
+      // helper function to add stock to watchlist
+      await addStockToWatchlist(this.state.userId, newWatchlist)
+        .then(response => {
+          console.log('added stock to watchlist');
+        })
+        .catch(err => {
+          console.log('Error adding stock to watchlist', err);
+        });
     }
+
+    // =================
     //redirect to sign in page if not logged in; handled on Link on sign in component
-  };
+    // =================
+  }
+    
 
   // handles user typing in stock name, running stock api search and displaying
   onStockSearch(searchTerm) {
@@ -598,7 +557,7 @@ export default class App extends React.Component {
                 watchlist={this.state.watchlist}
                 watchlistDb={this.state.watchlistDb}
                 onAddWatchlist={this.onAddWatchlist}
-                watchlistUpdateDb={this.watchlistUpdateDb}
+                onAddStockToWatchlist={this.onAddStockToWatchlist}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}
               /> }
@@ -662,8 +621,6 @@ export default class App extends React.Component {
             exact
             render={(props) => <UserSignIn
               displayMenu={this.state.displayMenu}
-              onChangeSignInEmail={this.onChangeSignInEmail} 
-              onChangeSignInPassword={this.onChangeSignInPassword}
               login={this.login}
               loggedIn={this.state.loggedIn}
               loginError={this.state.loginError}
