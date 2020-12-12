@@ -1,9 +1,15 @@
 import React from 'react';
 import { Paper, TextField, Button } from '@material-ui/core';
 import { Link, useHistory } from 'react-router-dom';
-import SnackBar from '../Misc/SnackBar/SnackBar.jsx';
 
 export default function UserSignIn(props) {
+
+    // history for redirects
+    let history = useHistory();
+
+    // state for email/password fields
+    const [signInEmail, onChangeSignInEmail] = React.useState('');
+    const [signInPassword, onChangeSignInPassword] = React.useState('');
     
     return (
         <div className="signInView">
@@ -24,7 +30,7 @@ export default function UserSignIn(props) {
                     label="Email Address"
                     type="text"
                     variant="outlined"
-                    onChange={props.onChangeSignInEmail}
+                    onChange={(e) => {onChangeSignInEmail(e.target.value)}}
                     required
                 />
 
@@ -34,7 +40,7 @@ export default function UserSignIn(props) {
                     label="Password"
                     type="password"
                     variant="outlined"
-                    onChange={props.onChangeSignInPassword}
+                    onChange={(e) => {onChangeSignInPassword(e.target.value)}}
                     required
                 />
 
@@ -47,7 +53,13 @@ export default function UserSignIn(props) {
                     size="large"
                     onClick={(e) => {
                         // e.preventDefault();
-                        props.login(e);
+                        props.login(e, signInEmail, signInPassword)
+                            .then(response => {
+                                history.push("/");
+                            })
+                            .catch(err => {
+                                console.log('Error in Login Promise: ', err);
+                            });
                     }}
                     >Sign In
                 </Button>

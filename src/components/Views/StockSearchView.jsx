@@ -16,10 +16,8 @@ const StockSearchView = props => {
                     onStockSearchSelect={props.onStockSearchSelect}
                     watchlist={props.watchlist}
                     watchlistDb={props.watchlistDb}
-                    onAddWatchlist={props.onAddWatchlist}
-                    watchlistUpdateDb={props.watchlistUpdateDb}
+                    onAddStockToWatchlist={props.onAddStockToWatchlist}
                     removeStock={props.removeStock}
-                    loggedIn={props.loggedIn}
                 />
             }
             {!props.searchItems.length &&

@@ -36,8 +36,8 @@ module.exports = {
                             expiresIn: 31556926 // 1 year in seconds
                         },
                         (err, token) => {
-                            console.log('Successfully logged in')
-                            res.json({
+                            console.log(`User ${user[0].username} successfully logged in`);
+                            res.status(200).json({
                                 success: true,
                                 userId: user[0].id,
                                 username: user[0].username,

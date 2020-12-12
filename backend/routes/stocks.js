@@ -5,8 +5,8 @@ const stocksController = require('../controllers/stocks-controller.js');
 // --- USER STOCKS
 // =================
 
-router.get('/saved-stocks/:id', stocksController.stocks.get.stockById); // get watchlist by user id
-router.post('/new-stock/:id', stocksController.stocks.post.newStock); // add new stock; currently replaces the entire watchlist with req
+router.get('/saved-stocks', stocksController.stocks.get.stockById); // get watchlist by user id
+router.post('/new-stock', stocksController.stocks.post.newStock); // add new stock; currently replaces the entire watchlist with req
 
 // =================
 // --- ALPHAVANTAGE

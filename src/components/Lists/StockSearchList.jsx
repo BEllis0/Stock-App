@@ -7,8 +7,7 @@ const StockSearchList = props => {
 
     let {
         searchItems,
-        loggedIn,
-        onAddWatchlist,
+        onAddStockToWatchlist,
         onStockSearchSelect
     } = props;
 
@@ -18,25 +17,31 @@ const StockSearchList = props => {
             {searchItems.map(stock => {
                 return (
                     <div className="searchItem" key={searchItems.indexOf(stock)}>
-                    <div className="flex-row">
-                        <div className="top-padding">
-                            <Link
-                                to={`/stocks/?stock=${stock['1. symbol']}`}
-                                onClick={(event) => {onStockSearchSelect(stock['1. symbol'], stock['2. name'])}} 
-                                className="stockSearchSymbol"
-                            >
-                                {stock['1. symbol']}
-                            </Link>
+                        <div className="flex-row">
+                            <div className="top-padding">
+                                <Link
+                                    to={`/stocks/?stock=${stock['1. symbol']}`}
+                                    onClick={(event) => {onStockSearchSelect(stock['1. symbol'], stock['2. name'])}} 
+                                    className="stockSearchSymbol"
+                                >
+                                    {stock['1. symbol']}
+                                </Link>
+                                
+                                <p className="stockSearchCompanyName">{stock['2. name']}</p>
+                            </div>
                             
-                            <p className="stockSearchCompanyName">{stock['2. name']}</p>
+                            <Link 
+                            // to={loggedIn ? "/watchlist" : "/sign-in"}
+                            >
+                                <AddCircleIcon 
+                                    onClick={function(e) { 
+                                        onAddStockToWatchlist(stock["1. symbol"], stock["2. name"]);
+                                    }}                                 
+                                />
+                            </Link>
+                    
                         </div>
-                        
-                        <Link to={loggedIn ? "/watchlist" : "/sign-in"}>
-                            <AddCircleIcon onClick={(event) => {onAddWatchlist(stock['1. symbol']);}} />
-                        </Link>
-                
-                    </div>
-                    <Divider variant="middle" />
+                        <Divider variant="middle" />
                     </div>
                 )
             })}

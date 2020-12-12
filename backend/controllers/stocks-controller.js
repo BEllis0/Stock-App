@@ -40,7 +40,7 @@ module.exports = {
         },
         post: {
             newStock: (req, res) => {
-                User.findById(req.params.id)
+                User.findById(req.query.userID)
                     .then(user => {
                         user.watchlist = req.body.watchlist;
 
