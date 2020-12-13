@@ -122,9 +122,10 @@ export default class App extends React.Component {
     if(this.state.loggedIn && this.state.userId) {
       getUserWatchlist(this.state.userId)
       .then(stock => {
+        console.log('getting watchlist on page render', stock)
         this.setState({  
           watchlist: stock.data
-        });
+        }, () => console.log(this.state.watchlist));
       })
       .catch(err => {
         console.log('Error retrieving watchlist on mount', err);
@@ -162,7 +163,7 @@ export default class App extends React.Component {
   }
 
   onDisplayMenu() {
-    this.setState({ displayMenu: !this.state.displayMenu});
+    this.setState({ displayMenu: !this.state.displayMenu });
   }
 
   changeColorDisplay() {
@@ -292,6 +293,7 @@ export default class App extends React.Component {
       username: '',
       userId: 0,
       token: '',
+      watchlist: [],
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
     });
@@ -309,25 +311,15 @@ export default class App extends React.Component {
 
   async onAddStockToWatchlist(stock, company) {
     if (this.state.loggedIn) {
-      
-      // Exit function if watchlist already includes stock
-      if (this.state.watchlist.includes(stock)) {
-        console.log('Watchlist already includes stock ticker')
-        return;
-      }
 
       let stockObj = {
         ticker: stock,
         company: company
       };
 
-      // determine the new watchlist
-      // let newWatchlist = this.state.watchlist.length ? this.state.watchlist.concat(stockObj) : [stockObj];
-
       // helper function to add stock to watchlist
       await addStockToWatchlist(this.state.userId, stockObj)
         .then(response => {
-          console.log('added stock to watchlist');
           this.setState({
             displaySnackBar: true,
             snackBarMessage: `${stock} added to watchlist.`
@@ -335,11 +327,14 @@ export default class App extends React.Component {
         })
         .catch(err => {
           console.log('Error adding stock to watchlist', err);
+          this.setState({
+            snackBarMessage: "Stock already in watchlist.",
+            displaySnackBar: true
+          }, () => { return });
         });
 
       await getUserWatchlist(this.state.userId)
         .then(watchlist => {
-          console.log(watchlist)
           this.setState({ watchlist });
         })
         .catch(err => {
@@ -356,7 +351,6 @@ export default class App extends React.Component {
     // =================
   }
     
-
   // handles user typing in stock name, running stock api search and displaying
   onStockSearch(searchTerm) {
 
