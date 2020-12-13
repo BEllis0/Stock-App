@@ -1,6 +1,7 @@
-let User = require('../models/user.model.js');
+const User = require('../models/user.model.js');
 const axios = require('axios');
 const moment = require('moment');
+const findStockInWatchlist = require('../utils/findStockInWatchlist.js');
 require('dotenv').config();
 
 let cache = {
@@ -39,13 +40,42 @@ module.exports = {
             },
         },
         post: {
-            newStock: (req, res) => {
-                User.findByIdAndUpdate(
+            newStock: async (req, res) => {
+
+                console.log('find stock: ', findStockInWatchlist)
+                
+                // query to see if stock already exists
+                let query = { 
+                    "_id": req.query.userID, 
+                    "watchlist.company": req.body.watchlist.company 
+                };
+
+                findStockInWatchlist(query)
+                    .then(response => {
+                        console.log('Found stock in watchlist: ', response)
+                    })
+                    .catch(err => {
+                        console.log('Error finding stock: ', err)
+                    });
+
+                // await User.find(query, (err, response) => {
+                //     console.log('response length', response.length)
+                //     if (err) {
+                //         console.log("Watchlist already contains stock");
+                //         return res.status(409).json({ "Error": "Watchlist already contains stock" });
+                //     }
+                //     if (response.length > 0) {   
+                //         console.log("Watchlist already contains stock");
+                //         return res.status(409).json({ "Error": "Watchlist already contains stock" });
+                //     }
+                // });
+
+                await User.findByIdAndUpdate(
                     req.query.userID,
                     {
                         // push new stock to watchlist array
                         $push: {
-                            'watchlist': req.body.watchlist                        
+                            'watchlist': req.body.watchlist
                         }
                     },
                     {
@@ -58,8 +88,7 @@ module.exports = {
                             console.log('Error adding to watchlist:', err)
                             res.status(400).json({ "Error": err });
                         } else {
-                            console.log('Added stock to watchlist', result)
-                            res.status(200).json(result);
+                            res.status(201).json(result);
                         }
                     }
                 )
