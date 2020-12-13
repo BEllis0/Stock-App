@@ -46,6 +46,7 @@ export default class App extends React.Component {
       loginError: false,
       displaySnackBar: false,
       snackBarMessage: '',
+      snackBarSeverity: '', // values can be 'success', 'error', 'info' or 'warning'
 
       email: '', // set after login
       userId: 0, // set after login
@@ -132,7 +133,8 @@ export default class App extends React.Component {
 
         this.setState({
           snackBarMessage: 'Error retrieving watchlist.',
-          displaySnackBar: true
+          displaySnackBar: true,
+          snackBarSeverity: 'error'
         });
       });
     }
@@ -260,7 +262,8 @@ export default class App extends React.Component {
             watchlist: res.data.watchlist,
             loginError: false,
             displaySnackBar: true,
-            snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
+            snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`,
+            snackBarSeverity: 'info'
           }, resolve());
   
           // ===============================
@@ -274,7 +277,8 @@ export default class App extends React.Component {
         this.setState({
             loginError: true,
             displaySnackBar: true,
-            snackBarMessage: 'Error Logging in. Please try again.'
+            snackBarMessage: 'Error Logging in. Please try again.',
+            snackBarSeverity: 'error'
         }, reject());
       });
     });
@@ -296,6 +300,7 @@ export default class App extends React.Component {
       watchlist: [],
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
+      snackBarSeverity: 'error'
     });
   }
 
@@ -322,14 +327,16 @@ export default class App extends React.Component {
         .then(response => {
           this.setState({
             displaySnackBar: true,
-            snackBarMessage: `${stock} added to watchlist.`
+            snackBarMessage: `${stock} added to watchlist.`,
+            snackBarSeverity: 'info'
           });
         })
         .catch(err => {
           console.log('Error adding stock to watchlist', err);
           this.setState({
             snackBarMessage: "Stock already in watchlist.",
-            displaySnackBar: true
+            displaySnackBar: true,
+            snackBarSeverity: 'error'
           }, () => { return });
         });
 
@@ -341,7 +348,8 @@ export default class App extends React.Component {
           console.log('Error retrieving watchlist: ', err);
           this.setState({
             displaySnackBar: true,
-            snackBarMessage: 'Error retrieving watchlist.'
+            snackBarMessage: 'Error retrieving watchlist.',
+            snackBarSeverity: 'error'
           });
         });
     }
@@ -539,6 +547,7 @@ export default class App extends React.Component {
         <SnackBar
           snackBarMessage={this.state.snackBarMessage}
           displaySnackBar={this.state.displaySnackBar}
+          snackBarSeverity={this.state.snackBarSeverity}
           removeSnackBar={this.removeSnackBar}
           loginError={this.state.loginError}
         />
@@ -638,6 +647,7 @@ export default class App extends React.Component {
               loginError={this.state.loginError}
               displaySnackBar={this.state.displaySnackBar}
               snackBarMessage={this.state.snackBarMessage}
+              snackBarSeverity={this.state.snackBarSeverity}
               removeSnackBar={this.removeSnackBar}
               /> } 
             />
