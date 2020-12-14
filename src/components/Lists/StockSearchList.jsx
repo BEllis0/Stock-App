@@ -31,7 +31,7 @@ const StockSearchList = props => {
                             </div>
                             
                             <Link 
-                            // to={loggedIn ? "/watchlist" : "/sign-in"}
+                            to={loggedIn ? "/watchlist" : "/sign-in"}
                             >
                                 <AddCircleIcon 
                                     onClick={function(e) { 
