@@ -6,27 +6,27 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 const WatchlistList = props => {
 
     let {
-        watchlistDb,
+        watchlist,
         onStockSearchSelect,
         removeStock
     } = props;
 
     return (
         <div>
-            {watchlistDb.length > 0 &&
+            {watchlist.length > 0 &&
                 <div className="watchlistSection">
                 
-                {watchlistDb.map(watchlist => {
+                {watchlist.map(stockObj => {
                     return (
-                        <div className="watchlistItem" key={watchlistDb.indexOf(watchlist)}>
+                        <div className="watchlistItem" key={watchlist.indexOf(stockObj)}>
                             <div className="flex-row">
                             <Link 
                                 className="watchlistItemName"
                                 to="/stocks"
-                                onClick={(e) => onStockSearchSelect(watchlist, watchlist)}>
-                                {watchlist}
+                                onClick={(e) => onStockSearchSelect(stockObj.ticker, stockObj.company)}>
+                                {stockObj.ticker}
                             </Link>
-                            <RemoveCircleOutlineIcon onClick={(e) => removeStock(watchlist)}  /> 
+                            <RemoveCircleOutlineIcon onClick={(e) => removeStock(stockObj)}  /> 
                             </div>
                             <Divider variant="middle" />
                         </div>

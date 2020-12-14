@@ -300,7 +300,7 @@ export default class App extends React.Component {
       watchlist: [],
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
-      snackBarSeverity: 'error'
+      snackBarSeverity: 'info'
     });
   }
 
@@ -577,7 +577,6 @@ export default class App extends React.Component {
                 colorDisplay={this.state.colorDisplay}
                 onStockSearchSelect={this.onStockSearchSelect}
                 watchlist={this.state.watchlist}
-                watchlistDb={this.state.watchlistDb}
                 onAddStockToWatchlist={this.onAddStockToWatchlist}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}
@@ -658,7 +657,7 @@ export default class App extends React.Component {
               path={process.env.PUBLIC_URL + '/watchlist'}
               exact
               render={(props) => <WatchlistView 
-                watchlistDb={this.state.watchlistDb}
+                watchlist={this.state.watchlist}
                 onStockSearchSelect={this.onStockSearchSelect}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}
