@@ -55,9 +55,11 @@ export default class App extends React.Component {
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
+      
       stockSelectHistory: [],
+      
       watchlist: [],
-      watchlistDb: [],
+
       stockName: '', // user input
       stockNameDisplay: '', // used for stock page display to avoid stock name changing onChange
       stockPriceRealtime: null,
@@ -123,10 +125,9 @@ export default class App extends React.Component {
     if(this.state.loggedIn && this.state.userId) {
       getUserWatchlist(this.state.userId)
       .then(stock => {
-        console.log('getting watchlist on page render', stock)
         this.setState({  
-          watchlist: stock.data
-        }, () => console.log(this.state.watchlist));
+          watchlist: stock.data || []
+        });
       })
       .catch(err => {
         console.log('Error retrieving watchlist on mount', err);
@@ -173,13 +174,12 @@ export default class App extends React.Component {
 
     this.setState({
       colorDisplay: color
-    }, () => console.log(this.state.colorDisplay));
+    });
   }
 
   submitDates(calendarType) {
     try {
       if (calendarType === 'ipo calendar') {
-        console.log('ipo calendar func', this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
         getIpoCalendar(this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
           .then(response => {
             let ipoCalendarItems = response.data;
@@ -188,6 +188,11 @@ export default class App extends React.Component {
           })
           .catch(err => {
             console.log('Error getting IPO calendar data', err);
+            this.setState({
+              displaySnackBar: true,
+              snackBarSeverity: 'error',
+              snackBarMessage: `Error getting IPO calendar data.`
+            });
           });
       } else if (calendarType === 'earnings calendar') {
         getEarningsCalendar(this.state.earningsCalendarFromDate, this.state.earningsCalendarToDate)
@@ -197,10 +202,20 @@ export default class App extends React.Component {
           })
           .catch(err => {
             console.log('Error getting earnings calendar data: ', err);
+            this.setState({
+              displaySnackBar: true,
+              snackBarSeverity: 'error',
+              snackBarMessage: `Error getting earnings calendar data.`
+            });
           });
       }
     } catch(err) {
       console.log(`Error submitting dates for ${calendarType}: `, err)
+      this.setState({
+        displaySnackBar: true,
+        snackBarSeverity: 'error',
+        snackBarMessage: `Error submitting dates for ${calendarType}.`
+      });
     }
   }
 
@@ -259,7 +274,7 @@ export default class App extends React.Component {
             username: res.data.username,
             userId: res.data.userId,
             token: res.data.token,
-            watchlist: res.data.watchlist,
+            watchlist: res.data.watchlist || [],
             loginError: false,
             displaySnackBar: true,
             snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`,
@@ -308,10 +323,6 @@ export default class App extends React.Component {
     let filteredStocks = this.state.watchlist.filter(stockName => {
       return stockName !== stock
     });
-
-    // this.setState({
-    //   watchlist: filteredStocks
-    // });
   }
 
   async onAddStockToWatchlist(stock, company) {

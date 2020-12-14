@@ -12,9 +12,11 @@ const WatchlistView = props => {
         colorDisplay
     } = props;
 
+    let watchlistItems = watchlist || [];
+
     // When user is logged in and has items in watchlist
 
-    if (watchlist.length > 0) {
+    if (watchlistItems.length > 0) {
         return (
             <div className="watchlistView">
                 <h1>Watchlist</h1>
@@ -29,7 +31,7 @@ const WatchlistView = props => {
 
     // User is logged in but doesn't have items in watchlist
 
-    else if (loggedIn && !watchlist.length) {
+    else if (loggedIn && watchlistItems.length === 0) {
         return (
             <div>
                 <h1>Watchlist</h1>
