@@ -18,12 +18,12 @@ const WatchlistList = props => {
                 
                 {watchlist.map(stockObj => {
                     return (
-                        <div>
-                        <div className="watchlistItem" key={watchlist.indexOf(stockObj)}>
+                        <div key={watchlist.indexOf(stockObj)}>
+                        <div className="watchlistItem">
                             <div className="flex-row">
                             <Link 
                                 className="watchlistItemName"
-                                to="/stocks"
+                                to={`/stocks/?stock=${stockObj.ticker}`}
                                 onClick={(e) => onStockSearchSelect(stockObj.ticker, stockObj.company)}
                             >
                                 <h3 className="rm-margin-all">{stockObj.ticker}</h3>
