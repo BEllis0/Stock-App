@@ -4,10 +4,6 @@ import NewsList from '../Lists/NewsList.jsx';
 
 export default function NewsView(props) {
 
-    React.useEffect(() => {
-        props.onNewsSearch('stocks');
-    }, []);
-
     // If api is pulling in news
     if (props.newsItems.length >= 1) {
         return (

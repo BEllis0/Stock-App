@@ -15,6 +15,7 @@ const StockSearchView = props => {
                     searchItems={props.searchItems}
                     onStockSearchSelect={props.onStockSearchSelect}
                     watchlist={props.watchlist}
+                    watchlistDb={props.watchlistDb}
                     onAddStockToWatchlist={props.onAddStockToWatchlist}
                     removeStock={props.removeStock}
                 />

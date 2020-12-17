@@ -44,14 +44,11 @@ export default function StockView(props) {
         companyFinancials,
     } = props;
 
-    // check if realtimeprice object has current stock ticker as a prop; if not, defer to stock quote
-    let currentStockRealtimePrice = stockPriceRealtime.hasOwnProperty(companyFinancials.symbol) ? stockPriceRealtime[companyFinancials.symbol] : stockQuote.c;
-
     // generate percent change
     let getPercentChange = () => {
         if (stockQuote) {
             // try to get realtime price, fallback on current
-            let currentValue = currentStockRealtimePrice;
+            let currentValue = stockPriceRealtime || stockQuote.c;
             let openPrice = stockQuote.o;
             let percentChange = ((currentValue - openPrice) / openPrice) * 100;
             return percentChange;
@@ -123,7 +120,7 @@ export default function StockView(props) {
                     </div>
                 
                     <div className="inline">
-                        <h2>{formatCurrency(currentStockRealtimePrice)}</h2>
+                        <h2>{stockPriceRealtime !== null ? formatCurrency(stockPriceRealtime) : formatCurrency(candlestickData[candlestickData.length - 1].close)}</h2>
 
                         {percentChange > 0 ? (
                             <h4 className="green-text">+{round(percentChange)}%</h4>

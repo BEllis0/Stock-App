@@ -29,12 +29,10 @@ const UserSchema = new Schema({
         minlength: 7,
     },
     watchlist: [{
-        // type: Array,
-        // required: false,
-        // trim: true,
-        // default: [],
-        ticker: String,
-        company: String
+        type: Array,
+        required: false,
+        trim: true,
+        default: [],
     }]
 }, {
     timestamps: true,

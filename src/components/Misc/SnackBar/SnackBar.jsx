@@ -23,8 +23,8 @@ export default function SnackBar(props) {
     let {
         displaySnackBar,
         snackBarMessage,
-        removeSnackBar,
-        snackBarSeverity
+        loginError,
+        removeSnackBar
     } = props;
     
   const classes = useStyles();
@@ -32,7 +32,7 @@ export default function SnackBar(props) {
   return (
     <div className={classes.root}>
       <Snackbar open={displaySnackBar} autoHideDuration={5000} onClose={removeSnackBar}>
-        <Alert onClose={removeSnackBar} severity={snackBarSeverity || 'info'}>
+        <Alert onClose={removeSnackBar} severity={loginError ? 'error' : 'info'}>
           {snackBarMessage}
         </Alert>
       </Snackbar>

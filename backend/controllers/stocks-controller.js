@@ -1,7 +1,6 @@
-const User = require('../models/user.model.js');
+let User = require('../models/user.model.js');
 const axios = require('axios');
 const moment = require('moment');
-const findStockInWatchlist = require('../utils/findStockInWatchlist.js');
 require('dotenv').config();
 
 let cache = {
@@ -40,43 +39,30 @@ module.exports = {
             },
         },
         post: {
-            newStock: async (req, res) => {
-                
-                // query to see if stock already exists
-                let query = { 
-                    "_id": req.query.userID, 
-                    "watchlist.company": req.body.watchlist.company 
-                };
-
-                findStockInWatchlist(query)
-                    .then(response => {
-                        User.findByIdAndUpdate(
-                            req.query.userID,
-                            {
-                                // push new stock to watchlist array
-                                $push: {
-                                    'watchlist': req.body.watchlist
-                                }
-                            },
-                            {
-                                safe: true,
-                                new: true,
-                                upsert: true
-                            },
-                            (err, result) => {
-                                if (err) {
-                                    console.log('Error adding to watchlist:', err)
-                                    res.status(400).json({ "Error": err });
-                                } else {
-                                    res.status(201).json(result);
-                                }
-                            }
-                        )
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        return res.status(409).json({ "Error": err });
-                    });
+            newStock: (req, res) => {
+                User.findByIdAndUpdate(
+                    req.query.userID,
+                    {
+                        // push new stock to watchlist array
+                        $push: {
+                            'watchlist': req.body.watchlist                        
+                        }
+                    },
+                    {
+                        safe: true,
+                        new: true,
+                        upsert: true
+                    },
+                    (err, result) => {
+                        if (err) {
+                            console.log('Error adding to watchlist:', err)
+                            res.status(400).json({ "Error": err });
+                        } else {
+                            console.log('Added stock to watchlist', result)
+                            res.status(200).json(result);
+                        }
+                    }
+                )
             }
         },
         delete: {

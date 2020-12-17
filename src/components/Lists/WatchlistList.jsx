@@ -6,35 +6,29 @@ import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 const WatchlistList = props => {
 
     let {
-        watchlist,
+        watchlistDb,
         onStockSearchSelect,
         removeStock
     } = props;
 
     return (
         <div>
-            {watchlist.length > 0 &&
+            {watchlistDb.length > 0 &&
                 <div className="watchlistSection">
                 
-                {watchlist.map(stockObj => {
+                {watchlistDb.map(watchlist => {
                     return (
-                        <div key={watchlist.indexOf(stockObj)}>
-                        <div className="watchlistItem">
+                        <div className="watchlistItem" key={watchlistDb.indexOf(watchlist)}>
                             <div className="flex-row">
                             <Link 
                                 className="watchlistItemName"
-                                to={`/stocks/?stock=${stockObj.ticker}`}
-                                onClick={(e) => onStockSearchSelect(stockObj.ticker, stockObj.company)}
-                            >
-                                <h3 className="rm-margin-all">{stockObj.ticker}</h3>
-                                <br />
-                                <p className="rm-margin-all">{stockObj.company}</p>
+                                to="/stocks"
+                                onClick={(e) => onStockSearchSelect(watchlist, watchlist)}>
+                                {watchlist}
                             </Link>
-                            <RemoveCircleOutlineIcon onClick={(e) => removeStock(stockObj)}  /> 
+                            <RemoveCircleOutlineIcon onClick={(e) => removeStock(watchlist)}  /> 
                             </div>
-                            
-                        </div>
-                        <Divider variant="middle" />
+                            <Divider variant="middle" />
                         </div>
                     )
                 })}
