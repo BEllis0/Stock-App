@@ -6,6 +6,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircleOutline';
 const StockSearchList = props => {
 
     let {
+        loggedIn,
         searchItems,
         onAddStockToWatchlist,
         onStockSearchSelect
@@ -31,7 +32,7 @@ const StockSearchList = props => {
                             </div>
                             
                             <Link 
-                            // to={loggedIn ? "/watchlist" : "/sign-in"}
+                            to={loggedIn ? "/watchlist" : "/sign-in"}
                             >
                                 <AddCircleIcon 
                                     onClick={function(e) { 
