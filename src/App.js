@@ -6,11 +6,10 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Grid } from '@material-ui/core';
 
 // api helpers and utility functions
-import Axios from 'axios';
 import { getCandlestickData, getQuoteData, symbolSearch } from './api/stocks.js';
 import { setCurrentPriceWebSocket, removePriceWebSocket } from './utils/web_sockets.js';
 import { getCompanyProfile, getCompanyFinancials } from './api/companyData.js';
-import { getUserWatchlist, login, addStockToWatchlist } from './api/watchlist.js';
+import { getUserWatchlist, login, addStockToWatchlist, removeStockFromWatchlist } from './api/watchlist.js';
 import { getIpoCalendar } from './api/ipoCalendar.js';
 import { getEarningsCalendar } from './api/earningsCalendar.js';
 import { newsSearch } from './api/news.js';
@@ -46,6 +45,7 @@ export default class App extends React.Component {
       loginError: false,
       displaySnackBar: false,
       snackBarMessage: '',
+      snackBarSeverity: '', // values can be 'success', 'error', 'info' or 'warning'
 
       email: '', // set after login
       userId: 0, // set after login
@@ -54,12 +54,14 @@ export default class App extends React.Component {
       searchItems: [
           //structure {1. symbol: '', 2. name: ''}
       ],
+      
       stockSelectHistory: [],
+      
       watchlist: [],
-      watchlistDb: [],
+
       stockName: '', // user input
       stockNameDisplay: '', // used for stock page display to avoid stock name changing onChange
-      stockPriceRealtime: null,
+      stockPriceRealtime: {},
       stockPrice: 0,
       stockCompany: '', //name of company
 
@@ -90,6 +92,9 @@ export default class App extends React.Component {
     this.setDate = this.setDate.bind(this);
     this.submitDates = this.submitDates.bind(this);
 
+    // news
+    this.onNewsSearch = this.onNewsSearch.bind(this);
+
     // stock search and select
     this.onStockSearchSelect = debounce(this.onStockSearchSelect.bind(this), 200);
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
@@ -108,22 +113,14 @@ export default class App extends React.Component {
   componentDidMount() {
     
     // get news on 'stocks'
-    newsSearch('stocks')
-      .then(articles => {
-
-        this.setState({
-            newsItems: 
-            [articles.data]     
-        });
-      })
-      .catch(err => console.log(err));
+    this.onNewsSearch('stocks');
 
     // pull the user's saved stocks from DB
     if(this.state.loggedIn && this.state.userId) {
       getUserWatchlist(this.state.userId)
       .then(stock => {
         this.setState({  
-          watchlist: stock.data
+          watchlist: stock.data || []
         });
       })
       .catch(err => {
@@ -131,7 +128,8 @@ export default class App extends React.Component {
 
         this.setState({
           snackBarMessage: 'Error retrieving watchlist.',
-          displaySnackBar: true
+          displaySnackBar: true,
+          snackBarSeverity: 'error'
         });
       });
     }
@@ -142,19 +140,41 @@ export default class App extends React.Component {
       let responseData = JSON.parse(event.data);
       if (responseData.hasOwnProperty('data')) {
         // set realtime stock price
-        this.setState({
-          stockPriceRealtime: responseData.data[0].p
+        this.setState(previousState => {
+          let realtimeStockPriceObj = Object.assign({}, previousState.stockPriceRealtime);  // creating copy of state variable jasper
+          realtimeStockPriceObj[responseData.data[0].s] = responseData.data[0].p;                     // update the name property, assign a new value                 
+          return { realtimeStockPriceObj };
         });
 
       } else {
         console.log('No realtime stock data flowing');
         // if no data, set realtime price to null
-        this.setState({
-          stockPriceRealtime: null
-        });
+        // this.setState({
+        //   stockPriceRealtime: null
+        // });
       }
     }, 1000));
   };
+
+  onNewsSearch(keyword) {
+    newsSearch(keyword)
+      .then(articles => {
+
+        this.setState({
+            newsItems: 
+            [articles.data]     
+        });
+      })
+      .catch(err => {
+        console.log('Error getting news', err);
+
+        this.setState({
+          snackBarMessage: "News could not be updated.",
+          snackBarSeverity: "error",
+          displaySnackBar: true
+        });
+      });
+  }
 
   componentDidUpdate() {
     // set state to local storage
@@ -162,7 +182,7 @@ export default class App extends React.Component {
   }
 
   onDisplayMenu() {
-    this.setState({ displayMenu: !this.state.displayMenu});
+    this.setState({ displayMenu: !this.state.displayMenu });
   }
 
   changeColorDisplay() {
@@ -170,13 +190,12 @@ export default class App extends React.Component {
 
     this.setState({
       colorDisplay: color
-    }, () => console.log(this.state.colorDisplay));
+    });
   }
 
   submitDates(calendarType) {
     try {
       if (calendarType === 'ipo calendar') {
-        console.log('ipo calendar func', this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
         getIpoCalendar(this.state.ipoCalendarFromDate, this.state.ipoCalendarToDate)
           .then(response => {
             let ipoCalendarItems = response.data;
@@ -185,6 +204,11 @@ export default class App extends React.Component {
           })
           .catch(err => {
             console.log('Error getting IPO calendar data', err);
+            this.setState({
+              displaySnackBar: true,
+              snackBarSeverity: 'error',
+              snackBarMessage: `Error getting IPO calendar data.`
+            });
           });
       } else if (calendarType === 'earnings calendar') {
         getEarningsCalendar(this.state.earningsCalendarFromDate, this.state.earningsCalendarToDate)
@@ -194,10 +218,20 @@ export default class App extends React.Component {
           })
           .catch(err => {
             console.log('Error getting earnings calendar data: ', err);
+            this.setState({
+              displaySnackBar: true,
+              snackBarSeverity: 'error',
+              snackBarMessage: `Error getting earnings calendar data.`
+            });
           });
       }
     } catch(err) {
       console.log(`Error submitting dates for ${calendarType}: `, err)
+      this.setState({
+        displaySnackBar: true,
+        snackBarSeverity: 'error',
+        snackBarMessage: `Error submitting dates for ${calendarType}.`
+      });
     }
   }
 
@@ -256,10 +290,11 @@ export default class App extends React.Component {
             username: res.data.username,
             userId: res.data.userId,
             token: res.data.token,
-            watchlist: res.data.watchlist,
+            watchlist: res.data.watchlist || [],
             loginError: false,
             displaySnackBar: true,
-            snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`
+            snackBarMessage: `Successfully logged in. Hello ${res.data.username}!`,
+            snackBarSeverity: 'info'
           }, resolve());
   
           // ===============================
@@ -273,7 +308,8 @@ export default class App extends React.Component {
         this.setState({
             loginError: true,
             displaySnackBar: true,
-            snackBarMessage: 'Error Logging in. Please try again.'
+            snackBarMessage: 'Error Logging in. Please try again.',
+            snackBarSeverity: 'error'
         }, reject());
       });
     });
@@ -292,61 +328,85 @@ export default class App extends React.Component {
       username: '',
       userId: 0,
       token: '',
+      watchlist: [],
       displaySnackBar: true,
       snackBarMessage: 'Successfully logged out.',
+      snackBarSeverity: 'info'
     });
   }
 
-  removeStock(stock) {
-    let filteredStocks = this.state.watchlist.filter(stockName => {
-      return stockName !== stock
-    });
-
-    // this.setState({
-    //   watchlist: filteredStocks
-    // });
-  }
-
-  async onAddStockToWatchlist(stock, company) {
-    if (this.state.loggedIn) {
-      
-      // Exit function if watchlist already includes stock
-      if (this.state.watchlist.includes(stock)) {
-        console.log('Watchlist already includes stock ticker')
-        return;
-      }
-
-      let stockObj = {
-        ticker: stock,
-        company: company
-      };
-
-      // determine the new watchlist
-      // let newWatchlist = this.state.watchlist.length ? this.state.watchlist.concat(stockObj) : [stockObj];
-
-      // helper function to add stock to watchlist
-      await addStockToWatchlist(this.state.userId, stockObj)
-        .then(response => {
-          console.log('added stock to watchlist');
-          this.setState({
-            displaySnackBar: true,
-            snackBarMessage: `${stock} added to watchlist.`
-          });
-        })
-        .catch(err => {
-          console.log('Error adding stock to watchlist', err);
+  async removeStock(stock) {
+    
+    // remove stock from watchlist
+    await removeStockFromWatchlist(this.state.userId, stock)
+      .then(response => {
+        console.log('Removed stock from watchlist', stock.ticker);
+        this.setState({
+          snackBarSeverity: 'info',
+          snackBarMessage: `Removed ${stock.ticker} from watchlist.`,
+          displaySnackBar: true
         });
+      })
+      .catch(err => {
+        console.log('Error removing stock from watchlist: ', err);
+        this.setState({
+          snackBarSeverity: 'error',
+          snackBarMessage: `Error removing ${stock.ticker} from watchlist.`,
+          displaySnackBar: true
+        });
+      })
 
-      await getUserWatchlist(this.state.userId)
+    // get new watchlist from db
+    await getUserWatchlist(this.state.userId)
         .then(watchlist => {
-          console.log(watchlist)
           this.setState({ watchlist });
         })
         .catch(err => {
           console.log('Error retrieving watchlist: ', err);
           this.setState({
             displaySnackBar: true,
-            snackBarMessage: 'Error retrieving watchlist.'
+            snackBarMessage: 'Error retrieving watchlist.',
+            snackBarSeverity: 'error'
+          });
+        });
+  }
+
+  async onAddStockToWatchlist(stock, company) {
+    if (this.state.loggedIn) {
+
+      let stockObj = {
+        ticker: stock,
+        company: company
+      };
+
+      // helper function to add stock to watchlist
+      await addStockToWatchlist(this.state.userId, stockObj)
+        .then(response => {
+          this.setState({
+            displaySnackBar: true,
+            snackBarMessage: `${stock} added to watchlist.`,
+            snackBarSeverity: 'info'
+          });
+        })
+        .catch(err => {
+          console.log('Error adding stock to watchlist', err);
+          this.setState({
+            snackBarMessage: "Stock already in watchlist.",
+            displaySnackBar: true,
+            snackBarSeverity: 'error'
+          }, () => { return });
+        });
+
+      await getUserWatchlist(this.state.userId)
+        .then(watchlist => {
+          this.setState({ watchlist });
+        })
+        .catch(err => {
+          console.log('Error retrieving watchlist: ', err);
+          this.setState({
+            displaySnackBar: true,
+            snackBarMessage: 'Error retrieving watchlist.',
+            snackBarSeverity: 'error'
           });
         });
     }
@@ -356,7 +416,6 @@ export default class App extends React.Component {
     // =================
   }
     
-
   // handles user typing in stock name, running stock api search and displaying
   onStockSearch(searchTerm) {
 
@@ -545,6 +604,7 @@ export default class App extends React.Component {
         <SnackBar
           snackBarMessage={this.state.snackBarMessage}
           displaySnackBar={this.state.displaySnackBar}
+          snackBarSeverity={this.state.snackBarSeverity}
           removeSnackBar={this.removeSnackBar}
           loginError={this.state.loginError}
         />
@@ -572,9 +632,7 @@ export default class App extends React.Component {
                 onStockSearch={this.onStockSearch}
                 onStockSearchSelect={this.onStockSearchSelect}
                 colorDisplay={this.state.colorDisplay}
-                onStockSearchSelect={this.onStockSearchSelect}
                 watchlist={this.state.watchlist}
-                watchlistDb={this.state.watchlistDb}
                 onAddStockToWatchlist={this.onAddStockToWatchlist}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}
@@ -617,6 +675,7 @@ export default class App extends React.Component {
                 displayMenu={this.state.displayMenu} 
                 earningsCalendar={this.state.earningsCalendar}
                 onStockSearchSelect={this.onStockSearchSelect}
+                onNewsSearch={this.onNewsSearch}
                 colorDisplay={this.state.colorDisplay}
               /> } 
             /> 
@@ -644,6 +703,7 @@ export default class App extends React.Component {
               loginError={this.state.loginError}
               displaySnackBar={this.state.displaySnackBar}
               snackBarMessage={this.state.snackBarMessage}
+              snackBarSeverity={this.state.snackBarSeverity}
               removeSnackBar={this.removeSnackBar}
               /> } 
             />
@@ -654,7 +714,7 @@ export default class App extends React.Component {
               path={process.env.PUBLIC_URL + '/watchlist'}
               exact
               render={(props) => <WatchlistView 
-                watchlistDb={this.state.watchlistDb}
+                watchlist={this.state.watchlist}
                 onStockSearchSelect={this.onStockSearchSelect}
                 removeStock={this.removeStock}
                 loggedIn={this.state.loggedIn}

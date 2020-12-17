@@ -123,8 +123,6 @@ export default class CreateUser extends React.Component {
                 password: this.state.password
             };
 
-            console.log(newUser);
-
             axios.post(`${window.environment}/api/users/newuser`, newUser)
             .then(res => console.log(res))
             .catch(err => console.log(err));

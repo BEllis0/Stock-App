@@ -5,21 +5,23 @@ import { Link } from 'react-router-dom';
 const WatchlistView = props => {
 
     let {
-        watchlistDb,
+        watchlist,
         onStockSearchSelect,
         removeStock,
         loggedIn,
         colorDisplay
     } = props;
 
+    let watchlistItems = watchlist || [];
+
     // When user is logged in and has items in watchlist
 
-    if (watchlistDb.length > 0) {
+    if (watchlistItems.length > 0) {
         return (
             <div className="watchlistView">
                 <h1>Watchlist</h1>
                 <WatchlistList
-                    watchlistDb={watchlistDb}
+                    watchlist={watchlist}
                     onStockSearchSelect={onStockSearchSelect}
                     removeStock={removeStock}
                 />
@@ -29,7 +31,7 @@ const WatchlistView = props => {
 
     // User is logged in but doesn't have items in watchlist
 
-    else if (loggedIn && !watchlistDb.length) {
+    else if (loggedIn && watchlistItems.length === 0) {
         return (
             <div>
                 <h1>Watchlist</h1>
