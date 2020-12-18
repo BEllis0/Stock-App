@@ -1,6 +1,6 @@
 {
   "name": "stock-app",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "1.x",
@@ -39,14 +39,10 @@
     "start:dev": "react-scripts start",
     "build:dev": "react-scripts build",
     "start": "cd backend && node server.js",
-    "build": "cd backend && npm install",
-    "build:netlify": "npm run build:dev",
+    "build": "cd backend && yarn install",
+    "build:netlify": "yarn run build:dev",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
-  "engines": {
-    "node": "14.5.0",
-    "npm": "6.14.8"
   },
   "eslintConfig": {
     "extends": "react-app"
