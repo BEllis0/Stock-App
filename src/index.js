@@ -12,7 +12,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 window.socket = new WebSocket('wss://ws.finnhub.io?token=btl8tu748v6omckuoct0');
 
 // set environment for server references
-window.environment = process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : 'https://watchlist-stock-app.herokuapp.com';
+window.environment = process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '';
 
 // ==========================
 // RENDER APP
