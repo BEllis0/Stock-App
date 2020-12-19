@@ -294,6 +294,11 @@ ul li {
   margin-top: 10px;
 }
 
+.activeTimelineSelector {
+  background: #e3e3e3 !important;
+  border-radius: 8px !important; 
+}
+
 .details {
   display: flex;
   flex-direction: row;

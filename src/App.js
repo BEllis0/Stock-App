@@ -65,6 +65,8 @@ export default class App extends React.Component {
       stockPrice: 0,
       stockCompany: '', //name of company
 
+      currentTimelineSelector: '1D',
+
       //IPO calendar
       ipoCalendarItems: [],
 
@@ -537,7 +539,6 @@ export default class App extends React.Component {
     .then(articles => {
 
         this.setState({
-          timelineRef: '1D',
           newsItems: [articles.data],
           stockCompany: company
       });
@@ -546,6 +547,7 @@ export default class App extends React.Component {
 
     // Remove search list items
     this.setState({
+      timelineRef: timeline,
       searchItems: []
     });
   };
@@ -563,6 +565,11 @@ export default class App extends React.Component {
     })
     .catch(err => {
       console.log('Error getting Finnhub data on frontend', err);
+    });
+
+    // set current timeline ref
+    this.setState({
+      timelineRef: timeline,
     });
   };
 
