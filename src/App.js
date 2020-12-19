@@ -444,7 +444,7 @@ export default class App extends React.Component {
   }
 
   // handles user selecting a stock ticker from the sidebar
-  async onStockSearchSelect(stock, company, timeline = '10D') {
+  async onStockSearchSelect(stock, company, timeline = '1D') {
 
     // ==============
     // GA search param

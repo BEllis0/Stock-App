@@ -195,7 +195,7 @@ export default function StockView(props) {
                             onClick={() => props.onSelectTimeline('5Y')}>
                                 5Y
                         </p>
-                        <p
+                        {/* <p
                             style={timelineStyles}
                             className={timelineRef === 'ALL' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
@@ -203,7 +203,7 @@ export default function StockView(props) {
                             onClick={() => props.onSelectTimeline('ALL')
                             }>
                             ALL
-                        </p>
+                        </p> */}
                     </div>
 
                     <Divider variant="fullWidth" />
