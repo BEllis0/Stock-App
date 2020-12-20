@@ -42,8 +42,6 @@ export default function StockView(props) {
             fontWeight: 700,
     }
 
-    console.log('timeline ref: ', timelineRef);
-
     // check if realtimeprice object has current stock ticker as a prop; if not, defer to stock quote
     let currentStockRealtimePrice = stockPriceRealtime.hasOwnProperty(companyFinancials.symbol) ? stockPriceRealtime[companyFinancials.symbol] : stockQuote.c;
 
