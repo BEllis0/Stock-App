@@ -111,6 +111,11 @@ ul li {
   justify-content: space-between;
 }
 
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
 .block {
   display: block;
 }
@@ -130,7 +135,7 @@ ul li {
 }
 
 .navbar {
-  height: 100px;
+  height: 80px;
   width: 100%;
   color: white;
 }
