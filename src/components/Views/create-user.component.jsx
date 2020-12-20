@@ -41,8 +41,8 @@ export default class CreateUser extends React.Component {
             }
         }
         verifyCallback(recaptchaToken) {
-          // Here you will get the final recaptchaToken
-          console.log(recaptchaToken, "<= your recaptcha token")
+            // Here you will get the final recaptchaToken
+            // console.log(recaptchaToken, "<= your recaptcha token")
         }
 
         onChangeEmail(e) {
