@@ -137,7 +137,7 @@ export default class App extends React.Component {
     }
 
     // Listen for realtime stock messages
-    window.socket.addEventListener('message', debounce((event) => {
+    window.currentPriceSocket.addEventListener('message', debounce((event) => {
       console.log('Message from server ', JSON.parse(event.data));
       let responseData = JSON.parse(event.data);
       if (responseData.hasOwnProperty('data')) {
