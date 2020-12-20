@@ -12,7 +12,6 @@ export function getCandlestickData(symbol, timeline) {
         let fromDate;
         let dataInterval;
 
-        console.log('timeline selected: ', timeline);
 
         // change specifics of data request based on timeline chosen
         switch(timeline) {
