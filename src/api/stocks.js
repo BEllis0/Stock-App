@@ -52,14 +52,7 @@ export function getCandlestickData(symbol, timeline) {
             dataInterval = 'W';
             fromDate = moment().subtract(5, 'years').unix();
             break;
-        // case "ALL" :
-        //     dataInterval = 'W';
-        //     fromDate = moment().subtract(20, 'years').unix();
-        //     break;
         }
-
-        console.log('from date: ', fromDate)
-        console.log('data interval processed: ', dataInterval)
 
         Axios.get(`${window.environment}/api/stocks/timeseries`, {
             params: {
