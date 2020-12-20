@@ -23,12 +23,19 @@ import { fitWidth } from "react-stockcharts/lib/helper";
 // import { last, timeIntervalBarWidth } from "react-stockcharts/lib/utils";
 import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
 
-import { ema, rsi, sma, atr, stochasticOscillator, bollingerBand } from "react-stockcharts/lib/indicator";
+import { 
+	ema, 
+	rsi, 
+	sma, 
+	atr, 
+	// stochasticOscillator, 
+	// bollingerBand 
+} from "react-stockcharts/lib/indicator";
 
 import {
 	OHLCTooltip,
 	RSITooltip,
-	GroupTooltip,
+	// GroupTooltip,
 	MovingAverageTooltip,
 	// BollingerBandTooltip,
 	// StochasticTooltip,
@@ -51,12 +58,12 @@ class CandleStickChart extends React.Component {
 		const height = 700;
 		const margin = { left: 50, right: 50, top: 10, bottom: 30 };
 
-		const gridHeight = height - margin.top - margin.bottom;
+		// const gridHeight = height - margin.top - margin.bottom;
 		const gridWidth = width - margin.left - margin.right;
 
 		const showGrid = true;
 		const yGrid = showGrid ? { innerTickSize: -1 * gridWidth, tickStrokeOpacity: 0.2 } : {};
-		const xGrid = showGrid ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 } : {};
+		// const xGrid = showGrid ? { innerTickSize: -1 * gridHeight, tickStrokeOpacity: 0.2 } : {};
 
 		var candlesStyle;
 		var tickStyle;
@@ -77,17 +84,17 @@ class CandleStickChart extends React.Component {
 		}
 
 		// config for EMA
-		const ema20 = ema()
-			.id(0)
-			.options({ windowSize: 20 })
-			.merge((d, c) => {d.ema20 = c;})
-			.accessor(d => d.ema20);
+		// const ema20 = ema()
+		// 	.id(0)
+		// 	.options({ windowSize: 20 })
+		// 	.merge((d, c) => {d.ema20 = c;})
+		// 	.accessor(d => d.ema20);
 
-		const ema50 = ema()
-			.id(2)
-			.options({ windowSize: 50 })
-			.merge((d, c) => {d.ema50 = c;})
-			.accessor(d => d.ema50);
+		// const ema50 = ema()
+		// 	.id(2)
+		// 	.options({ windowSize: 50 })
+		// 	.merge((d, c) => {d.ema50 = c;})
+		// 	.accessor(d => d.ema50);
 
 		const ema26 = ema()
 			.id(0)
@@ -107,22 +114,24 @@ class CandleStickChart extends React.Component {
 			.merge((d, c) => {d.smaVolume50 = c;})
 			.accessor(d => d.smaVolume50);
 
-		const slowSTO = stochasticOscillator()
-			.options({ windowSize: 14, kWindowSize: 3 })
-			.merge((d, c) => {d.slowSTO = c;})
-			.accessor(d => d.slowSTO);
-		const fastSTO = stochasticOscillator()
-			.options({ windowSize: 14, kWindowSize: 1 })
-			.merge((d, c) => {d.fastSTO = c;})
-			.accessor(d => d.fastSTO);
-		const fullSTO = stochasticOscillator()
-			.options({ windowSize: 14, kWindowSize: 3, dWindowSize: 4 })
-			.merge((d, c) => {d.fullSTO = c;})
-			.accessor(d => d.fullSTO);
+		// const slowSTO = stochasticOscillator()
+		// 	.options({ windowSize: 14, kWindowSize: 3 })
+		// 	.merge((d, c) => {d.slowSTO = c;})
+		// 	.accessor(d => d.slowSTO);
 
-		const bb = bollingerBand()
-			.merge((d, c) => {d.bb = c;})
-			.accessor(d => d.bb);
+		// const fastSTO = stochasticOscillator()
+		// 	.options({ windowSize: 14, kWindowSize: 1 })
+		// 	.merge((d, c) => {d.fastSTO = c;})
+		// 	.accessor(d => d.fastSTO);
+		
+		// const fullSTO = stochasticOscillator()
+		// 	.options({ windowSize: 14, kWindowSize: 3, dWindowSize: 4 })
+		// 	.merge((d, c) => {d.fullSTO = c;})
+		// 	.accessor(d => d.fullSTO);
+
+		// const bb = bollingerBand()
+		// 	.merge((d, c) => {d.bb = c;})
+		// 	.accessor(d => d.bb);
 
 		// config for RSI
 		const rsiCalculator = rsi()
