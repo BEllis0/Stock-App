@@ -55,8 +55,6 @@ export default class App extends React.Component {
           //structure {1. symbol: '', 2. name: ''}
       ],
       
-      stockSelectHistory: [],
-      
       watchlist: [],
 
       stockName: '', // user input
@@ -102,7 +100,6 @@ export default class App extends React.Component {
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
-    this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
     this.onAddStockToWatchlist = this.onAddStockToWatchlist.bind(this);
     this.removeStock = this.removeStock.bind(this);
@@ -435,16 +432,6 @@ export default class App extends React.Component {
       .catch(err => console.log('Error finding stock in search', err));
   };
 
-  updateStockSelectHistory(stockName) {
-    this.setState(state => {
-      let stockSelectHistory = state.stockSelectHistory.concat(stockName);
-
-      return {
-        stockSelectHistory
-      };
-    });
-  }
-
   // handles user selecting a stock ticker from the sidebar
   async onStockSearchSelect(stock, company, timeline = '1D') {
 
@@ -454,24 +441,12 @@ export default class App extends React.Component {
 
     window.ga('send', 'pageview', `/stocks/?stock=${stock}`);
 
-    // =============
-    // Update stock select history
-    // =============
-
-    await this.updateStockSelectHistory(stock);
-
 
     // ========================
     // handle realtime stock websocket
     // ========================
 
     await setCurrentPriceWebSocket(stock);
-
-    // remove websocket for previous stock ( if found )
-    if (this.state.stockSelectHistory.length > 1) {
-      let history = this.state.stockSelectHistory;
-      await removePriceWebSocket(history[history.length - 2 ]);
-    }
 
     // =============
     // STOCK CANDLESTICK DATA
