@@ -15,22 +15,6 @@ import NewsList from '../Lists/NewsList.jsx';
 import CompanyFinancialsList from '../Lists/CompanyFinancialsList.jsx';
 
 export default function StockView(props) {
-    
-    function changeBackgroundEnter(e) {
-        e.target.style.background = '#e3e3e3';
-        e.target.style.borderRadius = '8px';
-    };
-
-    function changeBackgroundLeave(e) {
-        e.target.style.background = 'none';
-    };
-
-    // function timelineStyles(e) {
-    let timelineStyles = {
-            fontWeight: 700,
-            // color: e.target.innerText === timelineRef ? 'red' : '#FFFFFF'
-    }
-    // };
 
     let {
         candlestickData,
@@ -43,6 +27,20 @@ export default function StockView(props) {
         companyProfile, 
         companyFinancials,
     } = props;
+    
+    function changeBackgroundEnter(e) {
+        e.target.style.background = '#e3e3e3';
+        e.target.style.borderRadius = '8px';
+    };
+
+    function changeBackgroundLeave(e) {
+        e.target.style.background = 'none';
+    };
+
+    // shared styles for timeline selectors
+    let timelineStyles = {
+            fontWeight: 700,
+    }
 
     // check if realtimeprice object has current stock ticker as a prop; if not, defer to stock quote
     let currentStockRealtimePrice = stockPriceRealtime.hasOwnProperty(companyFinancials.symbol) ? stockPriceRealtime[companyFinancials.symbol] : stockQuote.c;
@@ -141,7 +139,7 @@ export default function StockView(props) {
                     <div className="chartControls">
                         <p
                             style={timelineStyles}
-                            className={timelineRef === '1H' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '1H' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('1H')}>
@@ -149,7 +147,7 @@ export default function StockView(props) {
                         </p>
                         <p 
                             style={timelineStyles}
-                            className={timelineRef === '1D' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '1D' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('1D')}>
@@ -157,7 +155,7 @@ export default function StockView(props) {
                             </p>
                         <p 
                             style={timelineStyles}
-                            className={timelineRef === '10D' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '10D' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('10D')}>
@@ -165,7 +163,7 @@ export default function StockView(props) {
                             </p>
                         <p
                             style={timelineStyles}
-                            className={timelineRef === '1M' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '1M' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('1M')}>
@@ -173,7 +171,7 @@ export default function StockView(props) {
                         </p>
                         <p
                             style={timelineStyles}
-                            className={timelineRef === '6M' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '6M' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('6M')}>
@@ -181,7 +179,7 @@ export default function StockView(props) {
                         </p>
                         <p
                             style={timelineStyles}
-                            className={timelineRef === '1Y' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '1Y' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('1Y')}>
@@ -189,20 +187,11 @@ export default function StockView(props) {
                         </p>
                         <p
                             style={timelineStyles}
-                            className={timelineRef === '5Y' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
+                            className={timelineRef === '5Y' ? 'activeTimelineSelector pd-5-15' : 'timelineSelector pd-5-15'}
                             onMouseEnter={changeBackgroundEnter} 
                             onMouseLeave={changeBackgroundLeave} 
                             onClick={() => props.onSelectTimeline('5Y')}>
                                 5Y
-                        </p>
-                        <p
-                            style={timelineStyles}
-                            className={timelineRef === 'ALL' ? 'boldText pd-5-15' : 'timelineSelector pd-5-15'}
-                            onMouseEnter={changeBackgroundEnter} 
-                            onMouseLeave={changeBackgroundLeave} 
-                            onClick={() => props.onSelectTimeline('ALL')
-                            }>
-                            ALL
                         </p>
                     </div>
 

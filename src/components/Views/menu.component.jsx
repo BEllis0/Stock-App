@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Divider } from '@material-ui/core';
-import DisplayButton from '../Buttons/DisplayButton/DisplayButton.jsx';
+import NavMenu from '../Lists/NavMenu.jsx';
+// import DisplayButton from '../Buttons/DisplayButton/DisplayButton.jsx';
 
 const Menu = (props) => {
 
@@ -9,7 +10,7 @@ const Menu = (props) => {
         onDisplayMenu,
         loggedIn,
         username,
-        changeColorDisplay,
+        // changeColorDisplay,
         colorDisplay
     } = props;
 
@@ -25,33 +26,11 @@ const Menu = (props) => {
             <div>
                 <h3>Navigation</h3>
                 <Divider />
-                <div className="flex">
-                    <ul>
-                        <li className="menuLink">
-                            <Link style={style} to="/sign-in" onClick={onDisplayMenu}>Sign In</Link>
-                        </li>
-                        <li className="menuLink">
-                            <Link style={style} to="/create-user" onClick={onDisplayMenu}>Create User</Link>
-                        </li>
-                        <li className="menuLink">
-                            <Link style={style} to="/watchlist" onClick={onDisplayMenu}>Personal Watchlist</Link>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li className="menuLink">
-                            <Link style={style} to="/" onClick={onDisplayMenu}>Stock News</Link>
-                        </li>
-                        <li className="menuLink">
-                            <Link style={style} to="/stock-search" onClick={onDisplayMenu}>Stock Search</Link>
-                        </li>
-                        <li className="menuLink">
-                            <Link style={style} to="/ipo-calendar" onClick={onDisplayMenu}>IPO Calendar</Link>
-                        </li>
-                        <li className="menuLink">
-                            <Link style={style} to="/earnings-calendar" onClick={onDisplayMenu}>Earnings Calendar</Link>
-                        </li>
-                    </ul>
-                </div>
+                
+                <NavMenu 
+                    onDisplayMenu={onDisplayMenu}
+                    colorDisplay={colorDisplay}
+                />
             </div>
 
             {/* Account Settings */}

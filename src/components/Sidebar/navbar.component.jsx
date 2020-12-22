@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Toolbar, AppBar, Divider, TextField } from '@material-ui/core';
+import { Toolbar, AppBar } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';

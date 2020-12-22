@@ -9,7 +9,8 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 // ==========================
 
 // realtime trade websocket
-window.socket = new WebSocket('wss://ws.finnhub.io?token=btl8tu748v6omckuoct0');
+window.currentPriceSocket = new WebSocket(`wss://ws.finnhub.io?token=btl8tu748v6omckuoct0`);
+window.watchlistSocket = new WebSocket(`wss://ws.finnhub.io?token=btl8tu748v6omckuoct0`);
 
 // set environment for server references
 window.environment = process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '';

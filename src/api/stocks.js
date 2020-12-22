@@ -12,11 +12,12 @@ export function getCandlestickData(symbol, timeline) {
         let fromDate;
         let dataInterval;
 
+
         // change specifics of data request based on timeline chosen
         switch(timeline) {
         case "1H" :
             dataInterval = '1';
-            fromDate = moment().subtract(1, 'days').unix();
+            fromDate = moment().subtract(2, 'days').unix();
             break;
         case "1D" :
             dataInterval = '5';
@@ -40,7 +41,7 @@ export function getCandlestickData(symbol, timeline) {
             break;
         case "1Y" :
             dataInterval = 'D';
-            fromDate = moment().subtract(1, 'years').unix();
+            fromDate = moment().subtract(12, 'months').unix();
             break;
         case "3Y" :
             dataInterval = 'W';
@@ -49,10 +50,6 @@ export function getCandlestickData(symbol, timeline) {
         case "5Y" :
             dataInterval = 'W';
             fromDate = moment().subtract(5, 'years').unix();
-            break;
-        case "ALL" :
-            dataInterval = 'W';
-            fromDate = moment().subtract(20, 'years').unix();
             break;
         }
 

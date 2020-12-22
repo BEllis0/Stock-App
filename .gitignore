@@ -30,3 +30,9 @@ yarn-error.log*
 
 # env
 .env
+
+# new relic
+newrelic_agent.log
+/newrelic_agent.log
+./newrelic_agent.log
+../backend/newrelic_agent.log

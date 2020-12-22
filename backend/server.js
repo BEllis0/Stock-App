@@ -9,6 +9,9 @@ const { connection } = require('./database/connection.js');
 //env vars
 require('dotenv').config();
 
+//new relic
+require('newrelic');
+
 //routes
 const usersRouter = require('./routes/users');
 const stockRouter = require('./routes/stocks');

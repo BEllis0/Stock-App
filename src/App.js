@@ -55,8 +55,6 @@ export default class App extends React.Component {
           //structure {1. symbol: '', 2. name: ''}
       ],
       
-      stockSelectHistory: [],
-      
       watchlist: [],
 
       stockName: '', // user input
@@ -64,6 +62,8 @@ export default class App extends React.Component {
       stockPriceRealtime: {},
       stockPrice: 0,
       stockCompany: '', //name of company
+
+      currentTimelineSelector: '1D',
 
       //IPO calendar
       ipoCalendarItems: [],
@@ -100,7 +100,6 @@ export default class App extends React.Component {
     this.onStockSearch = throttle(this.onStockSearch.bind(this), 400);
 
     this.onSelectTimeline = debounce(this.onSelectTimeline.bind(this), 200);
-    this.updateStockSelectHistory = this.updateStockSelectHistory.bind(this);
     
     this.onAddStockToWatchlist = this.onAddStockToWatchlist.bind(this);
     this.removeStock = this.removeStock.bind(this);
@@ -135,7 +134,7 @@ export default class App extends React.Component {
     }
 
     // Listen for realtime stock messages
-    window.socket.addEventListener('message', debounce((event) => {
+    window.currentPriceSocket.addEventListener('message', debounce((event) => {
       console.log('Message from server ', JSON.parse(event.data));
       let responseData = JSON.parse(event.data);
       if (responseData.hasOwnProperty('data')) {
@@ -433,18 +432,8 @@ export default class App extends React.Component {
       .catch(err => console.log('Error finding stock in search', err));
   };
 
-  updateStockSelectHistory(stockName) {
-    this.setState(state => {
-      let stockSelectHistory = state.stockSelectHistory.concat(stockName);
-
-      return {
-        stockSelectHistory
-      };
-    });
-  }
-
   // handles user selecting a stock ticker from the sidebar
-  async onStockSearchSelect(stock, company, timeline = '10D') {
+  async onStockSearchSelect(stock, company, timeline = '1D') {
 
     // ==============
     // GA search param
@@ -452,24 +441,12 @@ export default class App extends React.Component {
 
     window.ga('send', 'pageview', `/stocks/?stock=${stock}`);
 
-    // =============
-    // Update stock select history
-    // =============
-
-    await this.updateStockSelectHistory(stock);
-
 
     // ========================
     // handle realtime stock websocket
     // ========================
 
     await setCurrentPriceWebSocket(stock);
-
-    // remove websocket for previous stock ( if found )
-    if (this.state.stockSelectHistory.length > 1) {
-      let history = this.state.stockSelectHistory;
-      await removePriceWebSocket(history[history.length - 2 ]);
-    }
 
     // =============
     // STOCK CANDLESTICK DATA
@@ -537,7 +514,6 @@ export default class App extends React.Component {
     .then(articles => {
 
         this.setState({
-          timelineRef: '1D',
           newsItems: [articles.data],
           stockCompany: company
       });
@@ -546,6 +522,7 @@ export default class App extends React.Component {
 
     // Remove search list items
     this.setState({
+      timelineRef: timeline,
       searchItems: []
     });
   };
@@ -563,6 +540,11 @@ export default class App extends React.Component {
     })
     .catch(err => {
       console.log('Error getting Finnhub data on frontend', err);
+    });
+
+    // set current timeline ref
+    this.setState({
+      timelineRef: timeline,
     });
   };
 

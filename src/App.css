@@ -15,11 +15,6 @@ a {
   color:black;
 }
 
-.boldText {
-  font-weight: 700;
-  color: red;
-}
-
 .timelineSelector {
   font-weight: 500;
 }
@@ -116,6 +111,11 @@ ul li {
   justify-content: space-between;
 }
 
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
 .block {
   display: block;
 }
@@ -135,7 +135,7 @@ ul li {
 }
 
 .navbar {
-  height: 100px;
+  height: 80px;
   width: 100%;
   color: white;
 }
@@ -297,6 +297,11 @@ ul li {
   border-top: 1px solid gray;
   border-bottom: 1px solid gray;
   margin-top: 10px;
+}
+
+.activeTimelineSelector {
+  background: #e3e3e3 !important;
+  border-radius: 8px !important; 
 }
 
 .details {

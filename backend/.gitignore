@@ -30,3 +30,8 @@ backend/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# new relic
+newrelic_agent.log
+/newrelic_agent.log
+./newrelic_agent.log
