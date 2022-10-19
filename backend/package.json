@@ -24,7 +24,7 @@
     "morgan": "^1.10.0",
     "newsapi": "^2.4.0",
     "nodemon": "^2.0.1",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "pusher": "^3.0.0",
     "validator": "^13.7.0"
